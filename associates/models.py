@@ -1,0 +1,91 @@
+from django.db import models
+from django.contrib.auth.models import User
+from django.urls import reverse
+
+SKILLS = [
+    ('sound-engineer', 'Fonico'),
+    ('producer', 'Produttore'),
+    ('mixing', 'Mixing'),
+    ('mastering', 'Mastering'),
+    ('session-musician', 'Musicista Session'),
+    ('drummer', 'Batterista'),
+    ('guitarist', 'Chitarrista'),
+    ('bassist', 'Bassista'),
+    ('keyboardist', 'Tastierista'),
+    ('vocalist', 'Vocalist'),
+    ('songwriter', 'Songwriter'),
+    ('arranger', 'Arrangiatore'),
+    ('graphic-designer', 'Grafico'),
+    ('video-editor', 'Video Editor'),
+    ('photographer', 'Fotografo'),
+    ('manager', 'Manager'),
+    ('booking-agent', 'Booking Agent'),
+    ('other', 'Altro'),
+]
+
+EXPERIENCE_LEVELS = [
+    ('beginner', 'Principiante'),
+    ('intermediate', 'Intermedio'),
+    ('advanced', 'Avanzato'),
+    ('professional', 'Professionale'),
+]
+
+class Associate(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    specialization = models.CharField(max_length=100, help_text="Specializzazione principale")
+    skills = models.CharField(max_length=300, help_text="Competenze separate da virgola")
+    experience_level = models.CharField(max_length=20, choices=EXPERIENCE_LEVELS, default='intermediate')
+    
+    # Business Info
+    hourly_rate = models.DecimalField(max_digits=6, decimal_places=2, blank=True, null=True, help_text="Tariffa oraria in €")
+    availability = models.CharField(max_length=200, blank=True, help_text="Disponibilità oraria")
+    
+    # Profile Info
+    bio = models.TextField(max_length=1000, blank=True)
+    location = models.CharField(max_length=100, blank=True)
+    phone = models.CharField(max_length=20, blank=True)
+    website = models.URLField(blank=True)
+    
+    # Portfolio
+    portfolio_description = models.TextField(max_length=500, blank=True)
+    years_experience = models.PositiveIntegerField(blank=True, null=True)
+    
+    # Settings
+    is_available = models.BooleanField(default=True)
+    is_active = models.BooleanField(default=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.user.get_full_name()} - {self.specialization}"
+    
+    def get_absolute_url(self):
+        return reverse('associates:detail', kwargs={'pk': self.pk})
+    
+    def get_skills_list(self):
+        return [s.strip() for s in self.skills.split(',') if s.strip()]
+    
+    def get_rate_display(self):
+        if self.hourly_rate:
+            return f"€{self.hourly_rate}/ora"
+        return "Tariffa da concordare"
+
+class PortfolioItem(models.Model):
+    associate = models.ForeignKey(Associate, on_delete=models.CASCADE, related_name='portfolio_items')
+    title = models.CharField(max_length=200)
+    description = models.TextField(max_length=500, blank=True)
+    image = models.ImageField(upload_to='portfolio/', blank=True, null=True)
+    audio_file = models.FileField(upload_to='portfolio/audio/', blank=True, null=True)
+    external_url = models.URLField(blank=True, help_text="Link esterno (YouTube, SoundCloud, etc.)")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.associate.user.get_full_name()} - {self.title}"
