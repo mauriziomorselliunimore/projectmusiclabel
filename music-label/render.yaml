@@ -6,7 +6,7 @@ services:
     startCommand: gunicorn music-label.wsgi:application
     envVars:
       - key: DJANGO_SETTINGS_MODULE
-        value: music_label.settings
+        value: music-label.settings
       - key: PYTHON_VERSION
         value: 3.10
       - key: SECRET_KEY
