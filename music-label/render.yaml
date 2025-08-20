@@ -10,7 +10,7 @@ services:
       - key: PYTHON_VERSION
         value: 3.10
       - key: SECRET_KEY
-        value: tua_chiave_segreta_super_sicura
+        value: morsellimauriziotechweb
       - key: DEBUG
         value: False
       - key: ALLOWED_HOSTS
