@@ -14,17 +14,11 @@ Questo progetto è distribuito sotto licenza MIT. Sentiti libero di usarlo, modi
 - Django Debug Toolbar per lo sviluppo
 - Psycopg2-binary per la connessione al database
 
-## 📦 STRUTTURA PROGETTO 
+## 📦 STRUTTURA PROGETTO
 
-musiclabel-backend/
-├── music_label/         # Configurazione principale Django
-├── accounts/            # Gestione utenti
-├── artists/             # Gestione artisti
-├── associates/          # Collaboratori e ruoli
-├── core/                # Funzionalità condivise
-├── pyproject.toml       # Configurazione Poetry
-├── manage.py            # Entry point Django
-├── README.md            # Questo file
+La seguente struttura rappresenta l'organizzazione del backend per l'etichetta musicale. Il progetto è costruito con Django e gestito tramite Poetry.
+
+musiclabel-backend/ ├── music_label/ # Configurazione principale Django (settings, urls, wsgi, asgi) ├── accounts/ # Gestione utenti e autenticazione ├── artists/ # Modelli e logica per gli artisti ├── associates/ # Collaboratori, ruoli e relazioni ├── core/ # Funzionalità condivise e utilities ├── pyproject.toml # Configurazione del progetto e dipendenze (Poetry) ├── manage.py # Entry point per comandi Django ├── README.md # Documentazione del progetto
 
 ## 📦 Installazione locale
 
