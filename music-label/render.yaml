@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: musiclabel-backend
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn music_label.wsgi:application
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: music_label.settings
+      - key: PYTHON_VERSION
+        value: 3.10
+      - key: SECRET_KEY
+        value: tua_chiave_segreta_super_sicura
+      - key: DEBUG
+        value: False
+      - key: ALLOWED_HOSTS
+        value: render.com
