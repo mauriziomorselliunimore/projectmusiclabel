@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "musiclabel-backend"
+name = "musiclabel_backend"
 version = "0.1.0"
 description = "Backend per MusicLabel"
 authors = ["Maurizio <318238@studenti.unimore.it>"]
