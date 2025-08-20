@@ -4,6 +4,8 @@ services:
     env: python
     buildCommand: poetry install
     startCommand: gunicorn music_label.wsgi:application
+    region: oregon
+    plan: free
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: music_label.settings
