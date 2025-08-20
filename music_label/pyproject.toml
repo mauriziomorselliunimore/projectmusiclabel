@@ -2,7 +2,7 @@
 name = "musiclabel-backend"
 version = "0.1.0"
 description = "Backend per MusicLabel"
-authors = ["Maurizio <tu@email.it>"]
+authors = ["Maurizio <318238@studenti.unimore.it>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
