@@ -2,13 +2,15 @@ services:
   - type: web
     name: musiclabel-backend
     env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn music-label.wsgi:application
+    buildCommand: poetry install
+    startCommand: gunicorn music_label.wsgi:application
     envVars:
       - key: DJANGO_SETTINGS_MODULE
-        value: music-label.settings
+        value: music_label.settings
       - key: PYTHON_VERSION
         value: 3.10
+      - key: POETRY_VERSION
+        value: 2.1.3
       - key: SECRET_KEY
         value: morsellimauriziotechweb
       - key: DEBUG

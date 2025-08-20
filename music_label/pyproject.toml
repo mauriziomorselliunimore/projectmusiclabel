@@ -1,0 +1,23 @@
+[tool.poetry]
+name = "musiclabel-backend"
+version = "0.1.0"
+description = "Backend per MusicLabel"
+authors = ["Maurizio <tu@email.it>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+django = "^4.2"
+gunicorn = "^21.2.0"
+psycopg2-binary = "^2.9.9"
+python-decouple = "^3.8"
+whitenoise = "^6.6.0"
+
+[tool.poetry.dev-dependencies]
+black = "^24.3.0"
+isort = "^5.12.0"
+django-debug-toolbar = "^4.3.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
