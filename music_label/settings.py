@@ -1,6 +1,6 @@
 import os
 from pathlib import Path
-from decouple import config, Csv
+from decouple import config
 import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -8,7 +8,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # 🔐 Sicurezza
 SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', cast=Csv, default='127.0.0.1,localhost')
+
+# ✅ ALLOWED_HOSTS sicuro
+raw_hosts = config('ALLOWED_HOSTS', default='127.0.0.1,localhost')
+ALLOWED_HOSTS = [h.strip() for h in raw_hosts.split(',') if h.strip()]
 
 # 🧩 App installate
 INSTALLED_APPS = [
@@ -59,22 +62,21 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'music_label.wsgi.application'
 
-# 🗄️ Database
+# 🗄️ Database – usa DATABASE_URL se presente, altrimenti parametri singoli
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': config('DB_NAME', default='musiclabel'),
         'USER': config('DB_USER', default='admin'),
-        'PASSWORD': config('DB_PASSWORD'),
+        'PASSWORD': config('DB_PASSWORD', default=''),
         'HOST': config('DB_HOST', default='localhost'),
         'PORT': config('DB_PORT', default='5432'),
     }
 }
 
-# Override se esiste DATABASE_URL (utile su Render)
 db_from_env = dj_database_url.config(conn_max_age=600, ssl_require=True)
 if db_from_env:
-    DATABASES['default'].update(db_from_env)
+    DATABASES['default'] = db_from_env
 
 # 🔑 Password validation
 AUTH_PASSWORD_VALIDATORS = [
