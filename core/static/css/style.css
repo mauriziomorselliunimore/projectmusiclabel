@@ -1,0 +1,29 @@
+body { font-family: 'Open Sans', sans-serif; }
+h1, h2, h3, .navbar-brand { font-family: 'Montserrat', sans-serif; }
+.text-magenta { color: #ff2e88; }
+
+.bg-hero {
+  background: linear-gradient(135deg, #000, #1b1b1b 50%, #ff2e88 100%);
+  color: white;
+  padding: 100px 0;
+}
+.lead { max-width: 700px; margin: auto; }
+
+.card {
+  background-color: #1b1b1b;
+  border: none;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px rgba(255, 46, 136, 0.3);
+}
+
+.btn-magenta {
+  background-color: #ff2e88;
+  border: none;
+  color: white;
+}
+.btn-magenta:hover {
+  background-color: #e02176;
+}

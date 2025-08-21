@@ -1,55 +1,40 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <title>MusicLabel - Home</title>
-    <style>
-        body { font-family: sans-serif; margin: 2em; }
-        .section { margin-bottom: 3em; }
-        .card { border: 1px solid #ccc; padding: 1em; margin: 0.5em 0; }
-    </style>
-</head>
-<body>
-    <h1>Benvenuto su MusicLabel 🎶</h1>
+{% extends 'base.html' %}
+{% block title %}Benvenuto in MyLabel{% endblock %}
 
-    <form method="get" action="">
-        <input type="text" name="search" placeholder="Cerca artisti o associati" value="{{ search_query }}">
-        <button type="submit">Cerca</button>
-    </form>
+{% block content %}
+<section class="py-5 text-center bg-hero">
+  <div class="container">
+    <h1 class="display-4 fw-bold">Connessioni che fanno musica</h1>
+    <p class="lead mt-3">Trova collaboratori, crea e condividi la tua arte</p>
+    <a href="{% url 'register' %}" class="btn btn-magenta btn-lg mt-3">Inizia ora</a>
+  </div>
+</section>
 
-    {% if search_query %}
-        <div class="section">
-            <h2>Risultati per "{{ search_query }}"</h2>
-            {% if search_results %}
-                {% for result in search_results %}
-                    <div class="card">
-                        <strong>{{ result.user.first_name }}</strong><br>
-                        {% if result.stage_name %}Artista: {{ result.stage_name }}{% endif %}
-                        {% if result.specialization %}Associato: {{ result.specialization }}{% endif %}
-                    </div>
-                {% endfor %}
-            {% else %}
-                <p>Nessun risultato trovato.</p>
-            {% endif %}
+<section class="py-5">
+  <div class="container">
+    <div class="row text-center">
+      <div class="col-md-4 mb-4">
+        <div class="card h-100 p-4">
+          <i class="bi bi-person-vcard display-4 text-magenta"></i>
+          <h3 class="mt-3">Profili dettagliati</h3>
+          <p>Mostra demo, portfolio e competenze</p>
         </div>
-    {% endif %}
-
-    <div class="section">
-        <h2>Artisti recenti</h2>
-        {% for artist in recent_artists %}
-            <div class="card">
-                <strong>{{ artist.user.first_name }}</strong> — {{ artist.stage_name }}
-            </div>
-        {% endfor %}
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="card h-100 p-4">
+          <i class="bi bi-search display-4 text-magenta"></i>
+          <h3 class="mt-3">Ricerca avanzata</h3>
+          <p>Filtra per genere, competenze e budget</p>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="card h-100 p-4">
+          <i class="bi bi-calendar-event display-4 text-magenta"></i>
+          <h3 class="mt-3">Booking integrato</h3>
+          <p>Prenotazioni senza conflitti di orario</p>
+        </div>
+      </div>
     </div>
-
-    <div class="section">
-        <h2>Associati recenti</h2>
-        {% for associate in recent_associates %}
-            <div class="card">
-                <strong>{{ associate.user.first_name }}</strong> — {{ associate.specialization }}
-            </div>
-        {% endfor %}
-    </div>
-</body>
-</html>
+  </div>
+</section>
+{% endblock %}
