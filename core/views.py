@@ -33,4 +33,4 @@ def home(request):
         'search_results': search_results,
         'search_query': query,
     }
-    return render(request, 'core/home.html', context)
+    return render(request, 'core/templates/home.html', context)
