@@ -1,6 +1,6 @@
 body { font-family: 'Open Sans', sans-serif; }
 h1, h2, h3, .navbar-brand { font-family: 'Montserrat', sans-serif; }
-.text-magenta { color: #ff2e88; }
+.text-magenta { color: #d72660; }
 
 .bg-hero {
   background: linear-gradient(135deg, #000, #1b1b1b 50%, #ff2e88 100%);
@@ -20,10 +20,11 @@ h1, h2, h3, .navbar-brand { font-family: 'Montserrat', sans-serif; }
 }
 
 .btn-magenta {
-  background-color: #ff2e88;
+  background: #d72660;
+  color: #fff;
   border: none;
-  color: white;
 }
 .btn-magenta:hover {
-  background-color: #e02176;
+  background: #a81c47;
+  color: #fff;
 }

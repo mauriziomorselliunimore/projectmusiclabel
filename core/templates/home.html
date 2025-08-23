@@ -3,30 +3,61 @@
 
 {% block content %}
 <div class="container mt-5">
-    <div class="text-center mb-4">
-        <h1 class="fw-bold text-magenta">Gestionale per Etichetta Discografica</h1>
+    <div class="text-center mb-5">
+        <h1 class="fw-bold text-magenta display-4 mb-3">
+            <i class="bi bi-music-note-list"></i> Gestionale per Etichetta Discografica
+        </h1>
         <p class="lead">Connetti artisti e professionisti del settore musicale.<br>
         Scopri, collabora, prenota e comunica in un'unica piattaforma.</p>
     </div>
     <div class="row justify-content-center mb-4">
         <div class="col-md-8">
-            <div class="card shadow-sm">
+            <div class="card shadow-lg border-0">
                 <div class="card-body">
-                    <h2 class="h5 mb-3">Funzionalità principali</h2>
-                    <ul>
-                        <li>Registrazione e profili personalizzati per artisti e associati</li>
-                        <li>Ricerca avanzata per generi, competenze e disponibilità</li>
-                        <li>Upload demo musicali e materiale promozionale</li>
-                        <li>Calendario prenotazioni studio con gestione conflitti</li>
-                        <li>Messaggistica interna e notifiche automatiche</li>
-                    </ul>
+                    <h2 class="h5 mb-4 text-magenta"><i class="bi bi-stars"></i> Funzionalità principali</h2>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-person-plus-fill fs-3 text-magenta me-3"></i>
+                                <span>Registrazione e profili personalizzati per artisti e associati</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-search fs-3 text-magenta me-3"></i>
+                                <span>Ricerca avanzata per generi, competenze e disponibilità</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-cloud-arrow-up-fill fs-3 text-magenta me-3"></i>
+                                <span>Upload demo musicali e materiale promozionale</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-calendar-check-fill fs-3 text-magenta me-3"></i>
+                                <span>Calendario prenotazioni studio con gestione conflitti</span>
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                <i class="bi bi-chat-dots-fill fs-3 text-magenta me-3"></i>
+                                <span>Messaggistica interna e notifiche automatiche</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
     <div class="text-center mt-4">
-        <a href="#" class="btn btn-magenta btn-lg me-2">Cerca Collaboratori</a>
-        <a href="#" class="btn btn-outline-light btn-lg">Registrati come Artista</a>
+        <a href="#" class="btn btn-magenta btn-lg me-2 px-4 py-2">
+            <i class="bi bi-search"></i> Cerca Collaboratori
+        </a>
+        <a href="#" class="btn btn-outline-light btn-lg px-4 py-2">
+            <i class="bi bi-person-plus"></i> Registrati come Artista
+        </a>
     </div>
 </div>
 {% endblock %}
