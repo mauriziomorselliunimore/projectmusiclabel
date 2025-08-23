@@ -5,10 +5,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('accounts/', include('accounts.urls')),
-    path('artists/', include('artists.urls')),
-    path('associates/', include('associates.urls')),
-    path('core/', include('core.urls')),
+    path('', include('core.urls')),  # questa riga serve per la root "/"
 ]
 
 # ✅ Debug Toolbar solo in sviluppo
