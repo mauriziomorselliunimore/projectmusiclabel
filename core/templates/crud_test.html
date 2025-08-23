@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <title>CRUD Test</title>
+</head>
+<body>
+    <h1>Artisti</h1>
+    <a href="{% url 'artist_create' %}">Aggiungi Artista</a>
+    <ul>
+        {% for artist in artists %}
+            <li>
+                {{ artist.name }}
+                <a href="{% url 'artist_update' artist.pk %}">Modifica</a>
+                <a href="{% url 'artist_delete' artist.pk %}">Elimina</a>
+            </li>
+        {% empty %}
+            <li>Nessun artista presente.</li>
+        {% endfor %}
+    </ul>
+
+    <h1>Associati</h1>
+    <a href="{% url 'associate_create' %}">Aggiungi Associato</a>
+    <ul>
+        {% for associate in associates %}
+            <li>
+                {{ associate.name }}
+                <a href="{% url 'associate_update' associate.pk %}">Modifica</a>
+                <a href="{% url 'associate_delete' associate.pk %}">Elimina</a>
+            </li>
+        {% empty %}
+            <li>Nessun associato presente.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>
