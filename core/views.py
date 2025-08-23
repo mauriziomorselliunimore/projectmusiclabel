@@ -51,3 +51,7 @@ def profilo(request, user_id):
     User = get_user_model()
     user = get_object_or_404(User, pk=user_id)
     return render(request, 'profilo.html', {'user': user})
+
+def ricerca(request):
+    risultati = []  # Sostituisci con la tua logica di ricerca
+    return render(request, 'ricerca.html', {'risultati': risultati})
