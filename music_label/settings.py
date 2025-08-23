@@ -10,8 +10,11 @@ SECRET_KEY = config('SECRET_KEY')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 # ✅ ALLOWED_HOSTS sicuro
-raw_hosts = config('ALLOWED_HOSTS', default='127.0.0.1,localhost')
-ALLOWED_HOSTS = [h.strip() for h in raw_hosts.split(',') if h.strip()]
+ALLOWED_HOSTS = [
+    'projectmusiclabel.onrender.com',
+    'localhost',
+    '127.0.0.1',
+]
 
 # 🧩 App installate
 INSTALLED_APPS = [
