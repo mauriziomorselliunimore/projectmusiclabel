@@ -1,12 +1,10 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <title>CRUD Test</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %}Gestione Artisti e Associati{% endblock %}
+
+{% block content %}
+<div class="container">
     <h1>Artisti</h1>
-    <a href="{% url 'artist_create' %}">Aggiungi Artista</a>
+    <a href="{% url 'artist_create' %}" class="btn btn-magenta mb-2">Aggiungi Artista</a>
     <ul>
         {% for artist in artists %}
             <li>
@@ -20,7 +18,7 @@
     </ul>
 
     <h1>Associati</h1>
-    <a href="{% url 'associate_create' %}">Aggiungi Associato</a>
+    <a href="{% url 'associate_create' %}" class="btn btn-magenta mb-2">Aggiungi Associato</a>
     <ul>
         {% for associate in associates %}
             <li>
@@ -32,5 +30,5 @@
             <li>Nessun associato presente.</li>
         {% endfor %}
     </ul>
-</body>
-</html>
+</div>
+{% endblock %}

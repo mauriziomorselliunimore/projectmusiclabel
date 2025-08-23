@@ -5,7 +5,11 @@
 <div class="container">
   <div class="row">
     <div class="col-md-4 text-center">
-      <img src="{{ user.profile_image.url }}" alt="Foto profilo" class="img-fluid rounded-circle mb-3">
+      {% if user.profile_image %}
+        <img src="{{ user.profile_image.url }}" alt="Foto profilo" class="img-fluid rounded-circle mb-3">
+      {% else %}
+        <img src="{% static 'img/default-profile.png' %}" alt="Foto profilo" class="img-fluid rounded-circle mb-3">
+      {% endif %}
       <h2>{{ user.username }}</h2>
       <p class="text-magenta">{{ user.genre }}</p>
     </div>
@@ -16,6 +20,8 @@
       <ul>
         {% for demo in user.demos.all %}
           <li>{{ demo.title }} - {{ demo.genre }}</li>
+        {% empty %}
+          <li>Nessuna demo caricata.</li>
         {% endfor %}
       </ul>
     </div>

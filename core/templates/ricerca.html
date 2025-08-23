@@ -11,7 +11,11 @@
     {% for artista in risultati %}
       <div class="col-md-4 mb-4">
         <div class="card h-100 text-center">
-          <img src="{{ artista.profile_image.url }}" class="card-img-top" alt="Foto artista">
+          {% if artista.profile_image %}
+            <img src="{{ artista.profile_image.url }}" class="card-img-top" alt="Foto artista">
+          {% else %}
+            <img src="{% static 'img/default-profile.png' %}" class="card-img-top" alt="Foto artista">
+          {% endif %}
           <div class="card-body">
             <h5 class="card-title">{{ artista.username }}</h5>
             <p class="text-magenta">{{ artista.genre }}</p>
