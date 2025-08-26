@@ -1,8 +1,6 @@
 import os
 from pathlib import Path
-import dj_database_url
 
-# Build paths
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # 🔐 Security
@@ -17,11 +15,9 @@ ALLOWED_HOSTS = [
     '0.0.0.0',
 ]
 
-# Aggiungi l'hostname di Render se disponibile
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
 
-# Aggiungi domini personalizzati se specificati
 custom_hosts = os.environ.get('ALLOWED_HOSTS', '')
 if custom_hosts:
     ALLOWED_HOSTS.extend(custom_hosts.split(','))
@@ -45,7 +41,7 @@ INSTALLED_APPS = [
 # ⚙️ Middleware
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Essenziale per Render
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -77,7 +73,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'music_label.wsgi.application'
 
-# 🗄️ Database - Render PostgreSQL
+# 🗄️ Database con fallback robusto
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -85,10 +81,23 @@ DATABASES = {
     }
 }
 
-# Usa DATABASE_URL se disponibile (Render PostgreSQL)
+# Prova a usare PostgreSQL se DATABASE_URL è disponibile e valida
 DATABASE_URL = os.environ.get('DATABASE_URL')
-if DATABASE_URL:
-    DATABASES['default'] = dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
+USE_SQLITE = os.environ.get('USE_SQLITE', 'False').lower() == 'true'
+
+if DATABASE_URL and not USE_SQLITE:
+    try:
+        import dj_database_url
+        db_config = dj_database_url.parse(DATABASE_URL, conn_max_age=600, ssl_require=True)
+        
+        # Test rapido della configurazione
+        if db_config and db_config.get('HOST'):
+            DATABASES['default'] = db_config
+            print(f"📊 Usando PostgreSQL: {db_config['HOST']}")
+        else:
+            print("⚠️ DATABASE_URL non valida, fallback a SQLite")
+    except Exception as e:
+        print(f"⚠️ Errore PostgreSQL: {e}, fallback a SQLite")
 
 # 🔑 Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -104,7 +113,7 @@ TIME_ZONE = 'Europe/Rome'
 USE_I18N = True
 USE_TZ = True
 
-# 📁 Static files - Render Configuration
+# 📁 Static files
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
@@ -112,37 +121,29 @@ STATICFILES_DIRS = [
     BASE_DIR / 'core' / 'static',
 ] if (BASE_DIR / 'core' / 'static').exists() else []
 
-# Whitenoise settings per Render
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 WHITENOISE_USE_FINDERS = True
 WHITENOISE_AUTOREFRESH = True
 
-# 📁 Media files - IMPORTANTE per Render
+# 📁 Media files (non più necessario con URL esterni, ma manteniamo per compatibilità)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# ⚠️ NOTA: Su Render free plan, i media files non persistono!
-# Per file permanenti, considera:
-# 1. Upgrade a plan paid con persistent disk
-# 2. Usa servizio esterno come Cloudinary o AWS S3
-
-# 🔐 Security Settings per Production
+# 🔐 Security Settings
 if not DEBUG:
     SECURE_BROWSER_XSS_FILTER = True
     SECURE_CONTENT_TYPE_NOSNIFF = True
     X_FRAME_OPTIONS = 'DENY'
-    SECURE_HSTS_SECONDS = 31536000 if RENDER_EXTERNAL_HOSTNAME else 0
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
     
-    # CSRF e Session security
-    CSRF_COOKIE_SECURE = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_TRUSTED_ORIGINS = [
-        f'https://{RENDER_EXTERNAL_HOSTNAME}' if RENDER_EXTERNAL_HOSTNAME else 'http://localhost'
-    ]
+    if RENDER_EXTERNAL_HOSTNAME:
+        SECURE_HSTS_SECONDS = 31536000
+        SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+        SECURE_HSTS_PRELOAD = True
+        CSRF_COOKIE_SECURE = True
+        SESSION_COOKIE_SECURE = True
+        CSRF_TRUSTED_ORIGINS = [f'https://{RENDER_EXTERNAL_HOSTNAME}']
 
-# 📧 Email Configuration
+# 📧 Email
 if not DEBUG:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
     EMAIL_HOST = os.environ.get('EMAIL_HOST', 'smtp.gmail.com')
@@ -154,29 +155,15 @@ if not DEBUG:
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# 🧪 Debug toolbar (solo in sviluppo locale)
-if DEBUG and not RENDER_EXTERNAL_HOSTNAME:
-    try:
-        import debug_toolbar
-        INSTALLED_APPS += ['debug_toolbar']
-        MIDDLEWARE.insert(1, 'debug_toolbar.middleware.DebugToolbarMiddleware')
-        INTERNAL_IPS = ['127.0.0.1', '::1']
-    except ImportError:
-        pass
-
-# ✅ Default settings
+# ✅ Defaults
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# File upload limits
-FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024   # 10MB
-
-# Auth URLs
+# Auth
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 LOGIN_URL = '/accounts/login/'
 
-# Message tags per Bootstrap
+# Messages
 MESSAGE_TAGS = {
     'debug': 'secondary',
     'info': 'info',
@@ -185,37 +172,14 @@ MESSAGE_TAGS = {
     'error': 'danger',
 }
 
-# 📊 Logging per Render
+# 📊 Logging semplificato per Render
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
-            'style': '{',
-        },
-        'simple': {
-            'format': '{levelname} {message}',
-            'style': '{',
-        },
-    },
     'handlers': {
         'console': {
             'level': 'INFO',
             'class': 'logging.StreamHandler',
-            'formatter': 'simple',
-        },
-        'file': {
-            'level': 'ERROR',
-            'class': 'logging.handlers.RotatingFileHandler',
-            'filename': BASE_DIR / 'logs' / 'django.log',
-            'maxBytes': 1024*1024*15,  # 15MB
-            'backupCount': 10,
-            'formatter': 'verbose',
-        } if (BASE_DIR / 'logs').exists() else {
-            'level': 'ERROR',
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple',
         },
     },
     'root': {
@@ -224,18 +188,9 @@ LOGGING = {
     },
     'loggers': {
         'django': {
-            'handlers': ['console', 'file'] if (BASE_DIR / 'logs').exists() else ['console'],
-            'level': 'INFO',
-            'propagate': False,
-        },
-        'music_label': {
             'handlers': ['console'],
-            'level': 'DEBUG' if DEBUG else 'INFO',
+            'level': 'INFO',
             'propagate': False,
         },
     },
 }
-
-# Crea directory logs se non esiste (locale)
-if not RENDER_EXTERNAL_HOSTNAME:  # Solo in locale
-    os.makedirs(BASE_DIR / 'logs', exist_ok=True)
