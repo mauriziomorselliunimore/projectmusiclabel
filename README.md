@@ -28,3 +28,13 @@ Per installare il progetto in locale:
 poetry install
 poetry run python manage.py migrate
 poetry run python manage.py runserver
+
+
+📋 Per testare:
+Dopo il deploy, il database sarà automaticamente popolato con:
+
+Admin: admin / admin123
+Artisti: marco_blues, sofia_pop, dj_elektro / password123
+Professionisti: luca_sound, anna_producer / password123
+
+Tutto con avatar, demo e portfolio funzionanti usando solo URL esterni! 🎉✨

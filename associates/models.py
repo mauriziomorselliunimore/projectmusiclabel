@@ -78,9 +78,11 @@ class PortfolioItem(models.Model):
     associate = models.ForeignKey(Associate, on_delete=models.CASCADE, related_name='portfolio_items')
     title = models.CharField(max_length=200)
     description = models.TextField(max_length=500, blank=True)
-    image = models.ImageField(upload_to='portfolio/', blank=True, null=True)
-    audio_file = models.FileField(upload_to='portfolio/audio/', blank=True, null=True)
-    external_url = models.URLField(blank=True, help_text="Link esterno (YouTube, SoundCloud, etc.)")
+    
+    # URL esterni invece di file upload
+    external_image_url = models.URLField(blank=True, help_text="Link a immagine (Imgur, Google Drive, etc.)")
+    external_audio_url = models.URLField(blank=True, help_text="Link audio (SoundCloud, YouTube, etc.)")
+    external_url = models.URLField(blank=True, help_text="Link esterno principale (YouTube, SoundCloud, sito web, etc.)")
     
     created_at = models.DateTimeField(auto_now_add=True)
     
@@ -89,3 +91,27 @@ class PortfolioItem(models.Model):
     
     def __str__(self):
         return f"{self.associate.user.get_full_name()} - {self.title}"
+    
+    def get_primary_url(self):
+        """Restituisce l'URL principale da mostrare"""
+        return self.external_url or self.external_audio_url or self.external_image_url
+    
+    def get_platform(self):
+        """Identifica la piattaforma dal URL principale"""
+        url = self.get_primary_url()
+        if not url:
+            return None
+            
+        url = url.lower()
+        if 'youtube.com' in url or 'youtu.be' in url:
+            return 'youtube'
+        elif 'soundcloud.com' in url:
+            return 'soundcloud'
+        elif 'vimeo.com' in url:
+            return 'vimeo'
+        elif 'drive.google.com' in url:
+            return 'drive'
+        elif 'imgur.com' in url:
+            return 'imgur'
+        else:
+            return 'website'

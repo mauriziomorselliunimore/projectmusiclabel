@@ -34,15 +34,16 @@ class ArtistForm(forms.ModelForm):
 class DemoForm(forms.ModelForm):
     class Meta:
         model = Demo
-        fields = ['title', 'audio_file', 'genre', 'description', 'duration', 'is_public']
+        fields = ['title', 'external_audio_url', 'genre', 'description', 'duration', 'is_public']
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': 'Titolo della canzone'}),
+            'external_audio_url': forms.URLInput(attrs={'placeholder': 'https://soundcloud.com/artista/canzone'}),
             'description': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Descrizione, storia dietro la canzone...'}),
             'duration': forms.TextInput(attrs={'placeholder': '3:45'}),
         }
         labels = {
             'title': 'Titolo',
-            'audio_file': 'File Audio',
+            'external_audio_url': 'Link Audio',
             'genre': 'Genere',
             'description': 'Descrizione',
             'duration': 'Durata',
@@ -51,4 +52,7 @@ class DemoForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['audio_file'].help_text = 'Formati supportati: MP3, WAV (max 10MB)'
+        self.fields['external_audio_url'].help_text = (
+            'Link a SoundCloud, YouTube, Spotify, Bandcamp, etc. '
+            'Esempio: https://soundcloud.com/artista/canzone'
+        )

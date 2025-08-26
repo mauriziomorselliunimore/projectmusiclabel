@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% block title %}{{ user.get_full_name }} - Profilo{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="mb-3">
+                        {% if profile.external_avatar_url %}
+                            <img src="{{ profile.external_avatar_url }}" alt="Foto profilo" 
+                                 class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover;"
+                                 onerror="this.onerror=null; this.src='{{ profile.get_avatar_url }}';">
+                        {% else %}
+                            <img src="{{ profile.get_avatar_url }}" alt="Avatar Gravatar" 
+                                 class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">
+                        {% endif %}
+                    </div>
+                    
+                    <h4 class="text-light">{{ user.get_full_name }}</h4>
+                    <p class="text-magenta">@{{ user.username }}</p>
+                    
+                    {% if profile.user_type %}
+                    <span class="badge bg-secondary mb-3">
+                        {% if profile.user_type == 'artist' %}
+                            🎤 Artista
+                        {% else %}
+                            🔧 Associato
+                        {% endif %}
+                    </span>
+                    {% endif %}
+                    
+                    {% if profile.location %}
+                    <p class="text-muted">
+                        <i class="bi bi-geo-alt"></i> {{ profile.location }}
+                    </p>
+                    {% endif %}
+                    
+                    <a href="{% url 'accounts:profile_edit' %}" class="btn btn-magenta btn-sm">
+                        <i class="bi bi-pencil"></i> Modifica Profilo
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="text-light mb-3">
+                        <i class="bi bi-person-lines-fill"></i> Informazioni Profilo
+                    </h5>
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong class="text-light">Email:</strong></div>
+                        <div class="col-sm-9 text-muted">{{ user.email }}</div>
+                    </div>
+                    
+                    {% if profile.phone %}
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong class="text-light">Telefono:</strong></div>
+                        <div class="col-sm-9 text-muted">{{ profile.phone }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    {% if profile.bio %}
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong class="text-light">Biografia:</strong></div>
+                        <div class="col-sm-9 text-muted">{{ profile.bio }}</div>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="row mb-3">
+                        <div class="col-sm-3"><strong class="text-light">Membro dal:</strong></div>
+                        <div class="col-sm-9 text-muted">{{ profile.created_at|date:"d F Y" }}</div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        {% if profile.user_type == 'artist' and user.artist %}
+                            <a href="{% url 'artists:detail' user.artist.pk %}" class="btn btn-outline-light">
+                                <i class="bi bi-mic"></i> Visualizza Profilo Artista
+                            </a>
+                        {% elif profile.user_type == 'associate' and user.associate %}
+                            <a href="{% url 'associates:detail' user.associate.pk %}" class="btn btn-outline-light">
+                                <i class="bi bi-tools"></i> Visualizza Profilo Professionale
+                            </a>
+                        {% else %}
+                            <div class="alert alert-info">
+                                <i class="bi bi-info-circle"></i>
+                                {% if profile.user_type == 'artist' %}
+                                    Completa il tuo profilo artista per iniziare!
+                                    <a href="{% url 'artists:create' %}" class="btn btn-sm btn-magenta ms-2">
+                                        Crea Profilo Artista
+                                    </a>
+                                {% else %}
+                                    Completa il tuo profilo professionale per iniziare!
+                                    <a href="{% url 'associates:create' %}" class="btn btn-sm btn-magenta ms-2">
+                                        Crea Profilo Associato
+                                    </a>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

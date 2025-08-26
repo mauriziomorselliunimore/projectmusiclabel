@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% block title %}Professionisti - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="text-light">
+                    <i class="bi bi-tools text-magenta"></i> Professionisti
+                </h1>
+                {% if user.is_authenticated and user.profile.user_type == 'associate' and not user.associate %}
+                    <a href="{% url 'associates:create' %}" class="btn btn-magenta">
+                        <i class="bi bi-plus-circle"></i> Crea Profilo Professionale
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <input type="text" name="search" value="{{ search_query }}" 
+                                   class="form-control" placeholder="Cerca per nome, competenze...">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" name="skill" value="{{ skill_filter }}" 
+                                   class="form-control" placeholder="Filtra per competenza...">
+                        </div>
+                        <div class="col-md-3">
+                            <input type="text" name="location" value="{{ location_filter }}" 
+                                   class="form-control" placeholder="Località...">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-magenta w-100">
+                                <i class="bi bi-search"></i> Cerca
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        {% for associate in associates %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="text-center mb-3">
+                        <i class="bi bi-gear-fill" style="font-size: 3rem; color: #ff2e88;"></i>
+                        <h5 class="card-title text-light mt-2">{{ associate.user.get_full_name }}</h5>
+                        <p class="text-magenta mb-1">{{ associate.specialization }}</p>
+                        
+                        {% if associate.experience_level %}
+                        <span class="badge bg-secondary">{{ associate.get_experience_level_display }}</span>
+                        {% endif %}
+                        
+                        {% if associate.years_experience %}
+                        <small class="text-muted d-block">{{ associate.years_experience }} anni di esperienza</small>
+                        {% endif %}
+                    </div>
+                    
+                    {% if associate.skills %}
+                    <div class="mb-3">
+                        {% for skill in associate.get_skills_list %}
+                        <span class="badge bg-dark me-1 mb-1">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    <div class="text-center mb-3">
+                        {% if associate.location %}
+                        <p class="text-muted small mb-1">
+                            <i class="bi bi-geo-alt"></i> {{ associate.location }}
+                        </p>
+                        {% endif %}
+                        
+                        {% if associate.hourly_rate %}
+                        <p class="text-success small mb-1">
+                            <i class="bi bi-currency-euro"></i> {{ associate.get_rate_display }}
+                        </p>
+                        {% endif %}
+                        
+                        {% if associate.is_available %}
+                        <span class="badge bg-success">
+                            <i class="bi bi-check-circle"></i> Disponibile
+                        </span>
+                        {% else %}
+                        <span class="badge bg-warning">
+                            <i class="bi bi-clock"></i> Occupato
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if associate.bio %}
+                    <p class="text-light small">{{ associate.bio|truncatewords:20 }}</p>
+                    {% endif %}
+                    
+                    <div class="text-center mt-auto">
+                        <a href="{% url 'associates:detail' associate.pk %}" class="btn btn-outline-light btn-sm">
+                            <i class="bi bi-eye"></i> Visualizza Profilo
+                        </a>
+                        {% if associate.website %}
+                        <a href="{{ associate.website }}" target="_blank" class="btn btn-info btn-sm">
+                            <i class="bi bi-globe"></i> Sito
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">
+            <div class="card">
+                <div class="card-body py-5">
+                    <i class="bi bi-tools" style="font-size: 4rem; color: #666;"></i>
+                    <h4 class="mt-3 text-muted">Nessun professionista trovato</h4>
+                    <p class="text-muted">Prova a modificare i criteri di ricerca.</p>
+                    {% if user.is_authenticated and user.profile.user_type == 'associate' %}
+                    <a href="{% url 'associates:create' %}" class="btn btn-magenta mt-3">
+                        <i class="bi bi-plus-circle"></i> Crea il tuo Profilo Professionale
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

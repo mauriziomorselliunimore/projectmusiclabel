@@ -56,7 +56,7 @@ class Artist(models.Model):
 class Demo(models.Model):
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='demos')
     title = models.CharField(max_length=200)
-    audio_file = models.FileField(upload_to='demos/')
+    external_audio_url = models.URLField(blank=True, help_text="Link a SoundCloud, YouTube, Spotify, etc.")
     genre = models.CharField(max_length=50, choices=MUSIC_GENRES)
     description = models.TextField(max_length=500, blank=True)
     duration = models.CharField(max_length=10, blank=True, help_text="mm:ss")
@@ -70,12 +70,19 @@ class Demo(models.Model):
     def __str__(self):
         return f"{self.artist.stage_name} - {self.title}"
     
-    def get_file_size(self):
-        try:
-            size = self.audio_file.size
-            if size < 1024*1024:
-                return f"{size/1024:.1f} KB"
-            else:
-                return f"{size/(1024*1024):.1f} MB"
-        except:
-            return "Unknown"
+    def get_platform(self):
+        """Identifica la piattaforma dal URL"""
+        if not self.external_audio_url:
+            return None
+        
+        url = self.external_audio_url.lower()
+        if 'youtube.com' in url or 'youtu.be' in url:
+            return 'youtube'
+        elif 'soundcloud.com' in url:
+            return 'soundcloud'
+        elif 'spotify.com' in url:
+            return 'spotify'
+        elif 'bandcamp.com' in url:
+            return 'bandcamp'
+        else:
+            return 'other'

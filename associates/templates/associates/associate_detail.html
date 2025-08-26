@@ -1,0 +1,240 @@
+{% extends 'base.html' %}
+{% block title %}{{ associate.user.get_full_name }} - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card text-center">
+                <div class="card-body">
+                    <div class="mb-3">
+                        {% if associate.user.profile.external_avatar_url %}
+                            <img src="{{ associate.user.profile.external_avatar_url }}" alt="Foto profilo" 
+                                 class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover;"
+                                 onerror="this.onerror=null; this.src='{{ associate.user.profile.get_avatar_url }}';">
+                        {% else %}
+                            <img src="{{ associate.user.profile.get_avatar_url }}" alt="Avatar" 
+                                 class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">
+                        {% endif %}
+                    </div>
+                    
+                    <h4 class="text-light">{{ associate.user.get_full_name }}</h4>
+                    <p class="text-magenta">{{ associate.specialization }}</p>
+                    
+                    {% if associate.experience_level %}
+                    <span class="badge bg-secondary mb-2">{{ associate.get_experience_level_display }}</span>
+                    {% endif %}
+                    
+                    {% if associate.years_experience %}
+                    <p class="text-muted small">{{ associate.years_experience }} anni di esperienza</p>
+                    {% endif %}
+                    
+                    {% if associate.location %}
+                    <p class="text-muted">
+                        <i class="bi bi-geo-alt"></i> {{ associate.location }}
+                    </p>
+                    {% endif %}
+                    
+                    {% if associate.hourly_rate %}
+                    <div class="alert alert-success py-2">
+                        <strong>{{ associate.get_rate_display }}</strong>
+                    </div>
+                    {% endif %}
+                    
+                    {% if associate.availability %}
+                    <p class="text-muted small">
+                        <i class="bi bi-clock"></i> {{ associate.availability }}
+                    </p>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        {% if associate.is_available %}
+                        <span class="badge bg-success">
+                            <i class="bi bi-check-circle"></i> Disponibile per nuovi progetti
+                        </span>
+                        {% else %}
+                        <span class="badge bg-warning">
+                            <i class="bi bi-clock"></i> Attualmente occupato
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if associate.phone or associate.website %}
+                    <div class="mt-3">
+                        {% if associate.phone %}
+                        <a href="tel:{{ associate.phone }}" class="btn btn-outline-light btn-sm me-1">
+                            <i class="bi bi-telephone"></i> Chiama
+                        </a>
+                        {% endif %}
+                        {% if associate.website %}
+                        <a href="{{ associate.website }}" target="_blank" class="btn btn-info btn-sm me-1">
+                            <i class="bi bi-globe"></i> Sito Web
+                        </a>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if is_owner %}
+                    <div class="mt-3">
+                        <a href="{% url 'associates:edit' associate.pk %}" class="btn btn-magenta btn-sm">
+                            <i class="bi bi-pencil"></i> Modifica
+                        </a>
+                        <a href="{% url 'associates:portfolio_add' %}" class="btn btn-outline-light btn-sm">
+                            <i class="bi bi-plus-circle"></i> Aggiungi Portfolio
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            {% if associate.skills %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="text-light mb-3">
+                        <i class="bi bi-star-fill"></i> Competenze
+                    </h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for skill in associate.get_skills_list %}
+                        <span class="badge bg-magenta fs-6">{{ skill }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if associate.bio %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="text-light mb-3">
+                        <i class="bi bi-person-lines-fill"></i> Biografia Professionale
+                    </h5>
+                    <p class="text-muted">{{ associate.bio }}</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if associate.portfolio_description %}
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="text-light mb-3">
+                        <i class="bi bi-briefcase-fill"></i> Portfolio
+                    </h5>
+                    <p class="text-muted">{{ associate.portfolio_description }}</p>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="text-light mb-3">
+                        <i class="bi bi-collection"></i> Lavori Realizzati 
+                        <span class="badge bg-magenta">{{ portfolio_items.count }}</span>
+                    </h5>
+                    
+                    {% if portfolio_items %}
+                    <div class="row">
+                        {% for item in portfolio_items %}
+                        <div class="col-md-6 mb-3">
+                            <div class="card bg-dark">
+                                <div class="card-body">
+                                    {% if item.external_image_url %}
+                                    <img src="{{ item.external_image_url }}" alt="{{ item.title }}" 
+                                         class="img-fluid rounded mb-2" style="max-height: 150px; width: 100%; object-fit: cover;"
+                                         onerror="this.style.display='none'">
+                                    {% endif %}
+                                    
+                                    <div class="d-flex justify-content-between align-items-start">
+                                        <div class="flex-grow-1">
+                                            <h6 class="text-light">{{ item.title }}</h6>
+                                            {% if item.description %}
+                                            <p class="text-muted small">{{ item.description|truncatewords:20 }}</p>
+                                            {% endif %}
+                                            <small class="text-muted">
+                                                <i class="bi bi-calendar3"></i> {{ item.created_at|date:"M Y" }}
+                                                {% if item.get_platform %}
+                                                <span class="ms-2">
+                                                    {% if item.get_platform == 'youtube' %}
+                                                        <i class="bi bi-youtube text-danger"></i>
+                                                    {% elif item.get_platform == 'soundcloud' %}
+                                                        <i class="bi bi-music-note text-warning"></i>
+                                                    {% elif item.get_platform == 'drive' %}
+                                                        <i class="bi bi-cloud text-info"></i>
+                                                    {% elif item.get_platform == 'imgur' %}
+                                                        <i class="bi bi-image text-success"></i>
+                                                    {% else %}
+                                                        <i class="bi bi-link-45deg"></i>
+                                                    {% endif %}
+                                                </span>
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                        
+                                        {% if is_owner %}
+                                        <div class="dropdown">
+                                            <button class="btn btn-sm btn-outline-light" type="button" data-bs-toggle="dropdown">
+                                                <i class="bi bi-three-dots-vertical"></i>
+                                            </button>
+                                            <ul class="dropdown-menu dropdown-menu-dark">
+                                                <li>
+                                                    <a class="dropdown-item" href="{% url 'associates:portfolio_delete' item.pk %}">
+                                                        <i class="bi bi-trash"></i> Elimina
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="mt-2 d-flex gap-2">
+                                        {% if item.get_primary_url %}
+                                        <a href="{{ item.get_primary_url }}" target="_blank" class="btn btn-outline-light btn-sm flex-grow-1">
+                                            <i class="bi bi-box-arrow-up-right"></i> Visualizza
+                                        </a>
+                                        {% endif %}
+                                        
+                                        {% if item.external_audio_url and item.external_audio_url != item.get_primary_url %}
+                                        <a href="{{ item.external_audio_url }}" target="_blank" class="btn btn-outline-warning btn-sm">
+                                            <i class="bi bi-play-circle"></i> Audio
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <i class="bi bi-briefcase" style="font-size: 3rem; color: #666;"></i>
+                        <h5 class="text-muted mt-3">Nessun lavoro nel portfolio</h5>
+                        {% if is_owner %}
+                        <p class="text-muted">Aggiungi i tuoi primi lavori con link esterni!</p>
+                        <div class="alert alert-info mt-3">
+                            <i class="bi bi-lightbulb"></i>
+                            <strong>Suggerimento:</strong> Carica i tuoi lavori su YouTube, SoundCloud, 
+                            o condividi le immagini su Imgur, poi aggiungi i link qui.
+                        </div>
+                        <a href="{% url 'associates:portfolio_add' %}" class="btn btn-magenta">
+                            <i class="bi bi-plus-circle"></i> Aggiungi Lavoro
+                        </a>
+                        {% else %}
+                        <p class="text-muted">Il professionista non ha ancora condiviso i suoi lavori.</p>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row mt-4">
+        <div class="col-12">
+            <a href="{% url 'associates:list' %}" class="btn btn-outline-light">
+                <i class="bi bi-arrow-left"></i> Torna alla Lista Professionisti
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

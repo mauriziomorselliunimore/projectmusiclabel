@@ -1,0 +1,136 @@
+{% extends 'base.html' %}
+{% block title %}Modifica Profilo - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="text-light mb-0">
+                        <i class="bi bi-pencil-square"></i> Modifica Profilo
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-light">Nome</label>
+                                <input type="text" name="first_name" class="form-control" 
+                                       value="{{ user.first_name }}" placeholder="Il tuo nome">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-light">Cognome</label>
+                                <input type="text" name="last_name" class="form-control" 
+                                       value="{{ user.last_name }}" placeholder="Il tuo cognome">
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-light">Email</label>
+                            <input type="email" name="email" class="form-control" 
+                                   value="{{ user.email }}" placeholder="tua@email.com">
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_phone" class="form-label text-light">Telefono</label>
+                            <input type="text" name="phone" class="form-control" id="id_phone"
+                                   value="{{ form.phone.value|default:'' }}" placeholder="+39 123 456 7890">
+                            {% if form.phone.errors %}
+                                <div class="text-danger small">{{ form.phone.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_location" class="form-label text-light">Località</label>
+                            <input type="text" name="location" class="form-control" id="id_location"
+                                   value="{{ form.location.value|default:'' }}" placeholder="Roma, Italia">
+                            {% if form.location.errors %}
+                                <div class="text-danger small">{{ form.location.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_bio" class="form-label text-light">Biografia</label>
+                            <textarea name="bio" class="form-control" id="id_bio" rows="4" 
+                                      placeholder="Racconta qualcosa di te...">{{ form.bio.value|default:'' }}</textarea>
+                            {% if form.bio.errors %}
+                                <div class="text-danger small">{{ form.bio.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_external_avatar_url" class="form-label text-light">
+                                <i class="bi bi-image"></i> Link Foto Profilo
+                            </label>
+                            <input type="url" name="external_avatar_url" class="form-control" id="id_external_avatar_url"
+                                   value="{{ form.external_avatar_url.value|default:'' }}" 
+                                   placeholder="https://imgur.com/abc123.jpg">
+                            <div class="form-text text-muted">
+                                <small>
+                                    <i class="bi bi-info-circle"></i>
+                                    Carica la tua foto su <a href="https://imgur.com" target="_blank" class="text-magenta">Imgur</a> 
+                                    o <a href="https://drive.google.com" target="_blank" class="text-magenta">Google Drive</a> 
+                                    e copia qui il link. Se vuoto, useremo Gravatar.
+                                </small>
+                            </div>
+                            {% if form.external_avatar_url.errors %}
+                                <div class="text-danger small">{{ form.external_avatar_url.errors|join:", " }}</div>
+                            {% endif %}
+                            
+                            <!-- Anteprima immagine -->
+                            {% if profile.external_avatar_url %}
+                                <div class="mt-2">
+                                    <img src="{{ profile.external_avatar_url }}" alt="Foto profilo" 
+                                         class="rounded" style="max-width: 100px; max-height: 100px; object-fit: cover;"
+                                         onerror="this.style.display='none'">
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="bi bi-lightbulb"></i>
+                            <strong>Suggerimento:</strong> Per caricare immagini facilmente:
+                            <ul class="mb-0 mt-2">
+                                <li>📷 <strong>Imgur:</strong> Gratuito, facile, link diretto alle immagini</li>
+                                <li>☁️ <strong>Google Drive:</strong> Condividi il file e usa il link pubblico</li>
+                                <li>🌐 <strong>Gravatar:</strong> Se non inserisci niente, usiamo la tua email per Gravatar</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-magenta">
+                                <i class="bi bi-check-lg"></i> Salva Modifiche
+                            </button>
+                            <a href="{% url 'accounts:profile' %}" class="btn btn-outline-light">
+                                <i class="bi bi-arrow-left"></i> Annulla
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control, .form-select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.form-control:focus, .form-select:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #ff2e88;
+    color: #fff;
+    box-shadow: 0 0 0 0.25rem rgba(255, 46, 136, 0.25);
+}
+
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+</style>
+{% endblock %}

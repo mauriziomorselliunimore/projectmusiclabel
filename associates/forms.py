@@ -39,21 +39,24 @@ class AssociateForm(forms.ModelForm):
 class PortfolioItemForm(forms.ModelForm):
     class Meta:
         model = PortfolioItem
-        fields = ['title', 'description', 'image', 'audio_file', 'external_url']
+        fields = ['title', 'description', 'external_image_url', 'external_audio_url', 'external_url']
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': 'Nome del progetto/lavoro'}),
             'description': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Descrizione del lavoro svolto...'}),
-            'external_url': forms.URLInput(attrs={'placeholder': 'https://youtube.com/watch?v=... (opzionale)'}),
+            'external_image_url': forms.URLInput(attrs={'placeholder': 'https://imgur.com/abc123.jpg (opzionale)'}),
+            'external_audio_url': forms.URLInput(attrs={'placeholder': 'https://soundcloud.com/... (opzionale)'}),
+            'external_url': forms.URLInput(attrs={'placeholder': 'https://youtube.com/watch?v=... (link principale)'}),
         }
         labels = {
             'title': 'Titolo',
             'description': 'Descrizione',
-            'image': 'Immagine',
-            'audio_file': 'File Audio',
-            'external_url': 'Link esterno',
+            'external_image_url': 'Link Immagine',
+            'external_audio_url': 'Link Audio',
+            'external_url': 'Link Principale',
         }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['image'].help_text = 'JPG, PNG (max 5MB)'
-        self.fields['audio_file'].help_text = 'MP3, WAV (max 10MB)'
+        self.fields['external_image_url'].help_text = 'Link a immagine online (Imgur, Google Drive, etc.)'
+        self.fields['external_audio_url'].help_text = 'Link audio (SoundCloud, YouTube, etc.)'
+        self.fields['external_url'].help_text = 'Link principale del progetto (YouTube, sito web, etc.)'

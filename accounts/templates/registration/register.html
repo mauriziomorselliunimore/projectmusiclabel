@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+{% block title %}Registrazione - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <h2 class="text-light">
+                            <i class="bi bi-person-plus-fill text-magenta"></i> Registrazione
+                        </h2>
+                        <p class="text-muted">Crea il tuo account MyLabel</p>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_first_name" class="form-label text-light">Nome</label>
+                                <input type="text" name="first_name" class="form-control" 
+                                       id="id_first_name" value="{{ form.first_name.value|default:'' }}" 
+                                       placeholder="Il tuo nome" required>
+                                {% if form.first_name.errors %}
+                                    <div class="text-danger small">{{ form.first_name.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_last_name" class="form-label text-light">Cognome</label>
+                                <input type="text" name="last_name" class="form-control" 
+                                       id="id_last_name" value="{{ form.last_name.value|default:'' }}" 
+                                       placeholder="Il tuo cognome" required>
+                                {% if form.last_name.errors %}
+                                    <div class="text-danger small">{{ form.last_name.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label text-light">Username</label>
+                            <input type="text" name="username" class="form-control" 
+                                   id="id_username" value="{{ form.username.value|default:'' }}" 
+                                   placeholder="Scegli un username unico" required>
+                            {% if form.username.errors %}
+                                <div class="text-danger small">{{ form.username.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_email" class="form-label text-light">Email</label>
+                            <input type="email" name="email" class="form-control" 
+                                   id="id_email" value="{{ form.email.value|default:'' }}" 
+                                   placeholder="tua.email@esempio.com" required>
+                            {% if form.email.errors %}
+                                <div class="text-danger small">{{ form.email.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_user_type" class="form-label text-light">Tipo Account</label>
+                            <select name="user_type" class="form-control" id="id_user_type" required>
+                                <option value="">Seleziona il tipo di account</option>
+                                <option value="artist" {% if form.user_type.value == 'artist' %}selected{% endif %}>
+                                    🎤 Artista - Musicista che vuole essere scoperto
+                                </option>
+                                <option value="associate" {% if form.user_type.value == 'associate' %}selected{% endif %}>
+                                    🔧 Associato - Professionista del settore (fonico, producer, etc.)
+                                </option>
+                            </select>
+                            {% if form.user_type.errors %}
+                                <div class="text-danger small">{{ form.user_type.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_password1" class="form-label text-light">Password</label>
+                            <input type="password" name="password1" class="form-control" 
+                                   id="id_password1" placeholder="Inserisci una password sicura" required>
+                            {% if form.password1.errors %}
+                                <div class="text-danger small">{{ form.password1.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="id_password2" class="form-label text-light">Conferma Password</label>
+                            <input type="password" name="password2" class="form-control" 
+                                   id="id_password2" placeholder="Ripeti la password" required>
+                            {% if form.password2.errors %}
+                                <div class="text-danger small">{{ form.password2.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors|join:", " }}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-magenta btn-lg">
+                                <i class="bi bi-check-circle"></i> Registrati
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-4">
+                        <p class="text-muted">
+                            Hai già un account? 
+                            <a href="{% url 'accounts:login' %}" class="text-magenta text-decoration-none">
+                                <i class="bi bi-box-arrow-in-right"></i> Accedi qui
+                            </a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #ff2e88;
+    color: #fff;
+    box-shadow: 0 0 0 0.25rem rgba(255, 46, 136, 0.25);
+}
+
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.card {
+    background: rgba(27, 27, 27, 0.95);
+    border: 1px solid rgba(255, 46, 136, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+</style>
+{% endblock %}

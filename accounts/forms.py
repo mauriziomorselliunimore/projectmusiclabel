@@ -30,9 +30,25 @@ class CustomUserCreationForm(UserCreationForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['phone', 'location', 'bio', 'profile_picture']
+        fields = ['phone', 'location', 'bio', 'external_avatar_url']
         widgets = {
             'bio': forms.Textarea(attrs={'rows': 4}),
             'phone': forms.TextInput(attrs={'placeholder': '+39 123 456 7890'}),
             'location': forms.TextInput(attrs={'placeholder': 'Roma, Italia'}),
+            'external_avatar_url': forms.URLInput(attrs={
+                'placeholder': 'https://imgur.com/abc123.jpg (opzionale)'
+            }),
         }
+        labels = {
+            'phone': 'Telefono',
+            'location': 'Località',
+            'bio': 'Biografia',
+            'external_avatar_url': 'Link Foto Profilo',
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['external_avatar_url'].help_text = (
+            'Link a foto profilo online (Imgur, Google Drive, etc.). '
+            'Se vuoto, verrà usato Gravatar.'
+        )

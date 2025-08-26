@@ -13,7 +13,13 @@ class Profile(models.Model):
     phone = models.CharField(max_length=20, blank=True)
     location = models.CharField(max_length=100, blank=True)
     bio = models.TextField(max_length=500, blank=True)
-    profile_picture = models.ImageField(upload_to='profiles/', blank=True, null=True)
+    
+    # URL esterno invece di file upload
+    external_avatar_url = models.URLField(
+        blank=True, 
+        help_text="Link a foto profilo esterna (Imgur, Google Drive, Gravatar, etc.)"
+    )
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -22,6 +28,22 @@ class Profile(models.Model):
     
     def get_absolute_url(self):
         if self.user_type == 'artist':
-            return reverse('artists:detail', kwargs={'pk': self.user.pk})
+            try:
+                return reverse('artists:detail', kwargs={'pk': self.user.artist.pk})
+            except:
+                return reverse('artists:create')
         else:
-            return reverse('associates:detail', kwargs={'pk': self.user.pk})
+            try:
+                return reverse('associates:detail', kwargs={'pk': self.user.associate.pk})
+            except:
+                return reverse('associates:create')
+    
+    def get_avatar_url(self):
+        """Restituisce l'URL dell'avatar o un placeholder"""
+        if self.external_avatar_url:
+            return self.external_avatar_url
+        
+        # Fallback: Gravatar basato sull'email
+        import hashlib
+        email_hash = hashlib.md5(self.user.email.lower().encode()).hexdigest()
+        return f"https://www.gravatar.com/avatar/{email_hash}?d=identicon&s=150"

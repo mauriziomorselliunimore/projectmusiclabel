@@ -1,0 +1,129 @@
+{% extends 'base.html' %}
+{% block title %}Login - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card">
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <h2 class="text-light">
+                            <i class="bi bi-box-arrow-in-right text-magenta"></i> Accedi
+                        </h2>
+                        <p class="text-muted">Benvenuto di nuovo su MyLabel!</p>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label text-light">Username</label>
+                            <input type="text" name="username" class="form-control" 
+                                   id="id_username" placeholder="Il tuo username" required
+                                   value="{{ form.username.value|default:'' }}">
+                            {% if form.username.errors %}
+                                <div class="text-danger small mt-1">{{ form.username.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="id_password" class="form-label text-light">Password</label>
+                            <input type="password" name="password" class="form-control" 
+                                   id="id_password" placeholder="La tua password" required>
+                            {% if form.password.errors %}
+                                <div class="text-danger small mt-1">{{ form.password.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle-fill"></i>
+                            Username o password non corretti.
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" class="form-check-input" id="remember-me" name="remember">
+                            <label class="form-check-label text-light" for="remember-me">
+                                Ricordami
+                            </label>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-magenta btn-lg">
+                                <i class="bi bi-unlock"></i> Accedi
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-4">
+                        <p class="text-muted mb-2">
+                            Non hai un account? 
+                            <a href="{% url 'accounts:register' %}" class="text-magenta text-decoration-none">
+                                <i class="bi bi-person-plus"></i> Registrati qui
+                            </a>
+                        </p>
+                        
+                        <hr class="my-3" style="border-color: rgba(255, 46, 136, 0.3);">
+                        
+                        <div class="text-muted">
+                            <small>
+                                <strong>Account di test:</strong><br>
+                                🎤 <code class="text-light">marco_blues</code> / <code class="text-light">password123</code><br>
+                                🔧 <code class="text-light">luca_sound</code> / <code class="text-light">password123</code><br>
+                                👨‍💼 <code class="text-light">admin</code> / <code class="text-light">admin123</code>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #ff2e88;
+    color: #fff;
+    box-shadow: 0 0 0 0.25rem rgba(255, 46, 136, 0.25);
+}
+
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.form-check-input {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.form-check-input:checked {
+    background-color: #ff2e88;
+    border-color: #ff2e88;
+}
+
+.card {
+    background: rgba(27, 27, 27, 0.95);
+    border: 1px solid rgba(255, 46, 136, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+}
+
+code {
+    background: rgba(255, 46, 136, 0.2);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.9em;
+}
+</style>
+{% endblock %}
