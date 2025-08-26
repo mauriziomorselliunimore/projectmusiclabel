@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% block title %}Artisti - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="text-light">
+                    <i class="bi bi-mic-fill text-magenta"></i> Artisti
+                </h1>
+                {% if user.is_authenticated and user.profile.user_type == 'artist' and not user.artist %}
+                    <a href="{% url 'artists:create' %}" class="btn btn-magenta">
+                        <i class="bi bi-plus-circle"></i> Crea Profilo Artista
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Form -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-6">
+                            <input type="text" name="search" value="{{ search_query }}" 
+                                   class="form-control" placeholder="Cerca per nome, genere, biografia...">
+                        </div>
+                        <div class="col-md-4">
+                            <input type="text" name="genre" value="{{ genre_filter }}" 
+                                   class="form-control" placeholder="Filtra per genere...">
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-magenta w-100">
+                                <i class="bi bi-search"></i> Cerca
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Artists Grid -->
+    <div class="row">
+        {% for artist in artists %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <div class="mb-3">
+                        <i class="bi bi-person-circle" style="font-size: 4rem; color: #ff2e88;"></i>
+                    </div>
+                    <h5 class="card-title text-light">{{ artist.stage_name }}</h5>
+                    <p class="text-magenta small mb-2">{{ artist.user.get_full_name }}</p>
+                    
+                    {% if artist.genres %}
+                    <div class="mb-3">
+                        {% for genre in artist.get_genres_list %}
+                        <span class="badge bg-secondary me-1">{{ genre }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if artist.location %}
+                    <p class="text-muted small">
+                        <i class="bi bi-geo-alt"></i> {{ artist.location }}
+                    </p>
+                    {% endif %}
+                    
+                    {% if artist.bio %}
+                    <p class="text-light small">{{ artist.bio|truncatewords:15 }}</p>
+                    {% endif %}
+                    
+                    <div class="d-flex gap-2 justify-content-center">
+                        <a href="{% url 'artists:detail' artist.pk %}" class="btn btn-outline-light btn-sm">
+                            <i class="bi bi-eye"></i> Visualizza
+                        </a>
+                        {% if artist.spotify_url %}
+                        <a href="{{ artist.spotify_url }}" target="_blank" class="btn btn-success btn-sm">
+                            <i class="bi bi-spotify"></i>
+                        </a>
+                        {% endif %}
+                        {% if artist.youtube_url %}
+                        <a href="{{ artist.youtube_url }}" target="_blank" class="btn btn-danger btn-sm">
+                            <i class="bi bi-youtube"></i>
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">
+            <div class="card">
+                <div class="card-body py-5">
+                    <i class="bi bi-music-note-beamed" style="font-size: 4rem; color: #666;"></i>
+                    <h4 class="mt-3 text-muted">Nessun artista trovato</h4>
+                    <p class="text-muted">Prova a modificare i criteri di ricerca o controlla più tardi.</p>
+                    {% if user.is_authenticated and user.profile.user_type == 'artist' %}
+                    <a href="{% url 'artists:create' %}" class="btn btn-magenta mt-3">
+                        <i class="bi bi-plus-circle"></i> Crea il tuo Profilo Artista
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Pagination (se necessaria) -->
+    {% if artists.has_other_pages %}
+    <div class="row">
+        <div class="col-12">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    {% if artists.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link bg-dark text-light" href="?page={{ artists.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if genre_filter %}&genre={{ genre_filter }}{% endif %}">
+                            Precedente
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    <li class="page-item active">
+                        <span class="page-link bg-magenta border-magenta">
+                            {{ artists.number }} di {{ artists.paginator.num_pages }}
+                        </span>
+                    </li>
+                    
+                    {% if artists.has_next %}
+                    <li class="page-item">
+                        <a class="page-link bg-dark text-light" href="?page={{ artists.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if genre_filter %}&genre={{ genre_filter }}{% endif %}">
+                            Successivo
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

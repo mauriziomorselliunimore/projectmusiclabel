@@ -1,63 +1,359 @@
 {% extends 'base.html' %}
-{% block title %}Gestionale per Etichetta Discografica{% endblock %}
+{% load static %}
 
 {% block content %}
-<div class="container mt-5">
-    <div class="text-center mb-5">
-        <h1 class="fw-bold text-magenta display-4 mb-3">
-            <i class="bi bi-music-note-list"></i> Gestionale per Etichetta Discografica
-        </h1>
-        <p class="lead">Connetti artisti e professionisti del settore musicale.<br>
-        Scopri, collabora, prenota e comunica in un'unica piattaforma.</p>
-    </div>
-    <div class="row justify-content-center mb-4">
-        <div class="col-md-8">
-            <div class="card shadow-lg border-0">
-                <div class="card-body">
-                    <h2 class="h5 mb-4 text-magenta"><i class="bi bi-stars"></i> Funzionalità principali</h2>
-                    <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-person-plus-fill fs-3 text-magenta me-3"></i>
-                                <span>Registrazione e profili personalizzati per artisti e associati</span>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-search fs-3 text-magenta me-3"></i>
-                                <span>Ricerca avanzata per generi, competenze e disponibilità</span>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-cloud-arrow-up-fill fs-3 text-magenta me-3"></i>
-                                <span>Upload demo musicali e materiale promozionale</span>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-calendar-check-fill fs-3 text-magenta me-3"></i>
-                                <span>Calendario prenotazioni studio con gestione conflitti</span>
-                            </div>
-                        </div>
-                        <div class="col-md-6 mb-3">
-                            <div class="d-flex align-items-center">
-                                <i class="bi bi-chat-dots-fill fs-3 text-magenta me-3"></i>
-                                <span>Messaggistica interna e notifiche automatiche</span>
-                            </div>
-                        </div>
+<style>
+    body {
+        background: linear-gradient(135deg, #000 0%, #1b1b1b 50%, #ff2e88 100%);
+        min-height: 100vh;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #fff;
+    }
+    
+    .hero-section {
+        background: rgba(0,0,0,0.7);
+        padding: 80px 0;
+        margin-bottom: 40px;
+        border-radius: 20px;
+        backdrop-filter: blur(10px);
+    }
+    
+    .stat-card {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 46, 136, 0.3);
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        backdrop-filter: blur(5px);
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(255, 46, 136, 0.4);
+    }
+    
+    .stat-number {
+        font-size: 3rem;
+        font-weight: bold;
+        color: #ff2e88;
+        text-shadow: 0 0 20px rgba(255, 46, 136, 0.8);
+    }
+    
+    .btn-glow {
+        background: linear-gradient(45deg, #ff2e88, #d72660);
+        border: none;
+        color: white;
+        padding: 15px 30px;
+        border-radius: 50px;
+        font-weight: bold;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        box-shadow: 0 5px 15px rgba(255, 46, 136, 0.4);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-glow:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(255, 46, 136, 0.6);
+        color: white;
+    }
+    
+    .btn-glow::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s;
+    }
+    
+    .btn-glow:hover::before {
+        left: 100%;
+    }
+    
+    .feature-card {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 46, 136, 0.2);
+        border-radius: 15px;
+        padding: 25px;
+        transition: all 0.3s ease;
+        height: 100%;
+    }
+    
+    .feature-card:hover {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 46, 136, 0.5);
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        color: #ff2e88;
+        margin-bottom: 15px;
+    }
+    
+    .profile-card {
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 46, 136, 0.3);
+        border-radius: 15px;
+        padding: 20px;
+        transition: all 0.3s ease;
+    }
+    
+    .profile-card:hover {
+        transform: scale(1.05);
+        box-shadow: 0 15px 30px rgba(255, 46, 136, 0.3);
+    }
+    
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(255, 46, 136, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(255, 46, 136, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(255, 46, 136, 0); }
+    }
+    
+    .admin-section {
+        background: rgba(255, 46, 136, 0.1);
+        border: 2px solid rgba(255, 46, 136, 0.3);
+        border-radius: 15px;
+        padding: 30px;
+        margin-top: 40px;
+    }
+    
+    .btn-danger-glow {
+        background: linear-gradient(45deg, #dc3545, #c82333);
+        border: none;
+        border-radius: 25px;
+        padding: 10px 25px;
+        color: white;
+        font-weight: bold;
+        transition: all 0.3s ease;
+        box-shadow: 0 3px 10px rgba(220, 53, 69, 0.4);
+    }
+    
+    .btn-danger-glow:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(220, 53, 69, 0.6);
+        color: white;
+    }
+</style>
+
+<div class="container mt-4">
+    <!-- Hero Section -->
+    <div class="hero-section text-center">
+        <div class="container">
+            <h1 class="display-3 fw-bold mb-4">
+                <i class="bi bi-music-note-list"></i> MyLabel
+            </h1>
+            <p class="lead mb-4">
+                La piattaforma che connette artisti e professionisti del settore musicale.<br>
+                Scopri, collabora, crea la tua musica.
+            </p>
+            
+            <!-- Statistiche Live -->
+            <div class="row justify-content-center mb-5">
+                <div class="col-md-2 col-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ total_artists }}</div>
+                        <div class="fs-6 text-light">Artisti</div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ total_associates }}</div>
+                        <div class="fs-6 text-light">Professionisti</div>
+                    </div>
+                </div>
+                <div class="col-md-2 col-6 mb-3">
+                    <div class="stat-card">
+                        <div class="stat-number">{{ total_demos }}</div>
+                        <div class="fs-6 text-light">Demo</div>
                     </div>
                 </div>
             </div>
+            
+            <!-- Pulsanti di Navigazione -->
+            <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
+                <a href="{% url 'artists:list' %}" class="btn btn-glow">
+                    <i class="bi bi-search"></i> Trova Artisti
+                </a>
+                <a href="{% url 'associates:list' %}" class="btn btn-glow">
+                    <i class="bi bi-tools"></i> Trova Professionisti
+                </a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'accounts:profile' %}" class="btn btn-outline-light">
+                        <i class="bi bi-person-circle"></i> Il Mio Profilo
+                    </a>
+                {% else %}
+                    <a href="{% url 'accounts:register' %}" class="btn btn-outline-light">
+                        <i class="bi bi-person-plus"></i> Registrati
+                    </a>
+                {% endif %}
+            </div>
         </div>
     </div>
-    <div class="text-center mt-4">
-        <a href="#" class="btn btn-magenta btn-lg me-2 px-4 py-2">
-            <i class="bi bi-search"></i> Cerca Collaboratori
-        </a>
-        <a href="#" class="btn btn-outline-light btn-lg px-4 py-2">
-            <i class="bi bi-person-plus"></i> Registrati come Artista
-        </a>
+
+    <!-- Sezione Funzionalità -->
+    <div class="row mb-5">
+        <div class="col-12">
+            <h2 class="text-center mb-4 text-light">
+                <i class="bi bi-star-fill text-warning"></i> Cosa puoi fare con MyLabel
+            </h2>
+        </div>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="feature-card text-center">
+                <i class="bi bi-person-badge feature-icon"></i>
+                <h4>Profili Professionali</h4>
+                <p class="text-light">Crea il tuo profilo dettagliato con portfolio, competenze e disponibilità.</p>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="feature-card text-center">
+                <i class="bi bi-cloud-upload feature-icon"></i>
+                <h4>Upload Demo</h4>
+                <p class="text-light">Carica le tue demo musicali e condividile con la community.</p>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="feature-card text-center">
+                <i class="bi bi-search feature-icon"></i>
+                <h4>Ricerca Avanzata</h4>
+                <p class="text-light">Trova collaboratori per genere, competenze, località e disponibilità.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Ultimi Artisti -->
+    {% if latest_artists %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <h3 class="text-center mb-4 text-light">
+                <i class="bi bi-mic-fill"></i> Ultimi Artisti Registrati
+            </h3>
+        </div>
+        {% for artist in latest_artists %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="profile-card text-center">
+                <div class="mb-3">
+                    <i class="bi bi-person-circle" style="font-size: 3rem; color: #ff2e88;"></i>
+                </div>
+                <h5 class="text-light">{{ artist.stage_name }}</h5>
+                <p class="text-muted small">{{ artist.genres }}</p>
+                <p class="text-light small">{{ artist.location }}</p>
+                <a href="{% url 'artists:detail' artist.pk %}" class="btn btn-sm btn-outline-light">
+                    Visualizza Profilo
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Ultimi Professionisti -->
+    {% if latest_associates %}
+    <div class="row mb-5">
+        <div class="col-12">
+            <h3 class="text-center mb-4 text-light">
+                <i class="bi bi-tools"></i> Professionisti Disponibili
+            </h3>
+        </div>
+        {% for associate in latest_associates %}
+        <div class="col-lg-4 col-md-6 mb-4">
+            <div class="profile-card text-center">
+                <div class="mb-3">
+                    <i class="bi bi-gear-fill" style="font-size: 3rem; color: #ff2e88;"></i>
+                </div>
+                <h5 class="text-light">{{ associate.user.get_full_name }}</h5>
+                <p class="text-muted small">{{ associate.specialization }}</p>
+                <p class="text-light small">
+                    <i class="bi bi-geo-alt"></i> {{ associate.location }}
+                    {% if associate.hourly_rate %}
+                    <br><i class="bi bi-currency-euro"></i> {{ associate.get_rate_display }}
+                    {% endif %}
+                </p>
+                <a href="{% url 'associates:detail' associate.pk %}" class="btn btn-sm btn-outline-light">
+                    Visualizza Profilo
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Sezione Admin (solo per superuser) -->
+    {% if user.is_superuser %}
+    <div class="admin-section text-center">
+        <h3 class="mb-4">
+            <i class="bi bi-shield-fill-check text-warning"></i> 
+            Pannello Amministratore
+        </h3>
+        <p class="text-light mb-4">
+            Strumenti per gestire il database e i contenuti della piattaforma.
+        </p>
+        <div class="d-flex flex-wrap justify-content-center gap-3">
+            <a href="{% url 'core:populate_db' %}" class="btn btn-glow pulse">
+                <i class="bi bi-database-fill-add"></i> Popola Database
+            </a>
+            <a href="{% url 'admin:index' %}" class="btn btn-outline-light">
+                <i class="bi bi-gear-fill"></i> Admin Panel
+            </a>
+            <a href="{% url 'core:clear_db' %}" class="btn btn-danger-glow" 
+               onclick="return confirm('Sei sicuro di voler svuotare il database?')">
+                <i class="bi bi-trash3-fill"></i> Svuota Database
+            </a>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Footer -->
+    <div class="text-center mt-5 py-4">
+        <hr style="border-color: rgba(255, 46, 136, 0.3);">
+        <p class="text-muted">
+            <i class="bi bi-heart-fill text-danger"></i> 
+            MyLabel - Connecting Music Professionals
+        </p>
     </div>
 </div>
+
+<script>
+    // Aggiungi animazioni e interattività
+    document.addEventListener('DOMContentLoaded', function() {
+        // Animazione contatore
+        const counters = document.querySelectorAll('.stat-number');
+        counters.forEach(counter => {
+            const target = parseInt(counter.textContent);
+            let current = 0;
+            const increment = target / 50;
+            
+            const updateCounter = () => {
+                if (current < target) {
+                    current += increment;
+                    counter.textContent = Math.floor(current);
+                    setTimeout(updateCounter, 30);
+                } else {
+                    counter.textContent = target;
+                }
+            };
+            updateCounter();
+        });
+        
+        // Effetto hover sulle card
+        const cards = document.querySelectorAll('.profile-card, .feature-card');
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.background = 'rgba(255, 255, 255, 0.15)';
+            });
+            card.addEventListener('mouseleave', function() {
+                this.style.background = 'rgba(255, 255, 255, 0.08)';
+            });
+        });
+    });
+</script>
 {% endblock %}
