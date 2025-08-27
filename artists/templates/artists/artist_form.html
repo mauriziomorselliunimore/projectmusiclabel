@@ -1,0 +1,164 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="text-light mb-0">
+                        <i class="bi bi-mic-fill"></i> {{ title }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_stage_name" class="form-label text-light">{{ form.stage_name.label }}</label>
+                                <input type="text" name="stage_name" class="form-control" 
+                                       id="id_stage_name" value="{{ form.stage_name.value|default:'' }}" 
+                                       placeholder="Il tuo nome d'arte" required>
+                                {% if form.stage_name.errors %}
+                                    <div class="text-danger small">{{ form.stage_name.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_genres" class="form-label text-light">{{ form.genres.label }}</label>
+                                <input type="text" name="genres" class="form-control" 
+                                       id="id_genres" value="{{ form.genres.value|default:'' }}" 
+                                       placeholder="Rock, Pop, Blues (separati da virgola)">
+                                {% if form.genres.errors %}
+                                    <div class="text-danger small">{{ form.genres.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_location" class="form-label text-light">{{ form.location.label }}</label>
+                                <input type="text" name="location" class="form-control" 
+                                       id="id_location" value="{{ form.location.value|default:'' }}" 
+                                       placeholder="Roma, Italia">
+                                {% if form.location.errors %}
+                                    <div class="text-danger small">{{ form.location.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_phone" class="form-label text-light">{{ form.phone.label }}</label>
+                                <input type="tel" name="phone" class="form-control" 
+                                       id="id_phone" value="{{ form.phone.value|default:'' }}" 
+                                       placeholder="+39 123 456 7890">
+                                {% if form.phone.errors %}
+                                    <div class="text-danger small">{{ form.phone.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_bio" class="form-label text-light">{{ form.bio.label }}</label>
+                            <textarea name="bio" class="form-control" id="id_bio" rows="4" 
+                                      placeholder="Racconta la tua storia musicale...">{{ form.bio.value|default:'' }}</textarea>
+                            {% if form.bio.errors %}
+                                <div class="text-danger small">{{ form.bio.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <h5 class="text-light mt-4 mb-3">
+                            <i class="bi bi-share-fill"></i> Social Media Links
+                        </h5>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_spotify_url" class="form-label text-light">
+                                    <i class="bi bi-spotify text-success"></i> {{ form.spotify_url.label }}
+                                </label>
+                                <input type="url" name="spotify_url" class="form-control" 
+                                       id="id_spotify_url" value="{{ form.spotify_url.value|default:'' }}" 
+                                       placeholder="https://open.spotify.com/artist/...">
+                                {% if form.spotify_url.errors %}
+                                    <div class="text-danger small">{{ form.spotify_url.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_youtube_url" class="form-label text-light">
+                                    <i class="bi bi-youtube text-danger"></i> {{ form.youtube_url.label }}
+                                </label>
+                                <input type="url" name="youtube_url" class="form-control" 
+                                       id="id_youtube_url" value="{{ form.youtube_url.value|default:'' }}" 
+                                       placeholder="https://youtube.com/c/...">
+                                {% if form.youtube_url.errors %}
+                                    <div class="text-danger small">{{ form.youtube_url.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_soundcloud_url" class="form-label text-light">
+                                    <i class="bi bi-music-note text-warning"></i> {{ form.soundcloud_url.label }}
+                                </label>
+                                <input type="url" name="soundcloud_url" class="form-control" 
+                                       id="id_soundcloud_url" value="{{ form.soundcloud_url.value|default:'' }}" 
+                                       placeholder="https://soundcloud.com/...">
+                                {% if form.soundcloud_url.errors %}
+                                    <div class="text-danger small">{{ form.soundcloud_url.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_instagram_url" class="form-label text-light">
+                                    <i class="bi bi-instagram text-info"></i> {{ form.instagram_url.label }}
+                                </label>
+                                <input type="url" name="instagram_url" class="form-control" 
+                                       id="id_instagram_url" value="{{ form.instagram_url.value|default:'' }}" 
+                                       placeholder="https://instagram.com/...">
+                                {% if form.instagram_url.errors %}
+                                    <div class="text-danger small">{{ form.instagram_url.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-magenta">
+                                <i class="bi bi-check-lg"></i> Salva Profilo
+                            </button>
+                            <a href="{% url 'artists:list' %}" class="btn btn-outline-light">
+                                <i class="bi bi-arrow-left"></i> Annulla
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #ff2e88;
+    color: #fff;
+    box-shadow: 0 0 0 0.25rem rgba(255, 46, 136, 0.25);
+}
+
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.card {
+    background: rgba(27, 27, 27, 0.95);
+    border: 1px solid rgba(255, 46, 136, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+</style>
+{% endblock %}

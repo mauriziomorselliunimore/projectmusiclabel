@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% block title %}Aggiungi Portfolio - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="text-light mb-0">
+                        <i class="bi bi-plus-circle"></i> Aggiungi Lavoro al Portfolio
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="id_title" class="form-label text-light">{{ form.title.label }}</label>
+                            <input type="text" name="title" class="form-control" 
+                                   id="id_title" value="{{ form.title.value|default:'' }}" 
+                                   placeholder="Nome del progetto/lavoro" required>
+                            {% if form.title.errors %}
+                                <div class="text-danger small">{{ form.title.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_description" class="form-label text-light">{{ form.description.label }}</label>
+                            <textarea name="description" class="form-control" id="id_description" rows="3" 
+                                      placeholder="Descrizione del lavoro svolto...">{{ form.description.value|default:'' }}</textarea>
+                            {% if form.description.errors %}
+                                <div class="text-danger small">{{ form.description.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <h5 class="text-light mt-4 mb-3">
+                            <i class="bi bi-link-45deg"></i> Link Esterni
+                        </h5>
+                        
+                        <div class="mb-3">
+                            <label for="id_external_url" class="form-label text-light">
+                                <i class="bi bi-globe"></i> {{ form.external_url.label }}
+                            </label>
+                            <input type="url" name="external_url" class="form-control" 
+                                   id="id_external_url" value="{{ form.external_url.value|default:'' }}" 
+                                   placeholder="https://youtube.com/watch?v=... (link principale)">
+                            <div class="form-text text-muted">
+                                <small>{{ form.external_url.help_text }}</small>
+                            </div>
+                            {% if form.external_url.errors %}
+                                <div class="text-danger small">{{ form.external_url.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_external_image_url" class="form-label text-light">
+                                    <i class="bi bi-image"></i> {{ form.external_image_url.label }}
+                                </label>
+                                <input type="url" name="external_image_url" class="form-control" 
+                                       id="id_external_image_url" value="{{ form.external_image_url.value|default:'' }}" 
+                                       placeholder="https://imgur.com/abc123.jpg">
+                                <div class="form-text text-muted">
+                                    <small>{{ form.external_image_url.help_text }}</small>
+                                </div>
+                                {% if form.external_image_url.errors %}
+                                    <div class="text-danger small">{{ form.external_image_url.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_external_audio_url" class="form-label text-light">
+                                    <i class="bi bi-music-note"></i> {{ form.external_audio_url.label }}
+                                </label>
+                                <input type="url" name="external_audio_url" class="form-control" 
+                                       id="id_external_audio_url" value="{{ form.external_audio_url.value|default:'' }}" 
+                                       placeholder="https://soundcloud.com/...">
+                                <div class="form-text text-muted">
+                                    <small>{{ form.external_audio_url.help_text }}</small>
+                                </div>
+                                {% if form.external_audio_url.errors %}
+                                    <div class="text-danger small">{{ form.external_audio_url.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <i class="bi bi-lightbulb"></i>
+                            <strong>Suggerimenti per i link:</strong>
+                            <ul class="mb-0 mt-2">
+                                <li>🎬 <strong>Link Principale:</strong> YouTube, Vimeo, sito web del progetto</li>
+                                <li>🖼️ <strong>Immagine:</strong> Copertina su Imgur, Google Drive pubblico</li>
+                                <li>🎵 <strong>Audio:</strong> SoundCloud, Bandcamp, file Drive</li>
+                                <li>📱 <strong>Tip:</strong> Almeno un link è richiesto per visualizzare il progetto</li>
+                            </ul>
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-magenta">
+                                <i class="bi bi-plus-lg"></i> Aggiungi al Portfolio
+                            </button>
+                            <a href="{% url 'associates:detail' user.associate.pk %}" class="btn btn-outline-light">
+                                <i class="bi bi-arrow-left"></i> Annulla
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #ff2e88;
+    color: #fff;
+    box-shadow: 0 0 0 0.25rem rgba(255, 46, 136, 0.25);
+}
+
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.card {
+    background: rgba(27, 27, 27, 0.95);
+    border: 1px solid rgba(255, 46, 136, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+</style>
+{% endblock %}

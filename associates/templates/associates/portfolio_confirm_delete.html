@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block title %}Elimina Portfolio - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-danger">
+                    <h4 class="text-light mb-0">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Conferma Eliminazione
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-warning"></i>
+                        <strong>Attenzione!</strong> Questa azione non può essere annullata.
+                    </div>
+                    
+                    <div class="portfolio-preview mb-4">
+                        <h5 class="text-light">Elemento Portfolio da eliminare:</h5>
+                        <div class="card bg-dark">
+                            <div class="card-body">
+                                {% if portfolio_item.external_image_url %}
+                                <img src="{{ portfolio_item.external_image_url }}" alt="{{ portfolio_item.title }}" 
+                                     class="img-fluid rounded mb-3" style="max-height: 200px; width: 100%; object-fit: cover;"
+                                     onerror="this.style.display='none'">
+                                {% endif %}
+                                
+                                <h6 class="text-light">
+                                    <i class="bi bi-briefcase"></i> {{ portfolio_item.title }}
+                                </h6>
+                                
+                                {% if portfolio_item.description %}
+                                <p class="text-light">{{ portfolio_item.description }}</p>
+                                {% endif %}
+                                
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar3"></i> Aggiunto il {{ portfolio_item.created_at|date:"d M Y" }}
+                                    {% if portfolio_item.get_platform %}
+                                    <span class="ms-2">
+                                        {% if portfolio_item.get_platform == 'youtube' %}
+                                            <i class="bi bi-youtube text-danger"></i>
+                                        {% elif portfolio_item.get_platform == 'soundcloud' %}
+                                            <i class="bi bi-music-note text-warning"></i>
+                                        {% elif portfolio_item.get_platform == 'drive' %}
+                                            <i class="bi bi-cloud text-info"></i>
+                                        {% elif portfolio_item.get_platform == 'imgur' %}
+                                            <i class="bi bi-image text-success"></i>
+                                        {% else %}
+                                            <i class="bi bi-link-45deg"></i>
+                                        {% endif %}
+                                        {{ portfolio_item.get_platform|capfirst }}
+                                    </span>
+                                    {% endif %}
+                                </small>
+                                
+                                {% if portfolio_item.get_primary_url %}
+                                <div class="mt-2">
+                                    <a href="{{ portfolio_item.get_primary_url }}" target="_blank" 
+                                       class="btn btn-sm btn-outline-light">
+                                        <i class="bi bi-link-45deg"></i> Link Originale
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex gap-2 justify-content-center">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash3-fill"></i> Sì, Elimina Elemento
+                            </button>
+                            <a href="{% url 'associates:detail' portfolio_item.associate.pk %}" class="btn btn-outline-light">
+                                <i class="bi bi-arrow-left"></i> Annulla
+                            </a>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle"></i>
+                            I file esterni non verranno eliminati dai servizi originali.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    background: rgba(27, 27, 27, 0.95);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.portfolio-preview .card {
+    border: 1px solid rgba(255, 46, 136, 0.3);
+}
+
+.btn-danger {
+    background: linear-gradient(45deg, #dc3545, #c82333);
+    border: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(220, 53, 69, 0.4);
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.6);
+}
+</style>
+{% endblock %}

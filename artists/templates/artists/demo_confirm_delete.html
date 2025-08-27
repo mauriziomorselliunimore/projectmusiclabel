@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% block title %}Elimina Demo - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-danger">
+                    <h4 class="text-light mb-0">
+                        <i class="bi bi-exclamation-triangle-fill"></i> Conferma Eliminazione
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning">
+                        <i class="bi bi-warning"></i>
+                        <strong>Attenzione!</strong> Questa azione non può essere annullata.
+                    </div>
+                    
+                    <div class="demo-preview mb-4">
+                        <h5 class="text-light">Demo da eliminare:</h5>
+                        <div class="card bg-dark">
+                            <div class="card-body">
+                                <h6 class="text-light">
+                                    <i class="bi bi-music-note"></i> {{ demo.title }}
+                                </h6>
+                                <p class="text-muted small mb-1">
+                                    <span class="badge bg-secondary">{{ demo.get_genre_display }}</span>
+                                    {% if demo.duration %}
+                                    <span class="ms-2"><i class="bi bi-clock"></i> {{ demo.duration }}</span>
+                                    {% endif %}
+                                </p>
+                                {% if demo.description %}
+                                <p class="text-light small">{{ demo.description|truncatewords:20 }}</p>
+                                {% endif %}
+                                <small class="text-muted">
+                                    <i class="bi bi-calendar3"></i> Caricata il {{ demo.uploaded_at|date:"d M Y" }}
+                                </small>
+                                
+                                {% if demo.external_audio_url %}
+                                <div class="mt-2">
+                                    <a href="{{ demo.external_audio_url }}" target="_blank" 
+                                       class="btn btn-sm btn-outline-light">
+                                        <i class="bi bi-link-45deg"></i> Link Originale
+                                    </a>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="d-flex gap-2 justify-content-center">
+                            <button type="submit" class="btn btn-danger">
+                                <i class="bi bi-trash3-fill"></i> Sì, Elimina Demo
+                            </button>
+                            <a href="{% url 'artists:detail' demo.artist.pk %}" class="btn btn-outline-light">
+                                <i class="bi bi-arrow-left"></i> Annulla
+                            </a>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-3">
+                        <small class="text-muted">
+                            <i class="bi bi-info-circle"></i>
+                            Il file audio esterno non verrà eliminato dal servizio originale.
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.card {
+    background: rgba(27, 27, 27, 0.95);
+    border: 1px solid rgba(220, 53, 69, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.demo-preview .card {
+    border: 1px solid rgba(255, 46, 136, 0.3);
+}
+
+.btn-danger {
+    background: linear-gradient(45deg, #dc3545, #c82333);
+    border: none;
+    font-weight: bold;
+    transition: all 0.3s ease;
+    box-shadow: 0 3px 10px rgba(220, 53, 69, 0.4);
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.6);
+}
+</style>
+{% endblock %}

@@ -1,0 +1,202 @@
+{% extends 'base.html' %}
+{% block title %}{{ title }} - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-10">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="text-light mb-0">
+                        <i class="bi bi-tools"></i> {{ title }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_specialization" class="form-label text-light">{{ form.specialization.label }}</label>
+                                <input type="text" name="specialization" class="form-control" 
+                                       id="id_specialization" value="{{ form.specialization.value|default:'' }}" 
+                                       placeholder="Sound Engineer, Producer, Guitarist..." required>
+                                {% if form.specialization.errors %}
+                                    <div class="text-danger small">{{ form.specialization.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_experience_level" class="form-label text-light">{{ form.experience_level.label }}</label>
+                                <select name="experience_level" class="form-control" id="id_experience_level" required>
+                                    {% for value, label in form.experience_level.field.choices %}
+                                        <option value="{{ value }}" {% if form.experience_level.value == value %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                {% if form.experience_level.errors %}
+                                    <div class="text-danger small">{{ form.experience_level.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_skills" class="form-label text-light">{{ form.skills.label }}</label>
+                            <input type="text" name="skills" class="form-control" 
+                                   id="id_skills" value="{{ form.skills.value|default:'' }}" 
+                                   placeholder="Mixing, Mastering, Pro Tools, Logic Pro (separati da virgola)">
+                            {% if form.skills.errors %}
+                                <div class="text-danger small">{{ form.skills.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label for="id_hourly_rate" class="form-label text-light">{{ form.hourly_rate.label }}</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">€</span>
+                                    <input type="number" name="hourly_rate" class="form-control" 
+                                           id="id_hourly_rate" value="{{ form.hourly_rate.value|default:'' }}" 
+                                           placeholder="25.00" step="0.01" min="0">
+                                </div>
+                                {% if form.hourly_rate.errors %}
+                                    <div class="text-danger small">{{ form.hourly_rate.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="id_years_experience" class="form-label text-light">{{ form.years_experience.label }}</label>
+                                <input type="number" name="years_experience" class="form-control" 
+                                       id="id_years_experience" value="{{ form.years_experience.value|default:'' }}" 
+                                       placeholder="5" min="0" max="50">
+                                {% if form.years_experience.errors %}
+                                    <div class="text-danger small">{{ form.years_experience.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="id_availability" class="form-label text-light">{{ form.availability.label }}</label>
+                                <input type="text" name="availability" class="form-control" 
+                                       id="id_availability" value="{{ form.availability.value|default:'' }}" 
+                                       placeholder="Lunedì-Venerdì 9-18, Weekend su richiesta">
+                                {% if form.availability.errors %}
+                                    <div class="text-danger small">{{ form.availability.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_location" class="form-label text-light">{{ form.location.label }}</label>
+                                <input type="text" name="location" class="form-control" 
+                                       id="id_location" value="{{ form.location.value|default:'' }}" 
+                                       placeholder="Roma, Italia">
+                                {% if form.location.errors %}
+                                    <div class="text-danger small">{{ form.location.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="id_phone" class="form-label text-light">{{ form.phone.label }}</label>
+                                <input type="tel" name="phone" class="form-control" 
+                                       id="id_phone" value="{{ form.phone.value|default:'' }}" 
+                                       placeholder="+39 123 456 7890">
+                                {% if form.phone.errors %}
+                                    <div class="text-danger small">{{ form.phone.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_website" class="form-label text-light">
+                                <i class="bi bi-globe"></i> {{ form.website.label }}
+                            </label>
+                            <input type="url" name="website" class="form-control" 
+                                   id="id_website" value="{{ form.website.value|default:'' }}" 
+                                   placeholder="https://tuosito.com">
+                            {% if form.website.errors %}
+                                <div class="text-danger small">{{ form.website.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_bio" class="form-label text-light">{{ form.bio.label }}</label>
+                            <textarea name="bio" class="form-control" id="id_bio" rows="4" 
+                                      placeholder="La tua esperienza professionale...">{{ form.bio.value|default:'' }}</textarea>
+                            {% if form.bio.errors %}
+                                <div class="text-danger small">{{ form.bio.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="id_portfolio_description" class="form-label text-light">{{ form.portfolio_description.label }}</label>
+                            <textarea name="portfolio_description" class="form-control" id="id_portfolio_description" rows="3" 
+                                      placeholder="Descrivi i tuoi lavori migliori...">{{ form.portfolio_description.value|default:'' }}</textarea>
+                            {% if form.portfolio_description.errors %}
+                                <div class="text-danger small">{{ form.portfolio_description.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4 form-check">
+                            <input type="checkbox" name="is_available" class="form-check-input" id="id_is_available" 
+                                   {% if form.is_available.value %}checked{% endif %}>
+                            <label class="form-check-label text-light" for="id_is_available">
+                                <i class="bi bi-check-circle"></i> {{ form.is_available.label }}
+                            </label>
+                        </div>
+                        
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-magenta">
+                                <i class="bi bi-check-lg"></i> Salva Profilo
+                            </button>
+                            <a href="{% url 'associates:list' %}" class="btn btn-outline-light">
+                                <i class="bi bi-arrow-left"></i> Annulla
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.form-control:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #ff2e88;
+    color: #fff;
+    box-shadow: 0 0 0 0.25rem rgba(255, 46, 136, 0.25);
+}
+
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.input-group-text {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.form-check-input {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.form-check-input:checked {
+    background-color: #ff2e88;
+    border-color: #ff2e88;
+}
+
+.card {
+    background: rgba(27, 27, 27, 0.95);
+    border: 1px solid rgba(255, 46, 136, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+</style>
+{% endblock %}
