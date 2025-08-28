@@ -8,50 +8,6 @@
 **Deploy:** Render Cloud Platform  
 **Linguaggio:** Python 3.11+  
 
----
-
-## 🗄️ Configurazione Database PostgreSQL
-
-### 📊 Credenziali Database:
-
-```bash
-# Database Connection Details
-DATABASE_URL=postgresql://admin:PTbsM1CGMAqB4YLPAaQ3toGLgqDjgSFL6@dpg-d2iro1ruibrs7a750tg-a:5432/musiclabel
-
-# Componenti separati per riferimento:
-POSTGRES_HOST=dpg-d2iro1ruibrs7a750tg-a
-POSTGRES_PORT=5432
-POSTGRES_DATABASE=musiclabel
-POSTGRES_USER=admin
-POSTGRES_PASSWORD=PTbsM1CGMAqB4YLPAaQ3toGLgqDjgSFL6
-```
-
-## 🔧 Variabili Ambiente Render
-
-### 🌐 Configurazione Deploy Render:
-
-```bash
-# === VARIABILI OBBLIGATORIE ===
-DATABASE_URL=postgresql://admin:PTbsM1CGMAqB4YLPAaQ3toGLgqDjgSFL6@dpg-d2iro1ruibrs7a750tg-a:5432/musiclabel
-SECRET_KEY=morsellimauriziotechweb-secure-key-2024
-DEBUG=False
-RENDER_EXTERNAL_HOSTNAME=mylabel-django.onrender.com
-
-# === VARIABILI OPZIONALI ===
-ALLOWED_HOSTS=mylabel-django.onrender.com,localhost,127.0.0.1
-DJANGO_SETTINGS_MODULE=record_label.settings
-PYTHON_VERSION=3.11.0
-
-# === EMAIL (Opzionale per notifiche) ===
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_HOST_USER=your-email@gmail.com
-EMAIL_HOST_PASSWORD=your-app-password
-DEFAULT_FROM_EMAIL=noreply@mylabel.com
-```
-
----
-
 ## 🏗️ Struttura Progetto Completa
 
 ```
@@ -107,32 +63,6 @@ record_label/
 ```
 
 ---
-
-## ⚙️ Configurazione Render Deploy
-
-### 🚀 Build Settings:
-
-```bash
-# Build Command:
-pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate
-
-# Start Command:
-gunicorn record_label.wsgi:application --bind 0.0.0.0:$PORT
-
-# Environment:
-Python 3.11
-
-# Auto-Deploy:
-Yes (da GitHub branch main)
-```
-
-### 🔗 Repository Settings:
-- **GitHub Repository:** Connesso al tuo repo
-- **Branch:** main
-- **Root Directory:** / (root del progetto)
-
----
-
 ## 💾 Setup Database e Popolamento
 
 ### 🗃️ Inizializzazione Automatica:
@@ -372,8 +302,6 @@ python manage.py showmigrations
 **MyLabel** è un sistema completo e professionale per la gestione di un'etichetta discografica che implementa tutte le funzionalità richieste con un alto livello di qualità tecnica e user experience.
 
 Il progetto dimostra competenze avanzate in Django e rappresenta una soluzione reale per il settore musicale, combinando tecnologie moderne con business logic significativa.
-
-**Progetto valutazione: 10/10** ⭐
 
 ---
 
