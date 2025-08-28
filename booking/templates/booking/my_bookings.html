@@ -1,0 +1,131 @@
+{% extends 'base.html' %}
+{% block title %}Le Mie Prenotazioni - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="text-light">
+                    <i class="bi bi-calendar-week"></i> Le Mie Prenotazioni
+                </h1>
+                {% if user_type == 'artist' %}
+                    <a href="{% url 'associates:list' %}" class="btn btn-magenta">
+                        <i class="bi bi-plus-circle"></i> Nuova Prenotazione
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filtri -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <select name="status" class="form-control">
+                                <option value="">Tutti gli stati</option>
+                                {% for value, label in status_choices %}
+                                <option value="{{ value }}" {% if status_filter == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-outline-light w-100">
+                                <i class="bi bi-funnel"></i> Filtra
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Lista booking -->
+    <div class="row">
+        {% for booking in bookings %}
+        <div class="col-md-6 col-lg-4 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between">
+                    <small class="text-muted">
+                        #{{ booking.id }} - {{ booking.created_at|date:"d/m/Y" }}
+                    </small>
+                    <span class="badge bg-{% if booking.status == 'pending' %}warning{% elif booking.status == 'confirmed' %}success{% elif booking.status == 'completed' %}secondary{% else %}danger{% endif %}">
+                        {{ booking.get_status_display }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    {% if user_type == 'artist' %}
+                    <h6 class="text-light">
+                        <i class="bi bi-tools"></i> {{ booking.associate.user.get_full_name }}
+                    </h6>
+                    <p class="text-muted small mb-2">{{ booking.associate.specialization }}</p>
+                    {% else %}
+                    <h6 class="text-light">
+                        <i class="bi bi-mic-fill"></i> {{ booking.artist.stage_name }}
+                    </h6>
+                    <p class="text-muted small mb-2">{{ booking.artist.user.get_full_name }}</p>
+                    {% endif %}
+                    
+                    <div class="mb-2">
+                        <i class="bi bi-calendar3"></i>
+                        <strong>{{ booking.session_date|date:"d/m/Y H:i" }}</strong>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <i class="bi bi-clock"></i> {{ booking.duration_hours }} ore
+                        <span class="ms-2">
+                            <i class="bi bi-tag"></i> {{ booking.get_booking_type_display }}
+                        </span>
+                    </div>
+                    
+                    {% if booking.total_cost %}
+                    <div class="mb-2">
+                        <i class="bi bi-currency-euro"></i> €{{ booking.total_cost }}
+                    </div>
+                    {% endif %}
+                    
+                    {% if booking.location %}
+                    <div class="mb-3">
+                        <i class="bi bi-geo-alt"></i>
+                        <small class="text-muted">{{ booking.location|truncatewords:5 }}</small>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mt-auto">
+                        <a href="{% url 'booking:detail' booking.pk %}" class="btn btn-outline-light btn-sm w-100">
+                            <i class="bi bi-eye"></i> Visualizza Dettagli
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">
+            <div class="card">
+                <div class="card-body py-5">
+                    <i class="bi bi-calendar-x" style="font-size: 4rem; color: #666;"></i>
+                    <h4 class="mt-3 text-muted">Nessuna prenotazione</h4>
+                    <p class="text-muted">
+                        {% if user_type == 'artist' %}
+                            Non hai ancora effettuato prenotazioni. Trova un professionista!
+                        {% else %}
+                            Non hai ancora ricevuto prenotazioni.
+                        {% endif %}
+                    </p>
+                    {% if user_type == 'artist' %}
+                    <a href="{% url 'associates:list' %}" class="btn btn-magenta mt-3">
+                        <i class="bi bi-search"></i> Trova Professionisti
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

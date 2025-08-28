@@ -1,0 +1,190 @@
+{% extends 'base.html' %}
+{% block title %}Chat con {{ other_participant.get_full_name }} - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Header chat -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <img src="{{ other_participant.profile.get_avatar_url }}" 
+                             class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                        <div>
+                            <h5 class="text-light mb-0">{{ other_participant.get_full_name }}</h5>
+                            <small class="text-muted">
+                                {% if other_participant.profile.user_type == 'artist' %}
+                                    🎤 {{ other_participant.artist.stage_name }}
+                                {% else %}
+                                    🔧 {{ other_participant.associate.specialization }}
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div class="ms-auto">
+                            <a href="{% url 'messaging:conversations' %}" class="btn btn-outline-light btn-sm">
+                                <i class="bi bi-arrow-left"></i> Torna ai Messaggi
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Area messaggi -->
+            <div class="card mb-3">
+                <div class="card-body" style="height: 400px; overflow-y: auto;" id="messages-container">
+                    {% for message in messages %}
+                    <div class="mb-3 d-flex {% if message.sender == user %}justify-content-end{% else %}justify-content-start{% endif %}">
+                        <div class="message-bubble {% if message.sender == user %}bg-primary{% else %}bg-secondary{% endif %} 
+                                    text-white p-3 rounded" style="max-width: 70%;">
+                            {% if message.sender != user %}
+                            <div class="d-flex align-items-center mb-2">
+                                <img src="{{ message.sender.profile.get_avatar_url }}" 
+                                     class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;">
+                                <small>{{ message.sender.get_full_name }}</small>
+                            </div>
+                            {% endif %}
+                            
+                            {% if message.subject and message.subject != 'Re:' %}
+                            <div class="fw-bold mb-1">{{ message.subject }}</div>
+                            {% endif %}
+                            
+                            <div>{{ message.message|linebreaks }}</div>
+                            
+                            <div class="text-end mt-2">
+                                <small class="opacity-75">{{ message.created_at|date:"d/m H:i" }}</small>
+                            </div>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <div class="text-center text-muted py-5">
+                        <i class="bi bi-chat-square" style="font-size: 3rem;"></i>
+                        <p class="mt-2">Nessun messaggio ancora. Inizia la conversazione!</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            
+            <!-- Form nuovo messaggio -->
+            <div class="card">
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                {{ form.message_type.label_tag }}
+                                {{ form.message_type }}
+                            </div>
+                            <div class="col-md-8 mb-3">
+                                {{ form.subject.label_tag }}
+                                {{ form.subject }}
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.message.label_tag }}
+                            {{ form.message }}
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send"></i> Invia Messaggio
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Auto-scroll ai messaggi più recenti
+document.addEventListener('DOMContentLoaded', function() {
+    const messagesContainer = document.getElementById('messages-container');
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+});
+</script>
+
+<style>
+.message-bubble {
+    word-wrap: break-word;
+    animation: fadeIn 0.3s ease-in;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.form-control {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.form-control:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #0d6efd;
+    color: #fff;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+</style>
+{% endblock %}
+
+<!-- messaging/templates/messaging/send_message.html -->
+{% extends 'base.html' %}
+{% block title %}Nuovo Messaggio - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="text-light mb-0">
+                        <i class="bi bi-envelope-plus"></i> Nuovo Messaggio
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label text-light">Destinatario:</label>
+                        <div class="d-flex align-items-center p-2 bg-dark rounded">
+                            <img src="{{ recipient.profile.get_avatar_url }}" 
+                                 class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;">
+                            <span class="text-light">{{ recipient.get_full_name }}</span>
+                        </div>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            {{ form.message_type.label_tag }}
+                            {{ form.message_type }}
+                        </div>
+                        
+                        <div class="mb-3">
+                            {{ form.subject.label_tag }}
+                            {{ form.subject }}
+                        </div>
+                        
+                        <div class="mb-4">
+                            {{ form.message.label_tag }}
+                            {{ form.message }}
+                        </div>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-send"></i> Invia Messaggio
+                            </button>
+                            <a href="{% url 'messaging:inbox' %}" class="btn btn-outline-light">
+                                <i class="bi bi-arrow-left"></i> Annulla
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>

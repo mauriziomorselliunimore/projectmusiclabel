@@ -1,0 +1,364 @@
+{% extends 'base.html' %}
+{% block title %}Messaggi - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="text-light mb-4">
+                <i class="bi bi-envelope-fill"></i> Centro Messaggi
+            </h1>
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.form-control:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #0d6efd;
+    color: #fff;
+    box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25);
+}
+</style>
+{% endblock %}
+
+<!-- messaging/templates/messaging/notifications_list.html -->
+{% extends 'base.html' %}
+{% block title %}Notifiche - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="text-light">
+                    <i class="bi bi-bell-fill"></i> Le Mie Notifiche
+                </h1>
+                <button id="mark-all-read" class="btn btn-outline-light">
+                    <i class="bi bi-check2-all"></i> Segna tutte come lette
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Filtri -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body">
+                    <form method="get" class="row g-3">
+                        <div class="col-md-4">
+                            <select name="type" class="form-control">
+                                <option value="">Tutti i tipi</option>
+                                {% for value, label in notification_types %}
+                                <option value="{{ value }}" {% if notification_type == value %}selected{% endif %}>
+                                    {{ label }}
+                                </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-outline-light w-100">
+                                <i class="bi bi-funnel"></i> Filtra
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Lista notifiche -->
+    <div class="row">
+        <div class="col-12">
+            {% for notification in notifications %}
+            <div class="card mb-3 {% if not notification.is_read %}border-warning{% endif %}">
+                <div class="card-body">
+                    <div class="d-flex align-items-start">
+                        <div class="me-3">
+                            <i class="bi {{ notification.icon_class }} {{ notification.color_class }}" 
+                               style="font-size: 1.5rem;"></i>
+                        </div>
+                        
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between align-items-start mb-2">
+                                <h6 class="text-light mb-0">
+                                    {{ notification.title }}
+                                    {% if not notification.is_read %}
+                                    <span class="badge bg-warning text-dark ms-2">Nuovo</span>
+                                    {% endif %}
+                                </h6>
+                                <small class="text-muted">
+                                    {{ notification.created_at|date:"d/m/Y H:i" }}
+                                </small>
+                            </div>
+                            
+                            <p class="text-muted mb-2">{{ notification.message }}</p>
+                            
+                            <div class="d-flex gap-2">
+                                <span class="badge bg-secondary">
+                                    {{ notification.get_notification_type_display }}
+                                </span>
+                                
+                                {% if notification.action_url %}
+                                <a href="{{ notification.action_url }}" class="btn btn-sm btn-outline-primary">
+                                    <i class="bi bi-arrow-right"></i> Vai
+                                </a>
+                                {% endif %}
+                                
+                                {% if notification.related_user %}
+                                <a href="{% url 'accounts:profile' %}" class="btn btn-sm btn-outline-light">
+                                    <i class="bi bi-person"></i> {{ notification.related_user.get_full_name }}
+                                </a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="card">
+                <div class="card-body text-center py-5">
+                    <i class="bi bi-bell-slash" style="font-size: 4rem; color: #666;"></i>
+                    <h4 class="mt-3 text-muted">Nessuna notifica</h4>
+                    <p class="text-muted">Non hai notifiche da visualizzare al momento.</p>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Paginazione -->
+    {% if notifications.has_other_pages %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <nav aria-label="Navigazione notifiche">
+                <ul class="pagination justify-content-center">
+                    {% if notifications.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ notifications.previous_page_number }}{% if notification_type %}&type={{ notification_type }}{% endif %}">
+                            Precedente
+                        </a>
+                    </li>
+                    {% endif %}
+                    
+                    <li class="page-item active">
+                        <span class="page-link">
+                            Pagina {{ notifications.number }} di {{ notifications.paginator.num_pages }}
+                        </span>
+                    </li>
+                    
+                    {% if notifications.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ notifications.next_page_number }}{% if notification_type %}&type={{ notification_type }}{% endif %}">
+                            Successiva
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Segna tutte le notifiche come lette
+document.getElementById('mark-all-read').addEventListener('click', function() {
+    fetch('{% url "messaging:mark_notifications_read" %}', {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Errore: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Errore:', error);
+        alert('Errore di connessione');
+    });
+});
+</script>
+{% endblock %}
+    
+    <!-- Statistiche rapide -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary bg-opacity-25">
+                <div class="card-body text-center">
+                    <i class="bi bi-envelope-exclamation" style="font-size: 2rem;"></i>
+                    <h3 class="text-light">{{ unread_messages }}</h3>
+                    <p class="text-muted">Messaggi non letti</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning bg-opacity-25">
+                <div class="card-body text-center">
+                    <i class="bi bi-bell-fill" style="font-size: 2rem;"></i>
+                    <h3 class="text-light">{{ unread_notifications }}</h3>
+                    <p class="text-muted">Notifiche</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success bg-opacity-25">
+                <div class="card-body text-center">
+                    <i class="bi bi-chat-dots-fill" style="font-size: 2rem;"></i>
+                    <h3 class="text-light">{{ conversations.count }}</h3>
+                    <p class="text-muted">Conversazioni</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info bg-opacity-25">
+                <div class="card-body text-center">
+                    <a href="{% url 'messaging:send' 1 %}" class="btn btn-light">
+                        <i class="bi bi-plus-circle"></i> Nuovo Messaggio
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Messaggi recenti -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <h5 class="text-light mb-0">
+                        <i class="bi bi-envelope"></i> Messaggi Recenti
+                    </h5>
+                    <a href="{% url 'messaging:conversations' %}" class="btn btn-sm btn-outline-light">
+                        Vedi tutti
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% for message in recent_messages %}
+                    <div class="d-flex align-items-center mb-3 p-2 rounded 
+                                {% if not message.is_read %}bg-primary bg-opacity-25{% else %}bg-dark bg-opacity-50{% endif %}">
+                        <img src="{{ message.sender.profile.get_avatar_url }}" 
+                             class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <strong class="text-light">{{ message.sender.get_full_name }}</strong>
+                                <small class="text-muted">{{ message.created_at|timesince }} fa</small>
+                            </div>
+                            <div class="text-muted">{{ message.subject|truncatechars:50 }}</div>
+                        </div>
+                        {% if not message.is_read %}
+                        <span class="badge bg-primary">Nuovo</span>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <p class="text-muted text-center">Nessun messaggio recente</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Notifiche recenti -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <h5 class="text-light mb-0">
+                        <i class="bi bi-bell"></i> Notifiche Recenti
+                    </h5>
+                    <a href="{% url 'messaging:notifications' %}" class="btn btn-sm btn-outline-light">
+                        Vedi tutte
+                    </a>
+                </div>
+                <div class="card-body">
+                    {% for notification in recent_notifications %}
+                    <div class="d-flex align-items-start mb-3 p-2 rounded 
+                                {% if not notification.is_read %}bg-warning bg-opacity-25{% else %}bg-dark bg-opacity-50{% endif %}">
+                        <i class="bi {{ notification.icon_class }} me-3 {{ notification.color_class }}" style="font-size: 1.2rem; margin-top: 3px;"></i>
+                        <div class="flex-grow-1">
+                            <div class="d-flex justify-content-between">
+                                <strong class="text-light">{{ notification.title|truncatechars:30 }}</strong>
+                                <small class="text-muted">{{ notification.created_at|timesince }} fa</small>
+                            </div>
+                            <div class="text-muted">{{ notification.message|truncatechars:60 }}</div>
+                        </div>
+                        {% if not notification.is_read %}
+                        <span class="badge bg-warning">!</span>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <p class="text-muted text-center">Nessuna notifica recente</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Conversazioni attive -->
+    {% if conversations %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="text-light mb-0">
+                        <i class="bi bi-chat-square-dots"></i> Conversazioni Attive
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        {% for conversation in conversations %}
+                        <div class="col-md-6 col-lg-4 mb-3">
+                            <div class="card bg-dark">
+                                <div class="card-body">
+                                    {% with other=conversation.get_other_participant:user %}
+                                    <div class="d-flex align-items-center mb-2">
+                                        <img src="{{ other.profile.get_avatar_url }}" 
+                                             class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;">
+                                        <strong class="text-light">{{ other.get_full_name }}</strong>
+                                    </div>
+                                    {% endwith %}
+                                    
+                                    {% if conversation.last_message %}
+                                    <p class="text-muted small mb-2">
+                                        {{ conversation.last_message.message|truncatechars:50 }}
+                                    </p>
+                                    <small class="text-muted">
+                                        {{ conversation.last_message_date|timesince }} fa
+                                    </small>
+                                    {% endif %}
+                                    
+                                    {% with unread=conversation.unread_count_for_user:user %}
+                                    {% if unread > 0 %}
+                                    <span class="badge bg-primary float-end">{{ unread }}</span>
+                                    {% endif %}
+                                    {% endwith %}
+                                    
+                                    <div class="mt-2">
+                                        <a href="{% url 'messaging:conversation' conversation.pk %}" 
+                                           class="btn btn-outline-light btn-sm w-100">
+                                            <i class="bi bi-chat"></i> Apri Chat
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

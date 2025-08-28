@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% block title %}Prenota con {{ associate.user.get_full_name }} - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <img src="{{ associate.user.profile.get_avatar_url }}" alt="Avatar" 
+                         class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
+                    
+                    <h4 class="text-light">{{ associate.user.get_full_name }}</h4>
+                    <p class="text-magenta">{{ associate.specialization }}</p>
+                    
+                    {% if associate.hourly_rate %}
+                    <div class="alert alert-success py-2">
+                        <strong>{{ associate.get_rate_display }}</strong>
+                    </div>
+                    {% endif %}
+                    
+                    {% if associate.availability %}
+                    <p class="text-muted small">
+                        <i class="bi bi-clock"></i> {{ associate.availability }}
+                    </p>
+                    {% endif %}
+                    
+                    <div class="mb-3">
+                        {% if associate.is_available %}
+                        <span class="badge bg-success">
+                            <i class="bi bi-check-circle"></i> Disponibile
+                        </span>
+                        {% else %}
+                        <span class="badge bg-warning">
+                            <i class="bi bi-clock"></i> Occupato
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="text-light mb-0">
+                        <i class="bi bi-calendar-plus"></i> Prenota Sessione
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'booking:create' associate.id %}">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-light">Data</label>
+                                <input type="date" name="session_date" class="form-control" 
+                                       min="{{ start_date|date:'Y-m-d' }}" 
+                                       max="{{ end_date|date:'Y-m-d' }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-light">Ora</label>
+                                <select name="session_time" class="form-control" required>
+                                    <option value="">Seleziona orario</option>
+                                    <option value="09:00">09:00</option>
+                                    <option value="10:00">10:00</option>
+                                    <option value="11:00">11:00</option>
+                                    <option value="14:00">14:00</option>
+                                    <option value="15:00">15:00</option>
+                                    <option value="16:00">16:00</option>
+                                    <option value="17:00">17:00</option>
+                                    <option value="18:00">18:00</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-light">Durata (ore)</label>
+                                <select name="duration_hours" class="form-control" required>
+                                    <option value="1">1 ora</option>
+                                    <option value="2" selected>2 ore</option>
+                                    <option value="3">3 ore</option>
+                                    <option value="4">4 ore</option>
+                                    <option value="6">6 ore</option>
+                                    <option value="8">8 ore</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-light">Tipo Sessione</label>
+                                <select name="booking_type" class="form-control" required>
+                                    <option value="recording">Registrazione</option>
+                                    <option value="mixing">Mixing</option>
+                                    <option value="mastering">Mastering</option>
+                                    <option value="production">Produzione</option>
+                                    <option value="lesson">Lezione</option>
+                                    <option value="consultation">Consulenza</option>
+                                    <option value="other">Altro</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label class="form-label text-light">Località</label>
+                            <input type="text" name="location" class="form-control" 
+                                   placeholder="Studio, indirizzo o 'da definire'">
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label class="form-label text-light">Note aggiuntive</label>
+                            <textarea name="notes" class="form-control" rows="3" 
+                                      placeholder="Dettagli sulla sessione, richieste speciali, ecc."></textarea>
+                        </div>
+                        
+                        {% if associate.hourly_rate %}
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>Stima costo:</strong> Il costo verrà calcolato automaticamente 
+                            in base alle ore ({{ associate.get_rate_display }}).
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-magenta">
+                                <i class="bi bi-calendar-check"></i> Invia Richiesta
+                            </button>
+                            <a href="{% url 'associates:detail' associate.pk %}" class="btn btn-outline-light">
+                                <i class="bi bi-arrow-left"></i> Annulla
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Booking esistenti -->
+            {% if existing_bookings %}
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="text-light mb-0">
+                        <i class="bi bi-calendar3"></i> Booking già presenti
+                    </h5>
+                </div>
+                <div class="card-body">
+                    {% for booking in existing_bookings %}
+                    <div class="d-flex justify-content-between align-items-center mb-2 p-2 
+                                {% if booking.status == 'confirmed' %}bg-success{% else %}bg-warning{% endif %} 
+                                bg-opacity-25 rounded">
+                        <div>
+                            <strong>{{ booking.session_date|date:"d/m/Y H:i" }}</strong>
+                            - {{ booking.duration_hours }}h
+                            <small class="text-muted">({{ booking.artist.stage_name }})</small>
+                        </div>
+                        <span class="badge bg-{{ booking.status == 'confirmed' and 'success' or 'warning' }}">
+                            {{ booking.get_status_display }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.form-control {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+}
+
+.form-control:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: #ff2e88;
+    color: #fff;
+    box-shadow: 0 0 0 0.25rem rgba(255, 46, 136, 0.25);
+}
+</style>
+{% endblock %}

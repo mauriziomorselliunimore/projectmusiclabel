@@ -134,6 +134,56 @@ class Conversation(models.Model):
     participant_1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='conversations_as_p1')
     participant_2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name='conversations_as_p2')
     
+    # Cache per performance
+    last_message = models.ForeignKey(Message, on_delete=models.SET_NULL, null=True, blank=True)
+    last_message_date = models.DateTimeField(null=True, blank=True)
+    
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.Dat
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['-updated_at']
+        unique_together = ['participant_1', 'participant_2']
+    
+    def __str__(self):
+        return f"Conversazione: {self.participant_1.username} ↔ {self.participant_2.username}"
+    
+    def get_absolute_url(self):
+        return reverse('messaging:conversation', kwargs={'pk': self.pk})
+    
+    def get_other_participant(self, user):
+        """Restituisce l'altro partecipante della conversazione"""
+        if user == self.participant_1:
+            return self.participant_2
+        return self.participant_1
+    
+    def get_messages(self):
+        """Tutti i messaggi della conversazione"""
+        return Message.objects.filter(
+            models.Q(sender=self.participant_1, recipient=self.participant_2) |
+            models.Q(sender=self.participant_2, recipient=self.participant_1)
+        ).order_by('created_at')
+    
+    def update_last_message(self, message):
+        """Aggiorna cache ultimo messaggio"""
+        self.last_message = message
+        self.last_message_date = message.created_at
+        self.save(update_fields=['last_message', 'last_message_date', 'updated_at'])
+    
+    def unread_count_for_user(self, user):
+        """Conta messaggi non letti per utente specifico"""
+        return self.get_messages().filter(recipient=user, is_read=False).count()
+    
+    @classmethod
+    def get_or_create_conversation(cls, user1, user2):
+        """Ottieni o crea conversazione tra due utenti"""
+        # Ordina gli utenti per ID per evitare duplicati
+        if user1.id > user2.id:
+            user1, user2 = user2, user1
+        
+        conversation, created = cls.objects.get_or_create(
+            participant_1=user1,
+            participant_2=user2
+        )
+        return conversation
