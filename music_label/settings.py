@@ -194,3 +194,46 @@ LOGGING = {
         },
     },
 }
+
+# Aggiungi al requirements.txt:
+# djangorestframework>=3.14.0
+# django-filter>=23.0
+# drf-spectacular>=0.26.0  # Per OpenAPI docs
+
+# settings.py
+INSTALLED_APPS += [
+    'rest_framework',
+    'django_filters',
+    'drf_spectacular',
+]
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 12,
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'MyLabel API',
+    'DESCRIPTION': 'API per gestione etichetta musicale',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+}
+
+INSTALLED_APPS += ['channels']
+
+ASGI_APPLICATION = 'music_label.asgi.application'
+
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [os.environ.get('REDIS_URL', 'redis://localhost:6379')],
+        },
+    },
+}

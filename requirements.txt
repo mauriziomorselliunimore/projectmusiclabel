@@ -10,3 +10,10 @@ gunicorn>=21.0.0
 whitenoise>=6.5.0
 
 # Non serve più Pillow perché non facciamo upload immagini!
+
+djangorestframework>=3.14.0
+django-filter>=23.0
+drf-spectacular>=0.26.0  # Per OpenAPI docs
+
+channels>=4.0.0
+channels-redis>=4.1.0
