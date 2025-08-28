@@ -1,1 +1,3 @@
-music_label/.env
+record_label/.env
+.venv
+setupandrun.py
