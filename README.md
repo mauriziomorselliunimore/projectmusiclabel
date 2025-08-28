@@ -12,7 +12,7 @@
 
 ## 🗄️ Configurazione Database PostgreSQL
 
-### 📊 Credenziali Database (da configurare come variabili ambiente):
+### 📊 Credenziali Database:
 
 ```bash
 # Database Connection Details
@@ -25,10 +25,6 @@ POSTGRES_DATABASE=musiclabel
 POSTGRES_USER=admin
 POSTGRES_PASSWORD=PTbsM1CGMAqB4YLPAaQ3toGLgqDjgSFL6
 ```
-
-⚠️ **IMPORTANTE:** Questi sono dati sensibili! Non committare mai nel codice.
-
----
 
 ## 🔧 Variabili Ambiente Render
 
@@ -381,4 +377,4 @@ Il progetto dimostra competenze avanzate in Django e rappresenta una soluzione r
 
 ---
 
-*© 2024 Morselli Maurizio - MyLabel Project*
+*© 2025 Morselli Maurizio - MyLabel Project*
