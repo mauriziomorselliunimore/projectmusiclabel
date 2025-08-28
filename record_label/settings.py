@@ -24,6 +24,9 @@ ALLOWED_HOSTS = [
     '0.0.0.0',
 ]
 
+ALLOWED_HOSTS += os.environ.get('ALLOWED_HOSTS', '').split(',')
+
+
 # Aggiungi host Render se presente
 if 'RENDER_EXTERNAL_HOSTNAME' in os.environ:
     ALLOWED_HOSTS.append(os.environ['RENDER_EXTERNAL_HOSTNAME'])
@@ -79,7 +82,7 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.context_processors',
+                'django.contrib.messages.context_processors.messages',
             ],
         },
     },
@@ -127,9 +130,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [
-    BASE_DIR / 'static',
-]
+# STATICFILES_DIRS = [ BASE_DIR / 'static', ]  # Non usato in produzione
 
 # WhiteNoise configuration per Render
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
