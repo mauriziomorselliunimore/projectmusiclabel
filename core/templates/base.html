@@ -11,116 +11,503 @@
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Custom CSS -->
     <style>
+        /* ===== PALETTE COLORI AGGIORNATA ===== */
         :root {
-            --primary-color: #ff2e88;
-            --secondary-color: #d72660;
-            --dark-bg: #1b1b1b;
-            --darker-bg: #000;
+            --primary-blue: #3b82f6;        /* Blu primario */
+            --primary-dark: #1d4ed8;        /* Blu scuro */
+            --primary-light: #60a5fa;       /* Blu chiaro */
+            --secondary-green: #10b981;     /* Verde secondario */
+            --secondary-dark: #059669;      /* Verde scuro */
+            --accent-orange: #f59e0b;       /* Arancione accent */
+            --accent-purple: #8b5cf6;       /* Viola accent */
+            
+            --bg-dark: #0f172a;             /* Sfondo principale */
+            --bg-card: #1e293b;             /* Sfondo carte */
+            --bg-surface: #334155;          /* Superficie */
+            --bg-hover: #475569;            /* Hover */
+            
+            --text-primary: #f8fafc;        /* Testo principale */
+            --text-secondary: #cbd5e1;      /* Testo secondario */
+            --text-muted: #94a3b8;          /* Testo sbiadito */
+            --border: #475569;              /* Bordi */
+            
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+            --shadow-md: 0 8px 25px rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 20px 40px rgba(0, 0, 0, 0.3);
         }
-        
+
+        /* ===== BASE STYLING ===== */
+        * {
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Open Sans', sans-serif;
-            background: var(--darker-bg);
-            color: #fff;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark) 0%, #1a202c 50%, #2d3748 100%);
+            color: var(--text-primary);
             line-height: 1.6;
+            min-height: 100vh;
         }
         
-        h1, h2, h3, h4, h5, h6, .navbar-brand {
-            font-family: 'Montserrat', sans-serif;
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 1rem;
         }
-        
+
+        /* ===== NAVBAR MODERNA ===== */
         .navbar {
-            background: rgba(0, 0, 0, 0.95) !important;
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(255, 46, 136, 0.3);
+            background: rgba(15, 23, 42, 0.95) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            box-shadow: var(--shadow-md);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
         }
         
         .navbar-brand {
-            color: var(--primary-color) !important;
-            font-weight: bold;
+            color: var(--primary-blue) !important;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
             font-size: 1.5rem;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+        
+        .navbar-brand:hover {
+            color: var(--primary-light) !important;
+            transform: scale(1.05);
         }
         
         .navbar-nav .nav-link {
-            color: #fff !important;
-            transition: color 0.3s ease;
+            color: var(--text-secondary) !important;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            margin: 0 0.25rem;
+            padding: 0.5rem 1rem !important;
+            border-radius: 0.5rem;
         }
         
         .navbar-nav .nav-link:hover {
-            color: var(--primary-color) !important;
+            color: var(--text-primary) !important;
+            background: rgba(59, 130, 246, 0.1);
+            transform: translateY(-1px);
         }
         
-        .text-magenta {
-            color: var(--primary-color) !important;
+        .navbar-nav .nav-link.active {
+            color: var(--primary-blue) !important;
+            background: rgba(59, 130, 246, 0.15);
+        }
+
+        /* Notification Badge nella Navbar */
+        .nav-link .badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            font-size: 0.7rem;
+        }
+
+        /* ===== DROPDOWN MENU ===== */
+        .dropdown-menu {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            box-shadow: var(--shadow-lg);
+            padding: 0.5rem;
+            margin-top: 0.5rem;
         }
         
-        .btn-magenta {
-            background: var(--primary-color);
-            border-color: var(--primary-color);
-            color: #fff;
+        .dropdown-item {
+            color: var(--text-secondary);
+            transition: all 0.2s ease;
+            border-radius: 0.5rem;
+            padding: 0.5rem 1rem;
+            margin-bottom: 0.25rem;
         }
         
-        .btn-magenta:hover {
-            background: var(--secondary-color);
-            border-color: var(--secondary-color);
-            color: #fff;
+        .dropdown-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--text-primary);
+            transform: translateX(5px);
         }
-        
-        .alert {
-            border-radius: 10px;
+
+        /* ===== BUTTONS MODERNI ===== */
+        .btn {
+            font-weight: 500;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
             border: none;
         }
-        
-        .alert-success {
-            background: rgba(40, 167, 69, 0.2);
-            color: #28a745;
-            border: 1px solid rgba(40, 167, 69, 0.3);
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary-blue), var(--primary-light));
+            color: white;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
         }
-        
-        .alert-error, .alert-danger {
-            background: rgba(220, 53, 69, 0.2);
-            color: #dc3545;
-            border: 1px solid rgba(220, 53, 69, 0.3);
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, var(--primary-dark), var(--primary-blue));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+            color: white;
         }
-        
-        .alert-info {
-            background: rgba(23, 162, 184, 0.2);
-            color: #17a2b8;
-            border: 1px solid rgba(23, 162, 184, 0.3);
+
+        .btn-success {
+            background: linear-gradient(135deg, var(--secondary-green), var(--secondary-dark));
+            color: white;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
         }
-        
+
+        .btn-success:hover {
+            background: linear-gradient(135deg, var(--secondary-dark), #047857);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
+            color: white;
+        }
+
+        .btn-outline-primary {
+            border: 2px solid var(--primary-blue);
+            color: var(--primary-blue);
+            background: transparent;
+        }
+
+        .btn-outline-primary:hover {
+            background: var(--primary-blue);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn-outline-light {
+            border: 2px solid var(--text-secondary);
+            color: var(--text-secondary);
+            background: transparent;
+        }
+
+        .btn-outline-light:hover {
+            background: var(--text-secondary);
+            color: var(--bg-dark);
+            transform: translateY(-1px);
+        }
+
+        /* ===== CARDS MODERNE ===== */
         .card {
-            background: var(--dark-bg);
-            border: 1px solid rgba(255, 46, 136, 0.2);
-            color: #fff;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            box-shadow: var(--shadow-md);
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
-        
-        .form-control {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #fff;
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-blue);
         }
-        
-        .form-control:focus {
-            background: rgba(255, 255, 255, 0.15);
-            border-color: var(--primary-color);
-            color: #fff;
-            box-shadow: 0 0 0 0.25rem rgba(255, 46, 136, 0.25);
+
+        .card-header {
+            background: rgba(59, 130, 246, 0.1);
+            border-bottom: 1px solid var(--border);
+            border-radius: 1rem 1rem 0 0 !important;
+            padding: 1.25rem;
+            color: var(--text-primary);
         }
-        
+
+        .card-body {
+            padding: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        /* ===== FORM ELEMENTS ===== */
+        .form-control, .form-select {
+            background: rgba(51, 65, 85, 0.8);
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            padding: 0.75rem 1rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            background: rgba(51, 65, 85, 0.9);
+            border-color: var(--primary-blue);
+            color: var(--text-primary);
+            box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.2);
+        }
+
         .form-control::placeholder {
-            color: rgba(255, 255, 255, 0.6);
+            color: var(--text-muted);
+            font-weight: 400;
+        }
+
+        .form-label {
+            color: var(--text-primary);
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-check-input {
+            background-color: rgba(51, 65, 85, 0.8);
+            border: 2px solid var(--border);
+        }
+
+        .form-check-input:checked {
+            background-color: var(--primary-blue);
+            border-color: var(--primary-blue);
+        }
+
+        /* ===== BADGES COLORATI ===== */
+        .badge {
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .badge.bg-primary {
+            background: var(--primary-blue) !important;
+        }
+
+        .badge.bg-success {
+            background: var(--secondary-green) !important;
+        }
+
+        .badge.bg-warning {
+            background: var(--accent-orange) !important;
+            color: var(--bg-dark) !important;
+        }
+
+        .badge.bg-secondary {
+            background: var(--bg-surface) !important;
+            color: var(--text-primary) !important;
+        }
+
+        .badge.bg-info {
+            background: #06b6d4 !important;
+        }
+
+        .badge.bg-purple {
+            background: var(--accent-purple) !important;
+        }
+
+        /* ===== ALERTS MODERNE ===== */
+        .alert {
+            border-radius: 0.75rem;
+            border: none;
+            font-weight: 500;
+            padding: 1rem 1.25rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .alert::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 4px;
+        }
+
+        .alert-info {
+            background: rgba(59, 130, 246, 0.15);
+            color: var(--text-primary);
+        }
+
+        .alert-info::before {
+            background: var(--primary-blue);
+        }
+
+        .alert-success {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--text-primary);
+        }
+
+        .alert-success::before {
+            background: var(--secondary-green);
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--text-primary);
+        }
+
+        .alert-warning::before {
+            background: var(--accent-orange);
+        }
+
+        .alert-danger {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--text-primary);
+        }
+
+        .alert-danger::before {
+            background: #ef4444;
+        }
+
+        /* ===== UTILITIES ===== */
+        .text-primary {
+            color: var(--primary-blue) !important;
+        }
+
+        .text-secondary {
+            color: var(--text-secondary) !important;
+        }
+
+        .text-muted {
+            color: var(--text-muted) !important;
+        }
+
+        .text-light {
+            color: var(--text-primary) !important;
+        }
+
+        .text-success {
+            color: var(--secondary-green) !important;
+        }
+
+        .bg-gradient {
+            background: linear-gradient(135deg, var(--primary-blue), var(--secondary-green)) !important;
+        }
+
+        /* ===== ANIMAZIONI ===== */
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .animate-slide-up {
+            animation: slideInUp 0.6s ease-out;
+        }
+
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .container {
+                padding: 0 1rem;
+            }
+            
+            .card-body {
+                padding: 1rem;
+            }
+            
+            h1 {
+                font-size: 1.75rem;
+            }
+
+            .navbar-brand {
+                font-size: 1.25rem;
+            }
+        }
+
+        /* ===== CUSTOM CLASSES ===== */
+        .glassmorphism {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-avatar {
+            border: 3px solid var(--primary-blue);
+            transition: all 0.3s ease;
+            object-fit: cover;
+        }
+
+        .user-avatar:hover {
+            transform: scale(1.1);
+            border-color: var(--secondary-green);
+        }
+
+        .status-indicator {
+            position: relative;
+        }
+
+        .status-indicator.online::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 12px;
+            height: 12px;
+            background: var(--secondary-green);
+            border: 2px solid var(--bg-card);
+            border-radius: 50%;
+        }
+
+        /* ===== LOADING STATES ===== */
+        .loading {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            animation: loading 1.5s infinite;
+        }
+
+        @keyframes loading {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        /* ===== DARK SCROLLBAR ===== */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--bg-surface);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-blue);
         }
     </style>
 </head>
 
 <body>
     <!-- Navigation -->
-    <nav class="navbar navbar-expand-lg navbar-dark sticky-top">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="{% url 'core:home' %}">
                 <i class="bi bi-music-note-beamed"></i> MyLabel
@@ -142,31 +529,71 @@
                             <i class="bi bi-tools"></i> Professionisti
                         </a>
                     </li>
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="{% url 'booking:my_bookings' %}">
+                            <i class="bi bi-calendar-week"></i> Prenotazioni
+                            <!-- Badge prenotazioni pendenti - da implementare -->
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="{% url 'messaging:inbox' %}">
+                            <i class="bi bi-chat-dots"></i> Messaggi
+                            {% if unread_messages_count > 0 %}
+                            <span class="badge bg-danger">{{ unread_messages_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    {% endif %}
                 </ul>
                 
                 <ul class="navbar-nav">
                     {% if user.is_authenticated %}
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-person-circle"></i> {{ user.username }}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-dark">
-                                <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">
-                                    <i class="bi bi-person"></i> Il Mio Profilo
-                                </a></li>
-                                {% if user.profile.user_type == 'artist' %}
-                                    <li><a class="dropdown-item" href="{% url 'artists:demo_upload' %}">
-                                        <i class="bi bi-upload"></i> Carica Demo
-                                    </a></li>
-                                {% elif user.profile.user_type == 'associate' %}
-                                    <li><a class="dropdown-item" href="{% url 'associates:portfolio_add' %}">
-                                        <i class="bi bi-plus-circle"></i> Aggiungi Portfolio
-                                    </a></li>
+                            <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
+                                {% if user.profile.external_avatar_url %}
+                                    <img src="{{ user.profile.external_avatar_url }}" class="user-avatar rounded-circle me-2" style="width: 32px; height: 32px;" alt="Avatar">
+                                {% else %}
+                                    <img src="{{ user.profile.get_avatar_url }}" class="user-avatar rounded-circle me-2" style="width: 32px; height: 32px;" alt="Avatar">
                                 {% endif %}
+                                <span>{{ user.first_name|default:user.username }}</span>
+                                {% if unread_notifications_count > 0 %}
+                                <span class="badge bg-warning ms-1">{{ unread_notifications_count }}</span>
+                                {% endif %}
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="{% url 'accounts:profile' %}">
+                                        <i class="bi bi-person me-2"></i> Il Mio Profilo
+                                    </a>
+                                </li>
+                                {% if user.profile.user_type == 'artist' %}
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'artists:demo_upload' %}">
+                                            <i class="bi bi-upload me-2"></i> Carica Demo
+                                        </a>
+                                    </li>
+                                {% elif user.profile.user_type == 'associate' %}
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'associates:portfolio_add' %}">
+                                            <i class="bi bi-plus-circle me-2"></i> Aggiungi Portfolio
+                                        </a>
+                                    </li>
+                                {% endif %}
+                                <li>
+                                    <a class="dropdown-item position-relative" href="{% url 'messaging:notifications' %}">
+                                        <i class="bi bi-bell me-2"></i> Notifiche
+                                        {% if unread_notifications_count > 0 %}
+                                        <span class="badge bg-warning">{{ unread_notifications_count }}</span>
+                                        {% endif %}
+                                    </a>
+                                </li>
                                 <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item" href="{% url 'accounts:logout' %}">
-                                    <i class="bi bi-box-arrow-right"></i> Logout
-                                </a></li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">
+                                        <i class="bi bi-box-arrow-right me-2"></i> Logout
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                     {% else %}
@@ -190,13 +617,15 @@
     {% if messages %}
         <div class="container mt-3">
             {% for message in messages %}
-                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show animate-fade-in" role="alert">
                     {% if message.tags == 'success' %}
-                        <i class="bi bi-check-circle-fill"></i>
+                        <i class="bi bi-check-circle-fill me-2"></i>
                     {% elif message.tags == 'error' or message.tags == 'danger' %}
-                        <i class="bi bi-exclamation-triangle-fill"></i>
+                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
                     {% elif message.tags == 'info' %}
-                        <i class="bi bi-info-circle-fill"></i>
+                        <i class="bi bi-info-circle-fill me-2"></i>
+                    {% elif message.tags == 'warning' %}
+                        <i class="bi bi-exclamation-circle-fill me-2"></i>
                     {% endif %}
                     {{ message }}
                     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
@@ -211,6 +640,26 @@
         {% endblock %}
     </main>
 
+    <!-- Footer -->
+    <footer class="glassmorphism mt-5 py-4">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center">
+                        <i class="bi bi-music-note-beamed text-primary me-2" style="font-size: 1.5rem;"></i>
+                        <span class="fw-bold">MyLabel</span>
+                        <span class="text-muted ms-2">© 2024 - Connecting Music Professionals</span>
+                    </div>
+                </div>
+                <div class="col-md-6 text-end">
+                    <small class="text-muted">
+                        Made with <i class="bi bi-heart-fill text-danger"></i> for music lovers
+                    </small>
+                </div>
+            </div>
+        </div>
+    </footer>
+
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
@@ -221,9 +670,33 @@
             const alerts = document.querySelectorAll('.alert');
             alerts.forEach(alert => {
                 const bsAlert = new bootstrap.Alert(alert);
-                bsAlert.close();
+                if (bsAlert) {
+                    bsAlert.close();
+                }
             });
         }, 5000);
+
+        // Add loading state to forms
+        document.addEventListener('DOMContentLoaded', function() {
+            const forms = document.querySelectorAll('form');
+            forms.forEach(form => {
+                form.addEventListener('submit', function() {
+                    const submitBtn = form.querySelector('button[type="submit"]');
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Caricamento...';
+                    }
+                });
+            });
+
+            // Add animation to cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.classList.add('animate-slide-up');
+                }, index * 100);
+            });
+        });
     </script>
     
     {% block extra_js %}{% endblock %}
