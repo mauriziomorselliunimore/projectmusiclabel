@@ -1,3 +1,6 @@
 record_label/.env
 .venv
 setupandrun.py
+venv/
+bookingcalendario_dovemettere.html
+disponibilitàassociati_dovemettere.html
