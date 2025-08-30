@@ -20,7 +20,7 @@ urlpatterns = [
     path('artists/', include('artists.urls', namespace='artists')),
     path('associates/', include('associates.urls', namespace='associates')),
     path('booking/', include('booking.urls', namespace='booking')),
-    path('messages/', include('messaging.urls', namespace='messaging')),
+    path('messaging/', include('messaging.urls', namespace='messaging')),  # ✅ CORRETTO: messaging/ non messages/
     
     # API
     path('api/', include('api.urls', namespace='api')),

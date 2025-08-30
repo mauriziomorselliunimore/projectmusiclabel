@@ -75,6 +75,8 @@ class Notification(models.Model):
         ('booking_cancelled', 'Prenotazione Cancellata'),
         ('demo_feedback', 'Feedback Demo'),
         ('profile_view', 'Profilo Visualizzato'),
+        ('quote_request', 'Richiesta Preventivo'),
+        ('quote_sent', 'Preventivo Inviato'),
     ]
     
     user = models.ForeignKey(
