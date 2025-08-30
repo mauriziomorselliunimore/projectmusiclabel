@@ -10,4 +10,5 @@ urlpatterns = [
     path('<int:pk>/edit/', views.artist_edit, name='edit'),
     path('demo/upload/', views.demo_upload, name='demo_upload'),
     path('demo/<int:pk>/delete/', views.demo_delete, name='demo_delete'),
+    path('quick-message/', views.quick_message, name='quick_message'),
 ]

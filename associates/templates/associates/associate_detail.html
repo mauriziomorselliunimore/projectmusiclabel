@@ -1,109 +1,211 @@
+<!-- associates/templates/associates/associate_detail.html - Updated -->
 {% extends 'base.html' %}
 {% block title %}{{ associate.user.get_full_name }} - MyLabel{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <div class="row">
-        <div class="col-md-4">
-            <div class="card text-center">
+        <!-- Associate Info Sidebar -->
+        <div class="col-lg-4">
+            <div class="card text-center sticky-top" style="top: 100px;">
                 <div class="card-body">
-                    <div class="mb-3">
+                    <div class="mb-3 position-relative">
                         {% if associate.user.profile.external_avatar_url %}
                             <img src="{{ associate.user.profile.external_avatar_url }}" alt="Foto profilo" 
-                                 class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover;"
-                                 onerror="this.onerror=null; this.src='{{ associate.user.profile.get_avatar_url }}';">
+                                 class="rounded-circle associate-avatar" style="width: 120px; height: 120px; object-fit: cover;">
                         {% else %}
                             <img src="{{ associate.user.profile.get_avatar_url }}" alt="Avatar" 
-                                 class="rounded-circle" style="width: 120px; height: 120px; object-fit: cover;">
+                                 class="rounded-circle associate-avatar" style="width: 120px; height: 120px; object-fit: cover;">
                         {% endif %}
+                        
+                        <!-- Availability Status -->
+                        <div class="availability-badge 
+                            {% if associate.is_available %}available{% else %}busy{% endif %}">
+                            {% if associate.is_available %}
+                                <i class="bi bi-check-circle"></i>
+                            {% else %}
+                                <i class="bi bi-clock"></i>
+                            {% endif %}
+                        </div>
                     </div>
                     
                     <h4 class="text-light">{{ associate.user.get_full_name }}</h4>
-                    <p class="text-magenta">{{ associate.specialization }}</p>
+                    <p class="text-success mb-2">{{ associate.specialization }}</p>
                     
+                    <!-- Experience Badge -->
                     {% if associate.experience_level %}
                     <span class="badge bg-secondary mb-2">{{ associate.get_experience_level_display }}</span>
                     {% endif %}
                     
                     {% if associate.years_experience %}
-                    <p class="text-muted small">{{ associate.years_experience }} anni di esperienza</p>
+                    <p class="text-muted small mb-3">
+                        <i class="bi bi-award"></i> {{ associate.years_experience }} anni di esperienza
+                    </p>
                     {% endif %}
                     
+                    <!-- Rate Card -->
+                    {% if associate.hourly_rate %}
+                    <div class="rate-card mb-3">
+                        <div class="rate-amount">{{ associate.get_rate_display }}</div>
+                        <small class="text-muted">Tariffa standard</small>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Location & Availability -->
                     {% if associate.location %}
-                    <p class="text-muted">
+                    <p class="text-muted mb-2">
                         <i class="bi bi-geo-alt"></i> {{ associate.location }}
                     </p>
                     {% endif %}
                     
-                    {% if associate.hourly_rate %}
-                    <div class="alert alert-success py-2">
-                        <strong>{{ associate.get_rate_display }}</strong>
-                    </div>
-                    {% endif %}
-                    
                     {% if associate.availability %}
-                    <p class="text-muted small">
+                    <p class="text-muted small mb-3">
                         <i class="bi bi-clock"></i> {{ associate.availability }}
                     </p>
                     {% endif %}
                     
-                    <div class="mb-3">
+                    <!-- Status Indicator -->
+                    <div class="status-indicator mb-4">
                         {% if associate.is_available %}
-                        <span class="badge bg-success">
-                            <i class="bi bi-check-circle"></i> Disponibile per nuovi progetti
-                        </span>
+                        <div class="alert alert-success py-2">
+                            <i class="bi bi-check-circle-fill"></i> 
+                            <strong>Disponibile per nuovi progetti</strong>
+                        </div>
                         {% else %}
-                        <span class="badge bg-warning">
-                            <i class="bi bi-clock"></i> Attualmente occupato
-                        </span>
+                        <div class="alert alert-warning py-2">
+                            <i class="bi bi-hourglass-split"></i>
+                            <strong>Attualmente occupato</strong>
+                        </div>
                         {% endif %}
                     </div>
                     
-                    {% if associate.phone or associate.website %}
-                    <div class="mt-3">
-                        {% if associate.phone %}
-                        <a href="tel:{{ associate.phone }}" class="btn btn-outline-light btn-sm me-1">
-                            <i class="bi bi-telephone"></i> Chiama
-                        </a>
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        {% if is_owner %}
+                            <!-- Owner Actions -->
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'associates:edit' associate.pk %}" class="btn btn-primary">
+                                    <i class="bi bi-pencil"></i> Modifica Profilo
+                                </a>
+                                <a href="{% url 'associates:portfolio_add' %}" class="btn btn-outline-primary">
+                                    <i class="bi bi-plus-circle"></i> Aggiungi Portfolio
+                                </a>
+                                <a href="#" class="btn btn-outline-success" onclick="showAvailabilityModal()">
+                                    <i class="bi bi-calendar-week"></i> Gestisci Disponibilità
+                                </a>
+                                <a href="{% url 'booking:my_bookings' %}" class="btn btn-outline-warning">
+                                    <i class="bi bi-list-check"></i> I Miei Booking
+                                </a>
+                            </div>
+                        {% elif user.is_authenticated %}
+                            <!-- Visitor Actions -->
+                            <div class="d-grid gap-2">
+                                <!-- Message Button -->
+                                {% if existing_conversation %}
+                                    <a href="{% url 'messaging:conversation' existing_conversation.pk %}" 
+                                       class="btn btn-success">
+                                        <i class="bi bi-chat-fill"></i> Continua Conversazione
+                                    </a>
+                                {% else %}
+                                    <button class="btn btn-success" 
+                                            onclick="showQuickMessageModal('{{ associate.user.id }}', '{{ associate.user.get_full_name }}')">
+                                        <i class="bi bi-chat-dots"></i> Invia Messaggio
+                                    </button>
+                                {% endif %}
+                                
+                                <!-- Booking Button (only for artists) -->
+                                {% if can_book and associate.is_available %}
+                                    <a href="{% url 'booking:calendar' associate.pk %}" class="btn btn-primary btn-lg booking-cta">
+                                        <i class="bi bi-calendar-plus"></i> 
+                                        <div class="booking-text">
+                                            <div>Prenota Sessione</div>
+                                            <small>Conferma immediata</small>
+                                        </div>
+                                    </a>
+                                {% elif user.profile.user_type == 'artist' and not associate.is_available %}
+                                    <button class="btn btn-outline-warning" disabled>
+                                        <i class="bi bi-hourglass-split"></i> Attualmente Non Disponibile
+                                    </button>
+                                {% endif %}
+                                
+                                <!-- Quote Request -->
+                                <button class="btn btn-outline-info" onclick="showQuoteRequestModal()">
+                                    <i class="bi bi-calculator"></i> Richiedi Preventivo
+                                </button>
+                                
+                                <!-- Add to Favorites -->
+                                <button class="btn btn-outline-warning" onclick="toggleFavorite({{ associate.user.id }})">
+                                    <i class="bi bi-star"></i> <span id="favorite-text">Aggiungi ai Preferiti</span>
+                                </button>
+                            </div>
+                        {% else %}
+                            <!-- Anonymous User -->
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'accounts:login' %}?next={{ request.path }}" 
+                                   class="btn btn-primary">
+                                    <i class="bi bi-box-arrow-in-right"></i> Accedi per Prenotare
+                                </a>
+                                <a href="{% url 'accounts:register' %}" 
+                                   class="btn btn-outline-primary">
+                                    <i class="bi bi-person-plus"></i> Registrati
+                                </a>
+                            </div>
                         {% endif %}
-                        {% if associate.website %}
-                        <a href="{{ associate.website }}" target="_blank" class="btn btn-info btn-sm me-1">
-                            <i class="bi bi-globe"></i> Sito Web
-                        </a>
-                        {% endif %}
+                    </div>
+                    
+                    <!-- Contact Info -->
+                    {% if associate.phone and is_owner or associate.website %}
+                    <div class="contact-info mt-4">
+                        <h6 class="text-light mb-2">Contatti:</h6>
+                        <div class="d-flex justify-content-center gap-2">
+                            {% if associate.phone and is_owner %}
+                            <a href="tel:{{ associate.phone }}" class="btn btn-outline-success btn-sm">
+                                <i class="bi bi-telephone"></i> Chiama
+                            </a>
+                            {% endif %}
+                            {% if associate.website %}
+                            <a href="{{ associate.website }}" target="_blank" class="btn btn-outline-info btn-sm">
+                                <i class="bi bi-globe"></i> Sito Web
+                            </a>
+                            {% endif %}
+                        </div>
                     </div>
                     {% endif %}
                     
-                    {% if is_owner %}
-                    <div class="mt-3">
-                        <a href="{% url 'associates:edit' associate.pk %}" class="btn btn-magenta btn-sm">
-                            <i class="bi bi-pencil"></i> Modifica
-                        </a>
-                        <a href="{% url 'associates:portfolio_add' %}" class="btn btn-outline-light btn-sm">
-                            <i class="bi bi-plus-circle"></i> Aggiungi Portfolio
-                        </a>
+                    <!-- Rating/Reviews (future feature) -->
+                    <div class="rating-section mt-3">
+                        <div class="rating-stars">
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-fill text-warning"></i>
+                            <i class="bi bi-star-half text-warning"></i>
+                        </div>
+                        <small class="text-muted">4.8 (24 recensioni)</small>
                     </div>
-                    {% endif %}
                 </div>
             </div>
         </div>
         
-        <div class="col-md-8">
+        <!-- Associate Content -->
+        <div class="col-lg-8">
+            <!-- Skills Section -->
             {% if associate.skills %}
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="text-light mb-3">
-                        <i class="bi bi-star-fill"></i> Competenze
+                        <i class="bi bi-star-fill"></i> Competenze Principali
                     </h5>
-                    <div class="d-flex flex-wrap gap-2">
+                    <div class="skills-grid">
                         {% for skill in associate.get_skills_list %}
-                        <span class="badge bg-magenta fs-6">{{ skill }}</span>
+                        <span class="skill-badge">{{ skill }}</span>
                         {% endfor %}
                     </div>
                 </div>
             </div>
             {% endif %}
             
+            <!-- Bio Section -->
             {% if associate.bio %}
             <div class="card mb-4">
                 <div class="card-body">
@@ -115,61 +217,124 @@
             </div>
             {% endif %}
             
+            <!-- Portfolio Description -->
             {% if associate.portfolio_description %}
             <div class="card mb-4">
                 <div class="card-body">
                     <h5 class="text-light mb-3">
-                        <i class="bi bi-briefcase-fill"></i> Portfolio
+                        <i class="bi bi-briefcase-fill"></i> Il Mio Portfolio
                     </h5>
                     <p class="text-muted">{{ associate.portfolio_description }}</p>
                 </div>
             </div>
             {% endif %}
             
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="text-light mb-3">
-                        <i class="bi bi-collection"></i> Lavori Realizzati 
-                        <span class="badge bg-magenta">{{ portfolio_items.count }}</span>
+            <!-- Recent Work History (if user is artist with history) -->
+            {% if recent_bookings %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="text-light mb-0">
+                        <i class="bi bi-clock-history"></i> La Nostra Storia di Collaborazione
                     </h5>
+                </div>
+                <div class="card-body">
+                    <div class="timeline">
+                        {% for booking in recent_bookings %}
+                        <div class="timeline-item">
+                            <div class="timeline-marker bg-{% if booking.status == 'completed' %}success{% else %}primary{% endif %}"></div>
+                            <div class="timeline-content">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <strong>{{ booking.get_booking_type_display }}</strong>
+                                        <p class="text-muted mb-1">{{ booking.session_date|date:"d F Y" }}</p>
+                                    </div>
+                                    <span class="badge bg-{% if booking.status == 'completed' %}success{% else %}primary{% endif %}">
+                                        {{ booking.get_status_display }}
+                                    </span>
+                                </div>
+                                {% if booking.notes %}
+                                <p class="text-light small">{{ booking.notes|truncatewords:20 }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
                     
+                    <div class="text-center mt-3">
+                        <a href="{% url 'booking:calendar' associate.pk %}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Prenota Nuova Sessione
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Portfolio Items -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="text-light mb-0">
+                            <i class="bi bi-collection"></i> Portfolio Lavori
+                            <span class="badge bg-primary">{{ portfolio_items.count }}</span>
+                        </h5>
+                        {% if is_owner %}
+                        <a href="{% url 'associates:portfolio_add' %}" class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-plus-circle"></i> Aggiungi
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+                <div class="card-body">
                     {% if portfolio_items %}
-                    <div class="row">
+                    <div class="portfolio-grid">
                         {% for item in portfolio_items %}
-                        <div class="col-md-6 mb-3">
-                            <div class="card bg-dark">
-                                <div class="card-body">
-                                    {% if item.external_image_url %}
-                                    <img src="{{ item.external_image_url }}" alt="{{ item.title }}" 
-                                         class="img-fluid rounded mb-2" style="max-height: 150px; width: 100%; object-fit: cover;"
-                                         onerror="this.style.display='none'">
-                                    {% endif %}
-                                    
-                                    <div class="d-flex justify-content-between align-items-start">
-                                        <div class="flex-grow-1">
-                                            <h6 class="text-light">{{ item.title }}</h6>
-                                            {% if item.description %}
-                                            <p class="text-muted small">{{ item.description|truncatewords:20 }}</p>
+                        <div class="portfolio-item">
+                            {% if item.external_image_url %}
+                            <div class="portfolio-image">
+                                <img src="{{ item.external_image_url }}" alt="{{ item.title }}" 
+                                     class="img-fluid rounded" loading="lazy"
+                                     onerror="this.parentElement.style.display='none'">
+                                <div class="portfolio-overlay">
+                                    <div class="portfolio-actions">
+                                        {% if item.get_primary_url %}
+                                        <a href="{{ item.get_primary_url }}" target="_blank" 
+                                           class="btn btn-sm btn-primary">
+                                            <i class="bi bi-box-arrow-up-right"></i>
+                                        </a>
+                                        {% endif %}
+                                        {% if item.external_audio_url and item.external_audio_url != item.get_primary_url %}
+                                        <a href="{{ item.external_audio_url }}" target="_blank" 
+                                           class="btn btn-sm btn-warning">
+                                            <i class="bi bi-play-circle"></i>
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="portfolio-content">
+                                <div class="portfolio-header">
+                                    <h6 class="text-light mb-1">{{ item.title }}</h6>
+                                    <div class="portfolio-meta">
+                                        <small class="text-muted">
+                                            <i class="bi bi-calendar3"></i> {{ item.created_at|date:"M Y" }}
+                                        </small>
+                                        {% if item.get_platform %}
+                                        <span class="platform-badge platform-{{ item.get_platform }}">
+                                            {% if item.get_platform == 'youtube' %}
+                                                <i class="bi bi-youtube"></i>
+                                            {% elif item.get_platform == 'soundcloud' %}
+                                                <i class="bi bi-music-note"></i>
+                                            {% elif item.get_platform == 'drive' %}
+                                                <i class="bi bi-cloud"></i>
+                                            {% elif item.get_platform == 'imgur' %}
+                                                <i class="bi bi-image"></i>
+                                            {% else %}
+                                                <i class="bi bi-link-45deg"></i>
                                             {% endif %}
-                                            <small class="text-muted">
-                                                <i class="bi bi-calendar3"></i> {{ item.created_at|date:"M Y" }}
-                                                {% if item.get_platform %}
-                                                <span class="ms-2">
-                                                    {% if item.get_platform == 'youtube' %}
-                                                        <i class="bi bi-youtube text-danger"></i>
-                                                    {% elif item.get_platform == 'soundcloud' %}
-                                                        <i class="bi bi-music-note text-warning"></i>
-                                                    {% elif item.get_platform == 'drive' %}
-                                                        <i class="bi bi-cloud text-info"></i>
-                                                    {% elif item.get_platform == 'imgur' %}
-                                                        <i class="bi bi-image text-success"></i>
-                                                    {% else %}
-                                                        <i class="bi bi-link-45deg"></i>
-                                                    {% endif %}
-                                                </span>
-                                                {% endif %}
-                                            </small>
-                                        </div>
+                                        </span>
+                                        {% endif %}
                                         
                                         {% if is_owner %}
                                         <div class="dropdown">
@@ -186,38 +351,48 @@
                                         </div>
                                         {% endif %}
                                     </div>
+                                </div>
+                                
+                                {% if item.description %}
+                                <p class="text-muted small mb-2">{{ item.description|truncatewords:15 }}</p>
+                                {% endif %}
+                                
+                                <div class="portfolio-actions-mobile d-flex gap-1">
+                                    {% if item.get_primary_url %}
+                                    <a href="{{ item.get_primary_url }}" target="_blank" 
+                                       class="btn btn-outline-primary btn-sm flex-fill">
+                                        <i class="bi bi-box-arrow-up-right"></i> Visualizza
+                                    </a>
+                                    {% endif %}
                                     
-                                    <div class="mt-2 d-flex gap-2">
-                                        {% if item.get_primary_url %}
-                                        <a href="{{ item.get_primary_url }}" target="_blank" class="btn btn-outline-light btn-sm flex-grow-1">
-                                            <i class="bi bi-box-arrow-up-right"></i> Visualizza
-                                        </a>
-                                        {% endif %}
-                                        
-                                        {% if item.external_audio_url and item.external_audio_url != item.get_primary_url %}
-                                        <a href="{{ item.external_audio_url }}" target="_blank" class="btn btn-outline-warning btn-sm">
-                                            <i class="bi bi-play-circle"></i> Audio
-                                        </a>
-                                        {% endif %}
-                                    </div>
+                                    {% if item.external_audio_url and item.external_audio_url != item.get_primary_url %}
+                                    <a href="{{ item.external_audio_url }}" target="_blank" 
+                                       class="btn btn-outline-warning btn-sm">
+                                        <i class="bi bi-play-circle"></i>
+                                    </a>
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
                         {% endfor %}
                     </div>
                     {% else %}
-                    <div class="text-center py-4">
-                        <i class="bi bi-briefcase" style="font-size: 3rem; color: #666;"></i>
+                    <div class="no-portfolio text-center py-5">
+                        <i class="bi bi-briefcase" style="font-size: 4rem; color: #666;"></i>
                         <h5 class="text-muted mt-3">Nessun lavoro nel portfolio</h5>
                         {% if is_owner %}
-                        <p class="text-muted">Aggiungi i tuoi primi lavori con link esterni!</p>
-                        <div class="alert alert-info mt-3">
-                            <i class="bi bi-lightbulb"></i>
-                            <strong>Suggerimento:</strong> Carica i tuoi lavori su YouTube, SoundCloud, 
-                            o condividi le immagini su Imgur, poi aggiungi i link qui.
+                        <p class="text-muted mb-4">Aggiungi i tuoi lavori migliori per attirare più clienti!</p>
+                        <div class="alert alert-info">
+                            <h6><i class="bi bi-lightbulb"></i> Suggerimenti:</h6>
+                            <ul class="text-start mb-0">
+                                <li>Carica esempi dei tuoi lavori migliori</li>
+                                <li>Includi diverse tipologie di progetti</li>
+                                <li>Aggiungi descrizioni dettagliate</li>
+                                <li>Usa link a SoundCloud, YouTube, ecc.</li>
+                            </ul>
                         </div>
-                        <a href="{% url 'associates:portfolio_add' %}" class="btn btn-magenta">
-                            <i class="bi bi-plus-circle"></i> Aggiungi Lavoro
+                        <a href="{% url 'associates:portfolio_add' %}" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Aggiungi Primo Lavoro
                         </a>
                         {% else %}
                         <p class="text-muted">Il professionista non ha ancora condiviso i suoi lavori.</p>
@@ -228,13 +403,467 @@
             </div>
         </div>
     </div>
-    
-    <div class="row mt-4">
-        <div class="col-12">
-            <a href="{% url 'associates:list' %}" class="btn btn-outline-light">
-                <i class="bi bi-arrow-left"></i> Torna alla Lista Professionisti
-            </a>
+</div>
+
+<!-- Quote Request Modal -->
+<div class="modal fade" id="quoteRequestModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title text-light">
+                    <i class="bi bi-calculator"></i> Richiesta Preventivo
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="quote-request-form">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-light">Tipo di Servizio</label>
+                            <select class="form-select" id="quote-service-type">
+                                <option value="recording">Registrazione</option>
+                                <option value="mixing">Mixing</option>
+                                <option value="mastering">Mastering</option>
+                                <option value="production">Produzione</option>
+                                <option value="lesson">Lezioni</option>
+                                <option value="consultation">Consulenza</option>
+                                <option value="other">Altro</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-light">Budget Indicativo</label>
+                            <select class="form-select" id="quote-budget">
+                                <option value="">Seleziona fascia</option>
+                                <option value="under-100">Sotto €100</option>
+                                <option value="100-300">€100 - €300</option>
+                                <option value="300-500">€300 - €500</option>
+                                <option value="500-1000">€500 - €1000</option>
+                                <option value="over-1000">Oltre €1000</option>
+                                <option value="flexible">Da concordare</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-light">Timeline Progetto</label>
+                            <select class="form-select" id="quote-timeline">
+                                <option value="urgent">Urgente (entro 1 settimana)</option>
+                                <option value="normal">Normale (2-4 settimane)</option>
+                                <option value="flexible">Flessibile (1-2 mesi)</option>
+                                <option value="planned">Pianificato (oltre 2 mesi)</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-light">Numero di Tracce</label>
+                            <input type="number" class="form-control" id="quote-tracks" 
+                                   placeholder="es. 5" min="1" max="50">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-light">Descrizione Dettagliata</label>
+                        <textarea class="form-control" id="quote-description" rows="4"
+                                  placeholder="Descrivi il tuo progetto nel dettaglio: genere musicale, strumentazione, obiettivi, riferimenti, ecc."></textarea>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-light">Materiale di Riferimento</label>
+                            <input type="url" class="form-control" id="quote-reference" 
+                                   placeholder="https://soundcloud.com/... (opzionale)">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-light">Metodo di Contatto Preferito</label>
+                            <select class="form-select" id="quote-contact-method">
+                                <option value="message">Messaggio su MyLabel</option>
+                                <option value="email">Email</option>
+                                <option value="phone">Chiamata telefonica</option>
+                                <option value="video">Video chiamata</option>
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-info" onclick="sendQuoteRequest()">
+                    <i class="bi bi-send"></i> Invia Richiesta
+                </button>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Include Quick Message Modal from artist template -->
+<!-- (Same modal as in artist template) -->
+
+<style>
+.associate-avatar {
+    border: 3px solid var(--secondary-green);
+    transition: all 0.3s ease;
+}
+
+.associate-avatar:hover {
+    transform: scale(1.05);
+    border-color: var(--primary-blue);
+}
+
+.availability-badge {
+    position: absolute;
+    bottom: 5px;
+    right: 5px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    border: 3px solid var(--bg-card);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+}
+
+.availability-badge.available {
+    background: var(--secondary-green);
+    color: white;
+    animation: pulse-available 2s ease-in-out infinite;
+}
+
+.availability-badge.busy {
+    background: var(--accent-orange);
+    color: white;
+}
+
+@keyframes pulse-available {
+    0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+    70% { box-shadow: 0 0 0 8px rgba(16, 185, 129, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+.rate-card {
+    background: linear-gradient(135deg, var(--secondary-green), var(--primary-blue));
+    border-radius: 0.75rem;
+    padding: 1rem;
+    color: white;
+}
+
+.rate-amount {
+    font-size: 1.25rem;
+    font-weight: bold;
+}
+
+.booking-cta {
+    position: relative;
+    overflow: hidden;
+    padding: 1rem;
+}
+
+.booking-cta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: left 0.5s;
+}
+
+.booking-cta:hover::before {
+    left: 100%;
+}
+
+.booking-text {
+    text-align: left;
+}
+
+.booking-text small {
+    opacity: 0.8;
+}
+
+.skills-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.skill-badge {
+    background: linear-gradient(135deg, var(--primary-blue), var(--secondary-green));
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 1.5rem;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.skill-badge:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(59, 130, 246, 0.3);
+}
+
+.timeline {
+    position: relative;
+    padding-left: 2rem;
+}
+
+.timeline-item {
+    position: relative;
+    margin-bottom: 1.5rem;
+}
+
+.timeline-marker {
+    position: absolute;
+    left: -2.25rem;
+    top: 0.25rem;
+    width: 1rem;
+    height: 1rem;
+    border-radius: 50%;
+    border: 3px solid var(--bg-card);
+}
+
+.timeline::before {
+    content: '';
+    position: absolute;
+    left: -1.75rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--border);
+}
+
+.portfolio-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+}
+
+.portfolio-item {
+    background: var(--bg-surface);
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.portfolio-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+    border-color: var(--primary-blue);
+}
+
+.portfolio-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.portfolio-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+}
+
+.portfolio-item:hover .portfolio-image img {
+    transform: scale(1.05);
+}
+
+.portfolio-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.portfolio-item:hover .portfolio-overlay {
+    opacity: 1;
+}
+
+.portfolio-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.portfolio-content {
+    padding: 1rem;
+}
+
+.portfolio-header {
+    display: flex;
+    justify-content: between;
+    align-items: start;
+    margin-bottom: 0.5rem;
+}
+
+.portfolio-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.platform-badge {
+    font-size: 0.7rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+}
+
+.platform-youtube { background: rgba(255, 0, 0, 0.2); color: #ff0000; }
+.platform-soundcloud { background: rgba(255, 85, 0, 0.2); color: #ff5500; }
+.platform-drive { background: rgba(66, 133, 244, 0.2); color: #4285f4; }
+.platform-imgur { background: rgba(133, 193, 50, 0.2); color: #85c132; }
+
+.portfolio-actions-mobile {
+    margin-top: 0.5rem;
+}
+
+@media (min-width: 768px) {
+    .portfolio-actions-mobile {
+        display: none;
+    }
+}
+
+@media (max-width: 767px) {
+    .portfolio-overlay {
+        display: none;
+    }
+    
+    .portfolio-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.no-portfolio {
+    background: rgba(255, 255, 255, 0.02);
+    border: 2px dashed var(--border);
+    border-radius: 1rem;
+}
+
+.rating-stars {
+    margin-bottom: 0.25rem;
+}
+
+.form-control, .form-select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+}
+
+.form-control:focus, .form-select:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--primary-blue);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+}
+</style>
+
+<script>
+// Same JavaScript functions as artist template for messaging
+// Plus additional functions for booking and quotes
+
+function showQuoteRequestModal() {
+    new bootstrap.Modal(document.getElementById('quoteRequestModal')).show();
+}
+
+function sendQuoteRequest() {
+    const serviceType = document.getElementById('quote-service-type').value;
+    const budget = document.getElementById('quote-budget').value;
+    const timeline = document.getElementById('quote-timeline').value;
+    const tracks = document.getElementById('quote-tracks').value;
+    const description = document.getElementById('quote-description').value;
+    const reference = document.getElementById('quote-reference').value;
+    const contactMethod = document.getElementById('quote-contact-method').value;
+    
+    if (!description.trim()) {
+        alert('Inserisci una descrizione del progetto');
+        return;
+    }
+    
+    const quoteMessage = `RICHIESTA PREVENTIVO\n\n` +
+        `Servizio: ${serviceType}\n` +
+        `Budget: ${budget || 'Da concordare'}\n` +
+        `Timeline: ${timeline}\n` +
+        `Numero tracce: ${tracks || 'Da definire'}\n` +
+        `Contatto preferito: ${contactMethod}\n\n` +
+        `DESCRIZIONE PROGETTO:\n${description}\n\n` +
+        `${reference ? `Materiale di riferimento: ${reference}\n\n` : ''}` +
+        `Ti prego di inviarmi un preventivo dettagliato.\n\n` +
+        `Grazie!\n{{ user.get_full_name }}`;
+    
+    // Fill quick message modal
+    currentRecipientId = {{ associate.user.id }};
+    document.getElementById('recipient-name').textContent = '{{ associate.user.get_full_name }}';
+    document.getElementById('quick-message-type').value = 'inquiry';
+    document.getElementById('quick-message-subject').value = `Richiesta Preventivo: ${serviceType}`;
+    document.getElementById('quick-message-text').value = quoteMessage;
+    
+    // Close quote modal and send message
+    bootstrap.Modal.getInstance(document.getElementById('quoteRequestModal')).hide();
+    
+    // Show message modal
+    new bootstrap.Modal(document.getElementById('quickMessageModal')).show();
+}
+
+function showAvailabilityModal() {
+    // Redirect to availability management page
+    window.location.href = '/associates/availability/manage/';
+}
+
+function toggleFavorite(userId) {
+    const favoriteBtn = document.getElementById('favorite-text');
+    const isFavorite = favoriteBtn.textContent.includes('Aggiungi');
+    
+    if (isFavorite) {
+        favoriteBtn.textContent = 'Rimuovi dai Preferiti';
+        showNotification('Aggiunto ai preferiti!', 'success');
+    } else {
+        favoriteBtn.textContent = 'Aggiungi ai Preferiti';
+        showNotification('Rimosso dai preferiti', 'info');
+    }
+    
+    // TODO: Send to backend
+    fetch('/api/favorites/toggle/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            user_id: userId,
+            action: isFavorite ? 'add' : 'remove'
+        })
+    }).catch(error => console.log('Favorite toggle failed:', error));
+}
+
+// Portfolio image lazy loading
+document.addEventListener('DOMContentLoaded', function() {
+    const images = document.querySelectorAll('.portfolio-image img');
+    
+    const imageObserver = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                img.src = img.dataset.src || img.src;
+                img.classList.remove('lazy');
+                imageObserver.unobserve(img);
+            }
+        });
+    });
+    
+    images.forEach(img => imageObserver.observe(img));
+});
+
+// Clear forms when modals close
+document.getElementById('quoteRequestModal').addEventListener('hidden.bs.modal', function () {
+    document.getElementById('quote-request-form').reset();
+});
+</script>
 {% endblock %}

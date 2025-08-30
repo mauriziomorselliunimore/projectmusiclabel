@@ -10,4 +10,5 @@ urlpatterns = [
     path('<int:pk>/edit/', views.associate_edit, name='edit'),
     path('portfolio/add/', views.portfolio_add, name='portfolio_add'),
     path('portfolio/<int:pk>/delete/', views.portfolio_delete, name='portfolio_delete'),
+    path('quick-message/', views.quick_message, name='quick_message'),
 ]

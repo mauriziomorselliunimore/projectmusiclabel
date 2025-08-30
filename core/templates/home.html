@@ -3,65 +3,141 @@
 
 {% block content %}
 <style>
-    body {
-        background: linear-gradient(135deg, #000 0%, #1b1b1b 50%, #ff2e88 100%);
-        min-height: 100vh;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        color: #fff;
+    :root {
+        --primary-blue: #3b82f6;
+        --primary-dark: #1d4ed8;
+        --secondary-green: #10b981;
+        --secondary-dark: #059669;
+        --accent-orange: #f59e0b;
+        --accent-purple: #8b5cf6;
+        --bg-dark: #0f172a;
+        --bg-card: #1e293b;
+        --text-primary: #f8fafc;
+        --text-secondary: #cbd5e1;
     }
     
     .hero-section {
-        background: rgba(0,0,0,0.7);
-        padding: 80px 0;
-        margin-bottom: 40px;
-        border-radius: 20px;
-        backdrop-filter: blur(10px);
-    }
-    
-    .stat-card {
-        background: rgba(255, 255, 255, 0.1);
-        border: 1px solid rgba(255, 46, 136, 0.3);
-        border-radius: 15px;
-        padding: 30px;
-        text-align: center;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        backdrop-filter: blur(5px);
-    }
-    
-    .stat-card:hover {
-        transform: translateY(-10px);
-        box-shadow: 0 20px 40px rgba(255, 46, 136, 0.4);
-    }
-    
-    .stat-number {
-        font-size: 3rem;
-        font-weight: bold;
-        color: #ff2e88;
-        text-shadow: 0 0 20px rgba(255, 46, 136, 0.8);
-    }
-    
-    .btn-glow {
-        background: linear-gradient(45deg, #ff2e88, #d72660);
-        border: none;
-        color: white;
-        padding: 15px 30px;
-        border-radius: 50px;
-        font-weight: bold;
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        transition: all 0.3s ease;
-        box-shadow: 0 5px 15px rgba(255, 46, 136, 0.4);
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 1.5rem;
+        padding: 4rem 2rem;
+        margin-bottom: 3rem;
+        backdrop-filter: blur(20px);
         position: relative;
         overflow: hidden;
     }
     
-    .btn-glow:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 25px rgba(255, 46, 136, 0.6);
-        color: white;
+    .hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                    radial-gradient(circle at 70% 80%, rgba(16, 185, 129, 0.1) 0%, transparent 50%);
+        pointer-events: none;
     }
     
-    .btn-glow::before {
+    .hero-content {
+        position: relative;
+        z-index: 1;
+    }
+    
+    .stat-card {
+        background: linear-gradient(135deg, var(--bg-card) 0%, rgba(59, 130, 246, 0.1) 100%);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: 1rem;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.1), transparent);
+        transition: left 0.6s ease;
+    }
+    
+    .stat-card:hover::before {
+        left: 100%;
+    }
+    
+    .stat-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 25px 50px rgba(59, 130, 246, 0.2);
+        border-color: var(--primary-blue);
+    }
+    
+    .stat-card:nth-child(2) {
+        background: linear-gradient(135deg, var(--bg-card) 0%, rgba(16, 185, 129, 0.1) 100%);
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+    
+    .stat-card:nth-child(2):hover {
+        box-shadow: 0 25px 50px rgba(16, 185, 129, 0.2);
+        border-color: var(--secondary-green);
+    }
+    
+    .stat-card:nth-child(3) {
+        background: linear-gradient(135deg, var(--bg-card) 0%, rgba(245, 158, 11, 0.1) 100%);
+        border-color: rgba(245, 158, 11, 0.3);
+    }
+    
+    .stat-card:nth-child(3):hover {
+        box-shadow: 0 25px 50px rgba(245, 158, 11, 0.2);
+        border-color: var(--accent-orange);
+    }
+    
+    .stat-number {
+        font-size: 3rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--primary-blue), var(--secondary-green));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 0.5rem;
+        text-shadow: none;
+    }
+    
+    .stat-card:nth-child(2) .stat-number {
+        background: linear-gradient(135deg, var(--secondary-green), var(--primary-blue));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .stat-card:nth-child(3) .stat-number {
+        background: linear-gradient(135deg, var(--accent-orange), var(--accent-purple));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .btn-hero {
+        background: linear-gradient(135deg, var(--primary-blue), var(--secondary-green));
+        border: none;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 0.75rem;
+        font-weight: 600;
+        text-transform: none;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-hero::before {
         content: '';
         position: absolute;
         top: 0;
@@ -72,128 +148,238 @@
         transition: left 0.5s;
     }
     
-    .btn-glow:hover::before {
+    .btn-hero:hover::before {
         left: 100%;
     }
     
+    .btn-hero:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 35px rgba(59, 130, 246, 0.4);
+        color: white;
+    }
+    
     .feature-card {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid rgba(255, 46, 136, 0.2);
-        border-radius: 15px;
-        padding: 25px;
+        background: var(--bg-card);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 1rem;
+        padding: 2rem;
+        transition: all 0.3s ease;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .feature-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--primary-blue), var(--secondary-green));
+        transform: scaleX(0);
+        transition: transform 0.3s ease;
+    }
+    
+    .feature-card:hover::before {
+        transform: scaleX(1);
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+        border-color: var(--primary-blue);
+        box-shadow: 0 20px 40px rgba(59, 130, 246, 0.15);
+    }
+    
+    .feature-icon {
+        font-size: 3rem;
+        background: linear-gradient(135deg, var(--primary-blue), var(--secondary-green));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+    }
+    
+    .profile-card {
+        background: var(--bg-card);
+        border: 1px solid rgba(59, 130, 246, 0.2);
+        border-radius: 1rem;
+        padding: 1.5rem;
         transition: all 0.3s ease;
         height: 100%;
     }
     
-    .feature-card:hover {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: rgba(255, 46, 136, 0.5);
-    }
-    
-    .feature-icon {
-        font-size: 2.5rem;
-        color: #ff2e88;
-        margin-bottom: 15px;
-    }
-    
-    .profile-card {
-        background: rgba(255, 255, 255, 0.08);
-        border: 1px solid rgba(255, 46, 136, 0.3);
-        border-radius: 15px;
-        padding: 20px;
-        transition: all 0.3s ease;
-    }
-    
     .profile-card:hover {
-        transform: scale(1.05);
-        box-shadow: 0 15px 30px rgba(255, 46, 136, 0.3);
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: 0 20px 40px rgba(59, 130, 246, 0.15);
+        border-color: var(--primary-blue);
     }
     
-    .pulse {
+    .profile-icon {
+        font-size: 3.5rem;
+        background: linear-gradient(135deg, var(--primary-blue), var(--secondary-green));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .admin-section {
+        background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(59, 130, 246, 0.05) 100%);
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        border-radius: 1rem;
+        padding: 2rem;
+        margin-top: 3rem;
+        position: relative;
+    }
+    
+    .btn-admin-primary {
+        background: linear-gradient(135deg, var(--accent-purple), var(--primary-blue));
+        border: none;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
         animation: pulse 2s infinite;
     }
     
     @keyframes pulse {
-        0% { box-shadow: 0 0 0 0 rgba(255, 46, 136, 0.7); }
-        70% { box-shadow: 0 0 0 10px rgba(255, 46, 136, 0); }
-        100% { box-shadow: 0 0 0 0 rgba(255, 46, 136, 0); }
+        0% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.7); }
+        70% { box-shadow: 0 0 0 10px rgba(139, 92, 246, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0); }
     }
     
-    .admin-section {
-        background: rgba(255, 46, 136, 0.1);
-        border: 2px solid rgba(255, 46, 136, 0.3);
-        border-radius: 15px;
-        padding: 30px;
-        margin-top: 40px;
-    }
-    
-    .btn-danger-glow {
-        background: linear-gradient(45deg, #dc3545, #c82333);
+    .btn-admin-danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
         border: none;
-        border-radius: 25px;
-        padding: 10px 25px;
         color: white;
-        font-weight: bold;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        font-weight: 600;
         transition: all 0.3s ease;
-        box-shadow: 0 3px 10px rgba(220, 53, 69, 0.4);
     }
     
-    .btn-danger-glow:hover {
+    .btn-admin-danger:hover {
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(220, 53, 69, 0.6);
+        box-shadow: 0 10px 25px rgba(239, 68, 68, 0.3);
         color: white;
+    }
+    
+    .animate-counter {
+        animation: countUp 2s ease-out;
+    }
+    
+    @keyframes countUp {
+        from { opacity: 0; transform: scale(0.5); }
+        to { opacity: 1; transform: scale(1); }
+    }
+    
+    .section-title {
+        background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        font-weight: 600;
+        margin-bottom: 2rem;
+    }
+    
+    .glowing-border {
+        position: relative;
+    }
+    
+    .glowing-border::before {
+        content: '';
+        position: absolute;
+        top: -2px;
+        left: -2px;
+        right: -2px;
+        bottom: -2px;
+        background: linear-gradient(45deg, var(--primary-blue), var(--secondary-green), var(--accent-orange), var(--accent-purple));
+        border-radius: inherit;
+        z-index: -1;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+    
+    .glowing-border:hover::before {
+        opacity: 0.7;
+    }
+    
+    @media (max-width: 768px) {
+        .hero-section {
+            padding: 2rem 1rem;
+        }
+        
+        .stat-card {
+            padding: 1.5rem;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+        }
+        
+        .btn-hero {
+            padding: 0.75rem 1.5rem;
+            font-size: 0.9rem;
+        }
     }
 </style>
 
 <div class="container mt-4">
     <!-- Hero Section -->
     <div class="hero-section text-center">
-        <div class="container">
+        <div class="hero-content">
             <h1 class="display-3 fw-bold mb-4">
-                <i class="bi bi-music-note-list"></i> MyLabel
+                <i class="bi bi-music-note-list" style="color: var(--primary-blue);"></i> MyLabel
             </h1>
-            <p class="lead mb-4">
-                La piattaforma che connette artisti e professionisti del settore musicale.<br>
-                Scopri, collabora, crea la tua musica.
+            <p class="lead mb-4 text-light" style="max-width: 600px; margin: 0 auto;">
+                La piattaforma professionale che connette artisti e professionisti del settore musicale.<br>
+                <span class="text-primary">Scopri</span>, <span class="text-success">collabora</span>, <span class="text-warning">crea</span> la tua musica.
             </p>
             
             <!-- Statistiche Live -->
-            <div class="row justify-content-center mb-5">
-                <div class="col-md-2 col-6 mb-3">
-                    <div class="stat-card">
-                        <div class="stat-number">{{ total_artists }}</div>
-                        <div class="fs-6 text-light">Artisti</div>
+            <div class="row justify-content-center mb-5 g-4">
+                <div class="col-md-3 col-6">
+                    <div class="stat-card glowing-border">
+                        <div class="stat-number animate-counter">{{ total_artists }}</div>
+                        <div class="fs-6 text-light fw-medium">
+                            <i class="bi bi-mic me-1"></i> Artisti
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-2 col-6 mb-3">
-                    <div class="stat-card">
-                        <div class="stat-number">{{ total_associates }}</div>
-                        <div class="fs-6 text-light">Professionisti</div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card glowing-border">
+                        <div class="stat-number animate-counter">{{ total_associates }}</div>
+                        <div class="fs-6 text-light fw-medium">
+                            <i class="bi bi-tools me-1"></i> Professionisti
+                        </div>
                     </div>
                 </div>
-                <div class="col-md-2 col-6 mb-3">
-                    <div class="stat-card">
-                        <div class="stat-number">{{ total_demos }}</div>
-                        <div class="fs-6 text-light">Demo</div>
+                <div class="col-md-3 col-6">
+                    <div class="stat-card glowing-border">
+                        <div class="stat-number animate-counter">{{ total_demos }}</div>
+                        <div class="fs-6 text-light fw-medium">
+                            <i class="bi bi-music-note-beamed me-1"></i> Demo
+                        </div>
                     </div>
                 </div>
             </div>
             
             <!-- Pulsanti di Navigazione -->
             <div class="d-flex flex-wrap justify-content-center gap-3 mb-4">
-                <a href="{% url 'artists:list' %}" class="btn btn-glow">
-                    <i class="bi bi-search"></i> Trova Artisti
+                <a href="{% url 'artists:list' %}" class="btn btn-hero">
+                    <i class="bi bi-search me-2"></i> Trova Artisti
                 </a>
-                <a href="{% url 'associates:list' %}" class="btn btn-glow">
-                    <i class="bi bi-tools"></i> Trova Professionisti
+                <a href="{% url 'associates:list' %}" class="btn btn-hero">
+                    <i class="bi bi-tools me-2"></i> Trova Professionisti
                 </a>
                 {% if user.is_authenticated %}
-                    <a href="{% url 'accounts:profile' %}" class="btn btn-outline-light">
-                        <i class="bi bi-person-circle"></i> Il Mio Profilo
+                    <a href="{% url 'accounts:profile' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-person-circle me-2"></i> Il Mio Profilo
                     </a>
                 {% else %}
-                    <a href="{% url 'accounts:register' %}" class="btn btn-outline-light">
-                        <i class="bi bi-person-plus"></i> Registrati
+                    <a href="{% url 'accounts:register' %}" class="btn btn-outline-success">
+                        <i class="bi bi-person-plus me-2"></i> Registrati
                     </a>
                 {% endif %}
             </div>
@@ -201,55 +387,97 @@
     </div>
 
     <!-- Sezione Funzionalità -->
-    <div class="row mb-5">
+    <div class="row mb-5 g-4">
         <div class="col-12">
-            <h2 class="text-center mb-4 text-light">
-                <i class="bi bi-star-fill text-warning"></i> Cosa puoi fare con MyLabel
+            <h2 class="text-center section-title">
+                <i class="bi bi-star-fill text-warning me-2"></i> Cosa puoi fare con MyLabel
             </h2>
         </div>
-        <div class="col-lg-4 col-md-6 mb-4">
+        <div class="col-lg-4 col-md-6">
             <div class="feature-card text-center">
                 <i class="bi bi-person-badge feature-icon"></i>
-                <h4>Profili Professionali</h4>
-                <p class="text-light">Crea il tuo profilo dettagliato con portfolio, competenze e disponibilità.</p>
+                <h4 class="text-light mb-3">Profili Professionali</h4>
+                <p class="text-secondary">Crea il tuo profilo dettagliato con portfolio, competenze e disponibilità per farti trovare dai clienti.</p>
             </div>
         </div>
-        <div class="col-lg-4 col-md-6 mb-4">
+        <div class="col-lg-4 col-md-6">
+            <div class="feature-card text-center">
+                <i class="bi bi-calendar-week feature-icon"></i>
+                <h4 class="text-light mb-3">Sistema Booking</h4>
+                <p class="text-secondary">Prenota sessioni studio con calendario avanzato, pagamenti sicuri e gestione automatica disponibilità.</p>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="feature-card text-center">
+                <i class="bi bi-chat-dots feature-icon"></i>
+                <h4 class="text-light mb-3">Messaggistica</h4>
+                <p class="text-secondary">Comunica direttamente con artisti e professionisti tramite chat integrata con notifiche real-time.</p>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
             <div class="feature-card text-center">
                 <i class="bi bi-cloud-upload feature-icon"></i>
-                <h4>Upload Demo</h4>
-                <p class="text-light">Carica le tue demo musicali e condividile con la community.</p>
+                <h4 class="text-light mb-3">Upload Demo</h4>
+                <p class="text-secondary">Carica le tue demo musicali e condividile con la community per essere scoperto da producer e label.</p>
             </div>
         </div>
-        <div class="col-lg-4 col-md-6 mb-4">
+        <div class="col-lg-4 col-md-6">
             <div class="feature-card text-center">
                 <i class="bi bi-search feature-icon"></i>
-                <h4>Ricerca Avanzata</h4>
-                <p class="text-light">Trova collaboratori per genere, competenze, località e disponibilità.</p>
+                <h4 class="text-light mb-3">Ricerca Avanzata</h4>
+                <p class="text-secondary">Trova collaboratori perfetti filtrando per genere, competenze, località, disponibilità e budget.</p>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-6">
+            <div class="feature-card text-center">
+                <i class="bi bi-shield-check feature-icon"></i>
+                <h4 class="text-light mb-3">Pagamenti Sicuri</h4>
+                <p class="text-secondary">Sistema di pagamento integrato con protezione buyer/seller e gestione automatica fatturazione.</p>
             </div>
         </div>
     </div>
 
     <!-- Ultimi Artisti -->
     {% if latest_artists %}
-    <div class="row mb-5">
+    <div class="row mb-5 g-4">
         <div class="col-12">
-            <h3 class="text-center mb-4 text-light">
-                <i class="bi bi-mic-fill"></i> Ultimi Artisti Registrati
+            <h3 class="text-center section-title">
+                <i class="bi bi-mic-fill me-2"></i> Artisti in Evidenza
             </h3>
         </div>
         {% for artist in latest_artists %}
-        <div class="col-lg-4 col-md-6 mb-4">
+        <div class="col-lg-4 col-md-6">
             <div class="profile-card text-center">
                 <div class="mb-3">
-                    <i class="bi bi-person-circle" style="font-size: 3rem; color: #ff2e88;"></i>
+                    {% if artist.user.profile.external_avatar_url %}
+                        <img src="{{ artist.user.profile.external_avatar_url }}" 
+                             class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid var(--primary-blue);">
+                    {% else %}
+                        <i class="bi bi-person-circle profile-icon"></i>
+                    {% endif %}
                 </div>
                 <h5 class="text-light">{{ artist.stage_name }}</h5>
-                <p class="text-muted small">{{ artist.genres }}</p>
-                <p class="text-light small">{{ artist.location }}</p>
-                <a href="{% url 'artists:detail' artist.pk %}" class="btn btn-sm btn-outline-light">
-                    Visualizza Profilo
-                </a>
+                <p class="text-primary small mb-2">{{ artist.user.get_full_name }}</p>
+                {% if artist.genres %}
+                <div class="mb-2">
+                    {% for genre in artist.get_genres_list %}
+                    <span class="badge bg-secondary me-1">{{ genre }}</span>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if artist.location %}
+                <p class="text-muted small"><i class="bi bi-geo-alt me-1"></i>{{ artist.location }}</p>
+                {% endif %}
+                <div class="d-flex gap-2 justify-content-center">
+                    <a href="{% url 'artists:detail' artist.pk %}" class="btn btn-sm btn-outline-primary">
+                        <i class="bi bi-eye me-1"></i> Profilo
+                    </a>
+                    {% if user.is_authenticated and user != artist.user %}
+                    <a href="{% url 'messaging:send' artist.user.id %}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-chat me-1"></i> Messaggio
+                    </a>
+                    {% endif %}
+                </div>
             </div>
         </div>
         {% endfor %}
@@ -258,29 +486,56 @@
 
     <!-- Ultimi Professionisti -->
     {% if latest_associates %}
-    <div class="row mb-5">
+    <div class="row mb-5 g-4">
         <div class="col-12">
-            <h3 class="text-center mb-4 text-light">
-                <i class="bi bi-tools"></i> Professionisti Disponibili
+            <h3 class="text-center section-title">
+                <i class="bi bi-tools me-2"></i> Professionisti Disponibili
             </h3>
         </div>
         {% for associate in latest_associates %}
-        <div class="col-lg-4 col-md-6 mb-4">
+        <div class="col-lg-4 col-md-6">
             <div class="profile-card text-center">
                 <div class="mb-3">
-                    <i class="bi bi-gear-fill" style="font-size: 3rem; color: #ff2e88;"></i>
+                    {% if associate.user.profile.external_avatar_url %}
+                        <img src="{{ associate.user.profile.external_avatar_url }}" 
+                             class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid var(--secondary-green);">
+                    {% else %}
+                        <i class="bi bi-gear-fill profile-icon"></i>
+                    {% endif %}
                 </div>
                 <h5 class="text-light">{{ associate.user.get_full_name }}</h5>
-                <p class="text-muted small">{{ associate.specialization }}</p>
-                <p class="text-light small">
-                    <i class="bi bi-geo-alt"></i> {{ associate.location }}
-                    {% if associate.hourly_rate %}
-                    <br><i class="bi bi-currency-euro"></i> {{ associate.get_rate_display }}
+                <p class="text-success small mb-2">{{ associate.specialization }}</p>
+                
+                <div class="mb-2">
+                    {% if associate.location %}
+                    <small class="text-muted"><i class="bi bi-geo-alt me-1"></i>{{ associate.location }}</small><br>
                     {% endif %}
-                </p>
-                <a href="{% url 'associates:detail' associate.pk %}" class="btn btn-sm btn-outline-light">
-                    Visualizza Profilo
-                </a>
+                    {% if associate.hourly_rate %}
+                    <small class="text-warning"><i class="bi bi-currency-euro me-1"></i>{{ associate.get_rate_display }}</small>
+                    {% endif %}
+                </div>
+                
+                {% if associate.is_available %}
+                <span class="badge bg-success mb-3">
+                    <i class="bi bi-check-circle me-1"></i> Disponibile
+                </span>
+                {% endif %}
+                
+                <div class="d-flex gap-2 justify-content-center">
+                    <a href="{% url 'associates:detail' associate.pk %}" class="btn btn-sm btn-outline-success">
+                        <i class="bi bi-eye me-1"></i> Profilo
+                    </a>
+                    {% if user.is_authenticated and user != associate.user %}
+                    <a href="{% url 'messaging:send' associate.user.id %}" class="btn btn-sm btn-success">
+                        <i class="bi bi-chat me-1"></i> Contatta
+                    </a>
+                    {% endif %}
+                    {% if user.is_authenticated and hasattr user 'artist' and user != associate.user %}
+                    <a href="{% url 'booking:calendar' associate.pk %}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-calendar me-1"></i> Prenota
+                    </a>
+                    {% endif %}
+                </div>
             </div>
         </div>
         {% endfor %}
@@ -291,69 +546,86 @@
     {% if user.is_superuser %}
     <div class="admin-section text-center">
         <h3 class="mb-4">
-            <i class="bi bi-shield-fill-check text-warning"></i> 
+            <i class="bi bi-shield-fill-check text-warning me-2"></i> 
             Pannello Amministratore
         </h3>
         <p class="text-light mb-4">
             Strumenti per gestire il database e i contenuti della piattaforma.
         </p>
         <div class="d-flex flex-wrap justify-content-center gap-3">
-            <a href="{% url 'core:populate_db' %}" class="btn btn-glow pulse">
-                <i class="bi bi-database-fill-add"></i> Popola Database
+            <a href="{% url 'core:populate_db' %}" class="btn btn-admin-primary">
+                <i class="bi bi-database-fill-add me-2"></i> Popola Database
             </a>
             <a href="{% url 'admin:index' %}" class="btn btn-outline-light">
-                <i class="bi bi-gear-fill"></i> Admin Panel
+                <i class="bi bi-gear-fill me-2"></i> Admin Panel
             </a>
-            <a href="{% url 'core:clear_db' %}" class="btn btn-danger-glow" 
+            <a href="{% url 'core:clear_db' %}" class="btn btn-admin-danger" 
                onclick="return confirm('Sei sicuro di voler svuotare il database?')">
-                <i class="bi bi-trash3-fill"></i> Svuota Database
+                <i class="bi bi-trash3-fill me-2"></i> Svuota Database
             </a>
         </div>
     </div>
     {% endif %}
-
-    <!-- Footer -->
-    <div class="text-center mt-5 py-4">
-        <hr style="border-color: rgba(255, 46, 136, 0.3);">
-        <p class="text-muted">
-            <i class="bi bi-heart-fill text-danger"></i> 
-            MyLabel - Connecting Music Professionals
-        </p>
-    </div>
 </div>
 
 <script>
-    // Aggiungi animazioni e interattività
-    document.addEventListener('DOMContentLoaded', function() {
-        // Animazione contatore
-        const counters = document.querySelectorAll('.stat-number');
-        counters.forEach(counter => {
-            const target = parseInt(counter.textContent);
-            let current = 0;
-            const increment = target / 50;
-            
-            const updateCounter = () => {
-                if (current < target) {
-                    current += increment;
-                    counter.textContent = Math.floor(current);
-                    setTimeout(updateCounter, 30);
-                } else {
-                    counter.textContent = target;
-                }
-            };
-            updateCounter();
+document.addEventListener('DOMContentLoaded', function() {
+    // Animazione contatore migliorata
+    const counters = document.querySelectorAll('.stat-number');
+    
+    const observerOptions = {
+        threshold: 0.7
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const counter = entry.target;
+                const target = parseInt(counter.textContent);
+                let current = 0;
+                const increment = target / 60; // 60 frames per circa 1 secondo
+                
+                const updateCounter = () => {
+                    if (current < target) {
+                        current += increment;
+                        counter.textContent = Math.floor(current);
+                        requestAnimationFrame(updateCounter);
+                    } else {
+                        counter.textContent = target;
+                    }
+                };
+                
+                updateCounter();
+                observer.unobserve(counter);
+            }
         });
-        
-        // Effetto hover sulle card
-        const cards = document.querySelectorAll('.profile-card, .feature-card');
-        cards.forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.background = 'rgba(255, 255, 255, 0.15)';
-            });
-            card.addEventListener('mouseleave', function() {
-                this.style.background = 'rgba(255, 255, 255, 0.08)';
-            });
-        });
+    }, observerOptions);
+    
+    counters.forEach(counter => {
+        observer.observe(counter);
     });
+    
+    // Effetto parallax leggero per hero section
+    window.addEventListener('scroll', () => {
+        const scrolled = window.pageYOffset;
+        const hero = document.querySelector('.hero-section');
+        if (hero && scrolled < window.innerHeight) {
+            hero.style.transform = `translateY(${scrolled * 0.1}px)`;
+        }
+    });
+    
+    // Animazione cards in entrata
+    const cards = document.querySelectorAll('.feature-card, .profile-card');
+    cards.forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(30px)';
+        
+        setTimeout(() => {
+            card.style.transition = 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)';
+            card.style.opacity = '1';
+            card.style.transform = 'translateY(0)';
+        }, index * 100 + 500);
+    });
+});
 </script>
 {% endblock %}

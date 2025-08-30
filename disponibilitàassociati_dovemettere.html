@@ -1,0 +1,636 @@
+{% extends 'base.html' %}
+{% block title %}Gestisci Disponibilità - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h1 class="text-light">
+                    <i class="bi bi-calendar-week text-primary"></i> Gestisci Disponibilità
+                </h1>
+                <div class="d-flex gap-2">
+                    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addAvailabilityModal">
+                        <i class="bi bi-plus-circle"></i> Aggiungi Disponibilità
+                    </button>
+                    <a href="{% url 'associates:detail' user.associate.pk %}" class="btn btn-outline-light">
+                        <i class="bi bi-arrow-left"></i> Torna al Profilo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Card -->
+    <div class="row mb-4">
+        <div class="col-md-3">
+            <div class="card bg-primary">
+                <div class="card-body text-center">
+                    <i class="bi bi-calendar-check" style="font-size: 2rem;"></i>
+                    <h3 class="mt-2">{{ bookings_this_week }}</h3>
+                    <p class="mb-0">Booking Settimana</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success">
+                <div class="card-body text-center">
+                    <i class="bi bi-clock-fill" style="font-size: 2rem;"></i>
+                    <h3 class="mt-2">{{ available_slots }}</h3>
+                    <p class="mb-0">Slot Disponibili</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning">
+                <div class="card-body text-center text-dark">
+                    <i class="bi bi-hourglass-split" style="font-size: 2rem;"></i>
+                    <h3 class="mt-2">{{ pending_bookings }}</h3>
+                    <p class="mb-0">In Attesa</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-info">
+                <div class="card-body text-center">
+                    <i class="bi bi-currency-euro" style="font-size: 2rem;"></i>
+                    <h3 class="mt-2">€{{ earnings_this_month }}</h3>
+                    <p class="mb-0">Guadagni Mese</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Calendar and Availability -->
+    <div class="row">
+        <!-- Calendar -->
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-calendar3"></i> Calendario Disponibilità
+                        <button class="btn btn-sm btn-outline-primary float-end" onclick="refreshCalendar()">
+                            <i class="bi bi-arrow-clockwise"></i> Aggiorna
+                        </button>
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="calendar-container">
+                        <!-- Calendar Navigation -->
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <button class="btn btn-outline-primary" onclick="previousWeek()">
+                                <i class="bi bi-chevron-left"></i> Precedente
+                            </button>
+                            <h5 id="current-week" class="text-light mb-0"></h5>
+                            <button class="btn btn-outline-primary" onclick="nextWeek()">
+                                Successiva <i class="bi bi-chevron-right"></i>
+                            </button>
+                        </div>
+
+                        <!-- Calendar Grid -->
+                        <div class="calendar-grid">
+                            <div class="calendar-header">
+                                <div class="time-column">Ora</div>
+                                <div class="day-column">Lun</div>
+                                <div class="day-column">Mar</div>
+                                <div class="day-column">Mer</div>
+                                <div class="day-column">Gio</div>
+                                <div class="day-column">Ven</div>
+                                <div class="day-column">Sab</div>
+                                <div class="day-column">Dom</div>
+                            </div>
+                            <div id="calendar-body">
+                                <!-- Populated by JavaScript -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Availability Management -->
+        <div class="col-lg-4">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-clock"></i> Disponibilità Ricorrenti
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div id="recurring-availability">
+                        {% for availability in recurring_availabilities %}
+                        <div class="availability-item" data-id="{{ availability.id }}">
+                            <div class="d-flex justify-content-between align-items-center p-2 border rounded mb-2">
+                                <div>
+                                    <strong>{{ availability.get_day_of_week_display }}</strong><br>
+                                    <small class="text-muted">{{ availability.start_time|time:"H:i" }} - {{ availability.end_time|time:"H:i" }}</small>
+                                </div>
+                                <div>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="deleteAvailability({{ availability.id }})">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center text-muted py-3">
+                            <i class="bi bi-calendar-x" style="font-size: 2rem;"></i>
+                            <p class="mt-2">Nessuna disponibilità ricorrente configurata</p>
+                            <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#addAvailabilityModal">
+                                Aggiungi Prima Disponibilità
+                            </button>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recent Bookings -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="bi bi-list-check"></i> Booking Recenti
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="recent-bookings">
+                        {% for booking in recent_bookings %}
+                        <div class="booking-item p-2 border rounded mb-2">
+                            <div class="d-flex align-items-center">
+                                <img src="{{ booking.artist.user.profile.get_avatar_url }}" 
+                                     class="rounded-circle me-2" style="width: 30px; height: 30px; object-fit: cover;">
+                                <div class="flex-grow-1">
+                                    <small class="fw-bold text-light">{{ booking.artist.stage_name }}</small><br>
+                                    <small class="text-muted">{{ booking.session_date|date:"d/m H:i" }} - {{ booking.get_booking_type_display }}</small>
+                                </div>
+                                <span class="badge bg-{% if booking.status == 'confirmed' %}success{% elif booking.status == 'pending' %}warning{% else %}secondary{% endif %}">
+                                    {{ booking.get_status_display }}
+                                </span>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center text-muted py-3">
+                            <i class="bi bi-calendar" style="font-size: 2rem;"></i>
+                            <p class="mt-2">Nessun booking recente</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    
+                    {% if recent_bookings %}
+                    <div class="text-center mt-3">
+                        <a href="{% url 'booking:my_bookings' %}" class="btn btn-sm btn-outline-primary">
+                            Vedi Tutti i Booking
+                        </a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Availability Modal -->
+<div class="modal fade" id="addAvailabilityModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content bg-dark">
+            <div class="modal-header">
+                <h5 class="modal-title text-light">
+                    <i class="bi bi-plus-circle"></i> Aggiungi Disponibilità
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="availability-form">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-light">Tipo Disponibilità</label>
+                            <select class="form-select" id="availability-type" onchange="toggleAvailabilityType()">
+                                <option value="recurring">Ricorrente (ogni settimana)</option>
+                                <option value="specific">Data specifica</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3" id="day-of-week-container">
+                            <label class="form-label text-light">Giorno della Settimana</label>
+                            <select class="form-select" id="day-of-week">
+                                <option value="0">Lunedì</option>
+                                <option value="1">Martedì</option>
+                                <option value="2">Mercoledì</option>
+                                <option value="3">Giovedì</option>
+                                <option value="4">Venerdì</option>
+                                <option value="5">Sabato</option>
+                                <option value="6">Domenica</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6 mb-3" id="specific-date-container" style="display: none;">
+                            <label class="form-label text-light">Data Specifica</label>
+                            <input type="date" class="form-control" id="specific-date">
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-light">Ora Inizio</label>
+                            <input type="time" class="form-control" id="start-time" value="09:00">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label text-light">Ora Fine</label>
+                            <input type="time" class="form-control" id="end-time" value="17:00">
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label text-light">Note (opzionale)</label>
+                        <textarea class="form-control" id="availability-notes" rows="2" 
+                                  placeholder="Esempio: Disponibile solo per registrazioni..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary" onclick="saveAvailability()">
+                    <i class="bi bi-check-lg"></i> Salva Disponibilità
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.calendar-grid {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 0.5rem;
+    overflow: hidden;
+}
+
+.calendar-header {
+    display: grid;
+    grid-template-columns: 80px repeat(7, 1fr);
+    background: var(--primary-blue);
+    color: white;
+    font-weight: 600;
+}
+
+.time-column, .day-column {
+    padding: 0.75rem;
+    text-align: center;
+    border-right: 1px solid rgba(255,255,255,0.2);
+}
+
+.calendar-body {
+    display: grid;
+    grid-template-columns: 80px repeat(7, 1fr);
+}
+
+.time-slot, .calendar-cell {
+    padding: 0.5rem;
+    border-right: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    min-height: 50px;
+    position: relative;
+}
+
+.time-slot {
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.calendar-cell {
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.calendar-cell:hover {
+    background: rgba(59, 130, 246, 0.1);
+}
+
+.calendar-cell.available {
+    background: rgba(16, 185, 129, 0.2);
+}
+
+.calendar-cell.booked {
+    background: rgba(239, 68, 68, 0.2);
+    cursor: not-allowed;
+}
+
+.calendar-cell.pending {
+    background: rgba(245, 158, 11, 0.2);
+}
+
+.booking-marker {
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.booking-marker.confirmed {
+    background: var(--secondary-green);
+}
+
+.booking-marker.pending {
+    background: var(--accent-orange);
+}
+
+.availability-item {
+    transition: all 0.3s ease;
+}
+
+.availability-item:hover {
+    transform: translateX(5px);
+}
+
+.form-control, .form-select {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+}
+
+.form-control:focus, .form-select:focus {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--primary-blue);
+    color: var(--text-primary);
+    box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.25);
+}
+</style>
+
+<script>
+let currentWeek = new Date();
+
+// Initialize calendar
+document.addEventListener('DOMContentLoaded', function() {
+    updateWeekDisplay();
+    generateCalendar();
+    loadBookings();
+});
+
+function toggleAvailabilityType() {
+    const type = document.getElementById('availability-type').value;
+    const dayContainer = document.getElementById('day-of-week-container');
+    const dateContainer = document.getElementById('specific-date-container');
+    
+    if (type === 'recurring') {
+        dayContainer.style.display = 'block';
+        dateContainer.style.display = 'none';
+    } else {
+        dayContainer.style.display = 'none';
+        dateContainer.style.display = 'block';
+        
+        // Set minimum date to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        document.getElementById('specific-date').min = tomorrow.toISOString().split('T')[0];
+    }
+}
+
+function updateWeekDisplay() {
+    const startOfWeek = getStartOfWeek(currentWeek);
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(startOfWeek.getDate() + 6);
+    
+    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+    const weekText = `${startOfWeek.toLocaleDateString('it-IT', options)} - ${endOfWeek.toLocaleDateString('it-IT', options)}`;
+    document.getElementById('current-week').textContent = weekText;
+}
+
+function getStartOfWeek(date) {
+    const d = new Date(date);
+    const day = d.getDay();
+    const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+    return new Date(d.setDate(diff));
+}
+
+function previousWeek() {
+    currentWeek.setDate(currentWeek.getDate() - 7);
+    updateWeekDisplay();
+    generateCalendar();
+    loadBookings();
+}
+
+function nextWeek() {
+    currentWeek.setDate(currentWeek.getDate() + 7);
+    updateWeekDisplay();
+    generateCalendar();
+    loadBookings();
+}
+
+function generateCalendar() {
+    const calendarBody = document.getElementById('calendar-body');
+    calendarBody.innerHTML = '';
+    
+    // Generate time slots (9:00 - 18:00)
+    for (let hour = 9; hour <= 18; hour++) {
+        // Time column
+        const timeSlot = document.createElement('div');
+        timeSlot.className = 'time-slot';
+        timeSlot.textContent = `${hour.toString().padStart(2, '0')}:00`;
+        calendarBody.appendChild(timeSlot);
+        
+        // Day columns
+        for (let day = 0; day < 7; day++) {
+            const cell = document.createElement('div');
+            cell.className = 'calendar-cell';
+            cell.dataset.day = day;
+            cell.dataset.hour = hour;
+            cell.onclick = () => handleCellClick(day, hour);
+            calendarBody.appendChild(cell);
+        }
+    }
+}
+
+function handleCellClick(day, hour) {
+    const cell = event.currentTarget;
+    
+    if (cell.classList.contains('booked')) {
+        return; // Can't modify booked slots
+    }
+    
+    if (cell.classList.contains('available')) {
+        // Remove availability
+        if (confirm('Rimuovere questa disponibilità?')) {
+            cell.classList.remove('available');
+            removeAvailabilitySlot(day, hour);
+        }
+    } else {
+        // Add availability
+        cell.classList.add('available');
+        addAvailabilitySlot(day, hour);
+    }
+}
+
+function loadBookings() {
+    // Simulate loading bookings from API
+    fetch(`/api/availability/bookings/?week=${currentWeek.toISOString().split('T')[0]}`)
+        .then(response => response.json())
+        .then(data => {
+            // Mark booked slots
+            data.bookings.forEach(booking => {
+                const day = new Date(booking.session_date).getDay();
+                const hour = new Date(booking.session_date).getHours();
+                const cell = document.querySelector(`[data-day="${day}"][data-hour="${hour}"]`);
+                
+                if (cell) {
+                    if (booking.status === 'confirmed') {
+                        cell.classList.add('booked');
+                        cell.innerHTML = `<div class="booking-marker confirmed"></div>`;
+                        cell.title = `Prenotato: ${booking.artist_name}`;
+                    } else if (booking.status === 'pending') {
+                        cell.classList.add('pending');
+                        cell.innerHTML = `<div class="booking-marker pending"></div>`;
+                        cell.title = `In attesa: ${booking.artist_name}`;
+                    }
+                }
+            });
+            
+            // Mark available slots
+            data.available_slots.forEach(slot => {
+                const cell = document.querySelector(`[data-day="${slot.day}"][data-hour="${slot.hour}"]`);
+                if (cell && !cell.classList.contains('booked') && !cell.classList.contains('pending')) {
+                    cell.classList.add('available');
+                }
+            });
+        })
+        .catch(error => console.error('Error loading bookings:', error));
+}
+
+function saveAvailability() {
+    const type = document.getElementById('availability-type').value;
+    const startTime = document.getElementById('start-time').value;
+    const endTime = document.getElementById('end-time').value;
+    const notes = document.getElementById('availability-notes').value;
+    
+    if (!startTime || !endTime) {
+        alert('Inserisci orario inizio e fine');
+        return;
+    }
+    
+    if (startTime >= endTime) {
+        alert('Orario fine deve essere dopo orario inizio');
+        return;
+    }
+    
+    const data = {
+        is_recurring: type === 'recurring',
+        start_time: startTime,
+        end_time: endTime,
+        notes: notes
+    };
+    
+    if (type === 'recurring') {
+        data.day_of_week = parseInt(document.getElementById('day-of-week').value);
+    } else {
+        const specificDate = document.getElementById('specific-date').value;
+        if (!specificDate) {
+            alert('Seleziona una data specifica');
+            return;
+        }
+        data.specific_date = specificDate;
+    }
+    
+    // Send to backend
+    fetch('/api/availability/create/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload(); // Refresh page to show new availability
+        } else {
+            alert('Errore nel salvare la disponibilità: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Errore nel salvare la disponibilità');
+    });
+}
+
+function deleteAvailability(availabilityId) {
+    if (!confirm('Sei sicuro di voler eliminare questa disponibilità?')) {
+        return;
+    }
+    
+    fetch(`/api/availability/${availabilityId}/delete/`, {
+        method: 'DELETE',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Errore nell\'eliminare la disponibilità');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Errore nell\'eliminare la disponibilità');
+    });
+}
+
+function refreshCalendar() {
+    generateCalendar();
+    loadBookings();
+}
+
+function addAvailabilitySlot(day, hour) {
+    // Quick add availability for specific slot
+    fetch('/api/availability/quick-add/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            day: day,
+            hour: hour,
+            date: getDateForDayHour(day, hour).toISOString().split('T')[0]
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            alert('Errore nell\'aggiungere disponibilità');
+        }
+    });
+}
+
+function removeAvailabilitySlot(day, hour) {
+    // Quick remove availability for specific slot
+    fetch('/api/availability/quick-remove/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            day: day,
+            hour: hour,
+            date: getDateForDayHour(day, hour).toISOString().split('T')[0]
+        })
+    });
+}
+
+function getDateForDayHour(day, hour) {
+    const startOfWeek = getStartOfWeek(currentWeek);
+    const date = new Date(startOfWeek);
+    date.setDate(startOfWeek.getDate() + day);
+    date.setHours(hour, 0, 0, 0);
+    return date;
+}
+</script>
+{% endblock %}

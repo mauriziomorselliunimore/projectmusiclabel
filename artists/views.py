@@ -32,14 +32,46 @@ def artist_list(request):
     return render(request, 'artists/artist_list.html', context)
 
 def artist_detail(request, pk):
-    """Dettaglio singolo artista"""
+    """Dettaglio singolo artista con integrazione messaggistica"""
     artist = get_object_or_404(Artist, pk=pk, is_active=True)
     demos = artist.demos.filter(is_public=True)
+    
+    # Check if user can send messages
+    can_message = (
+        request.user.is_authenticated and 
+        request.user != artist.user and
+        hasattr(request.user, 'profile')
+    )
+    
+    # Check if user can book (only associates can be booked by artists)
+    can_book = (
+        request.user.is_authenticated and 
+        hasattr(request.user, 'artist') and
+        request.user != artist.user
+    )
+    
+    # Get existing conversation if any
+    existing_conversation = None
+    if request.user.is_authenticated and request.user != artist.user:
+        from messaging.models import Conversation
+        try:
+            existing_conversation = Conversation.objects.get(
+                models.Q(
+                    participant_1=request.user, participant_2=artist.user
+                ) | models.Q(
+                    participant_1=artist.user, participant_2=request.user
+                )
+            )
+        except Conversation.DoesNotExist:
+            pass
     
     context = {
         'artist': artist,
         'demos': demos,
         'is_owner': request.user == artist.user,
+        'can_message': can_message,
+        'can_book': can_book,
+        'existing_conversation': existing_conversation,
     }
     return render(request, 'artists/artist_detail.html', context)
 

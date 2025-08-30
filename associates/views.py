@@ -37,16 +37,61 @@ def associate_list(request):
     return render(request, 'associates/associate_list.html', context)
 
 def associate_detail(request, pk):
-    """Dettaglio singolo associato"""
+    """Dettaglio singolo associato con integrazione messaggistica e booking"""
     associate = get_object_or_404(Associate, pk=pk, is_active=True)
     portfolio_items = associate.portfolio_items.all()
+    
+    # Check if user can send messages
+    can_message = (
+        request.user.is_authenticated and 
+        request.user != associate.user and
+        hasattr(request.user, 'profile')
+    )
+    
+    # Check if user can book (only artists can book associates)
+    can_book = (
+        request.user.is_authenticated and 
+        hasattr(request.user, 'artist') and
+        request.user != associate.user and
+        associate.is_available
+    )
+    
+    # Get existing conversation if any
+    existing_conversation = None
+    if request.user.is_authenticated and request.user != associate.user:
+        from messaging.models import Conversation
+        try:
+            existing_conversation = Conversation.objects.get(
+                models.Q(
+                    participant_1=request.user, participant_2=associate.user
+                ) | models.Q(
+                    participant_1=associate.user, participant_2=request.user
+                )
+            )
+        except Conversation.DoesNotExist:
+            pass
+    
+    # Get recent bookings with this associate (for reputation)
+    recent_bookings = None
+    if request.user.is_authenticated and hasattr(request.user, 'artist'):
+        from booking.models import Booking
+        recent_bookings = Booking.objects.filter(
+            artist=request.user.artist,
+            associate=associate,
+            status__in=['completed', 'confirmed']
+        ).order_by('-session_date')[:3]
     
     context = {
         'associate': associate,
         'portfolio_items': portfolio_items,
         'is_owner': request.user == associate.user,
+        'can_message': can_message,
+        'can_book': can_book,
+        'existing_conversation': existing_conversation,
+        'recent_bookings': recent_bookings,
     }
     return render(request, 'associates/associate_detail.html', context)
+
 
 @login_required
 def associate_create(request):
