@@ -61,17 +61,14 @@ def associate_detail(request, pk):
     # Get existing conversation if any
     existing_conversation = None
     if request.user.is_authenticated and request.user != associate.user:
-        from messaging.models import Conversation
         try:
             existing_conversation = Conversation.objects.get(
-                models.Q(
-                    participant_1=request.user, participant_2=associate.user
-                ) | models.Q(
-                    participant_1=associate.user, participant_2=request.user
-                )
+                Q(participant_1=request.user, participant_2=associate.user) |
+                Q(participant_1=associate.user, participant_2=request.user)
             )
         except Conversation.DoesNotExist:
             pass
+
     
     # Get recent bookings with this associate (for reputation)
     recent_bookings = None
