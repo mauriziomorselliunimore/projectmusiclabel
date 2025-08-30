@@ -2,8 +2,11 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
+from django.http import JsonResponse
+from messaging.models import Message, Notification, Conversation
 from .models import Artist, Demo
 from .forms import ArtistForm, DemoForm
+
 
 def artist_list(request):
     """Lista tutti gli artisti con ricerca"""
@@ -153,3 +156,59 @@ def demo_delete(request, pk):
         return redirect('artists:detail', pk=demo.artist.pk)
     
     return render(request, 'artists/demo_confirm_delete.html', {'demo': demo})
+
+@login_required
+def quick_message(request):
+    """Send quick message via AJAX"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Method not allowed'})
+    
+    try:
+        import json
+        data = json.loads(request.body)
+        
+        recipient_id = data.get('recipient_id')
+        message_text = data.get('message')
+        subject = data.get('subject', 'Nuovo messaggio')
+        message_type = data.get('message_type', 'general')
+        
+        if not recipient_id or not message_text:
+            return JsonResponse({'success': False, 'error': 'Dati mancanti'})
+        
+        recipient = User.objects.get(id=recipient_id)
+        
+        if request.user == recipient:
+            return JsonResponse({'success': False, 'error': 'Non puoi inviare messaggi a te stesso'})
+        
+        # Create message
+        message = Message.objects.create(
+            sender=request.user,
+            recipient=recipient,
+            subject=subject,
+            message=message_text,
+            message_type=message_type
+        )
+        
+        # Create or update conversation
+        conversation = Conversation.get_or_create_conversation(request.user, recipient)
+        conversation.update_last_message(message)
+        
+        # Create notification
+        Notification.objects.create(
+            user=recipient,
+            notification_type='new_message',
+            title=f'Nuovo messaggio da {request.user.get_full_name()}',
+            message=f'Oggetto: {subject}',
+            action_url=message.get_absolute_url(),
+            related_message=message,
+            related_user=request.user
+        )
+        
+        return JsonResponse({
+            'success': True,
+            'message_id': message.id,
+            'conversation_url': conversation.get_absolute_url()
+        })
+        
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)})
