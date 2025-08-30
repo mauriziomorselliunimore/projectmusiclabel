@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Invia messaggio a {{ recipient.get_full_name|default:recipient.username }} - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
+            <div class="card">
+                <div class="card-header">
+                    <div class="d-flex align-items-center">
+                        <a href="javascript:history.back()" class="btn btn-outline-secondary btn-sm me-3">
+                            <i class="bi bi-arrow-left"></i>
+                        </a>
+                        
+                        <h5 class="mb-0 text-light">
+                            <i class="bi bi-chat-dots me-2"></i>
+                            Invia messaggio a {{ recipient.get_full_name|default:recipient.username }}
+                        </h5>
+                    </div>
+                </div>
+                
+                <div class="card-body">
+                    <!-- Info destinatario -->
+                    <div class="d-flex align-items-center mb-4 p-3 bg-primary bg-opacity-10 rounded">
+                        {% if recipient.profile.external_avatar_url %}
+                            <img src="{{ recipient.profile.external_avatar_url }}" 
+                                 class="rounded-circle me-3" style="width: 50px; height: 50px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                 style="width: 50px; height: 50px;">
+                                <i class="bi bi-person-fill text-white"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <div>
+                            <h6 class="mb-1 text-light">{{ recipient.get_full_name|default:recipient.username }}</h6>
+                            <small class="text-muted">
+                                {% if recipient.profile.user_type == 'artist' %}
+                                    <i class="bi bi-mic me-1"></i> Artista
+                                {% elif recipient.profile.user_type == 'associate' %}
+                                    <i class="bi bi-tools me-1"></i> Professionista
+                                {% endif %}
+                                
+                                {% if recipient.profile.user_type == 'associate' and recipient.associate.location %}
+                                    • {{ recipient.associate.location }}
+                                {% elif recipient.profile.user_type == 'artist' and recipient.artist.location %}
+                                    • {{ recipient.artist.location }}
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <!-- Form messaggio -->
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="{{ form.content.id_for_label }}" class="form-label">
+                                <i class="bi bi-chat-text me-2"></i>{{ form.content.label }}
+                            </label>
+                            {{ form.content }}
+                            <div class="form-text text-muted">
+                                Scrivi un messaggio professionale e cortese. Premi Ctrl+Enter per inviare rapidamente.
+                            </div>
+                        </div>
+                        
+                        <!-- Suggerimenti messaggio -->
+                        <div class="mb-3">
+                            <small class="text-muted">💡 <strong>Suggerimenti:</strong></small>
+                            <div class="quick-messages mt-2">
+                                {% if recipient.profile.user_type == 'associate' %}
+                                <button type="button" class="btn btn-outline-secondary btn-sm me-2 mb-2" onclick="insertQuickMessage('Ciao! Sono interessato/a ai tuoi servizi. Potresti inviarmi maggiori informazioni sui tuoi progetti e tariffe? Grazie!')">
+                                    📋 Richiesta info servizi
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm me-2 mb-2" onclick="insertQuickMessage('Salve! Ho visto il tuo profilo e vorrei discutere di una possibile collaborazione per un progetto musicale. Quando saresti disponibile per una chiamata?')">
+                                    🤝 Proposta collaborazione
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm me-2 mb-2" onclick="insertQuickMessage('Ciao! Vorrei prenotare una sessione. Puoi confermarmi la tua disponibilità e le modalità di pagamento? Grazie!')">
+                                    📅 Prenotazione sessione
+                                </button>
+                                {% elif recipient.profile.user_type == 'artist' %}
+                                <button type="button" class="btn btn-outline-secondary btn-sm me-2 mb-2" onclick="insertQuickMessage('Ciao! Ho sentito le tue demo e sono rimasto/a colpito/a dal tuo talento. Mi piacerebbe discutere di possibili opportunità di collaborazione.')">
+                                    🎵 Complimenti demo
+                                </button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm me-2 mb-2" onclick="insertQuickMessage('Salve! Lavoro come [professione] e penso di poterti aiutare con i tuoi progetti musicali. Ti va di scambiare qualche idea?')">
+                                    💼 Offerta servizi
+                                </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                {% if conversation %}
+                                <a href="{% url 'messaging:conversation' conversation.id %}" class="btn btn-outline-primary">
+                                    <i class="bi bi-chat-dots me-2"></i>Vai alla conversazione
+                                </a>
+                                {% endif %}
+                            </div>
+                            
+                            <div>
+                                <a href="javascript:history.back()" class="btn btn-outline-secondary me-2">
+                                    Annulla
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-send-fill me-2"></i>Invia Messaggio
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Tips per una buona comunicazione -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h6 class="text-light mb-3">
+                        <i class="bi bi-lightbulb me-2 text-warning"></i>
+                        Tips per una comunicazione efficace
+                    </h6>
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <div class="d-flex">
+                                <i class="bi bi-check-circle text-success me-2 mt-1"></i>
+                                <small class="text-secondary">
+                                    <strong>Sii specifico:</strong> Descrivi chiaramente cosa cerchi o offri
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex">
+                                <i class="bi bi-check-circle text-success me-2 mt-1"></i>
+                                <small class="text-secondary">
+                                    <strong>Includi dettagli:</strong> Budget, tempistiche, generi musicali
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex">
+                                <i class="bi bi-check-circle text-success me-2 mt-1"></i>
+                                <small class="text-secondary">
+                                    <strong>Sii professionale:</strong> Usa un tono cordiale ma business
+                                </small>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="d-flex">
+                                <i class="bi bi-check-circle text-success me-2 mt-1"></i>
+                                <small class="text-secondary">
+                                    <strong>Rispondi velocemente:</strong> Le prime impressioni contano
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function insertQuickMessage(message) {
+    const textarea = document.getElementById('{{ form.content.id_for_label }}');
+    textarea.value = message;
+    textarea.focus();
+    
+    // Auto-resize
+    textarea.style.height = 'auto';
+    textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const textarea = document.getElementById('{{ form.content.id_for_label }}');
+    
+    // Auto-resize textarea
+    textarea.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+    
+    // Invio con Ctrl+Enter
+    textarea.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'Enter') {
+            e.preventDefault();
+            document.querySelector('form').submit();
+        }
+    });
+    
+    // Focus automatico
+    textarea.focus();
+});
+</script>
+{% endblock %}

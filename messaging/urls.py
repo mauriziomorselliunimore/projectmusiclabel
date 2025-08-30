@@ -4,15 +4,16 @@ from . import views
 app_name = 'messaging'
 
 urlpatterns = [
-    # Messaging URLs
+    # Inbox e conversazioni
     path('', views.inbox, name='inbox'),
-    path('conversations/', views.conversations_list, name='conversations'),
-    path('conversation/<int:pk>/', views.conversation_detail, name='conversation'),
-    path('send/<int:recipient_id>/', views.send_message, name='send'),
-    path('message/<int:pk>/', views.message_detail, name='detail'),
-    path('message/<int:pk>/reply/', views.reply_message, name='reply'),
+    path('conversation/<int:conversation_id>/', views.conversation_detail, name='conversation'),
+    path('send/<int:user_id>/', views.send_message, name='send'),
     
-    # Notifications
-    path('notifications/', views.notifications_list, name='notifications'),
-    path('notifications/mark-read/', views.mark_notifications_read, name='mark_notifications_read'),
+    # Notifiche
+    path('notifications/', views.notifications, name='notifications'),
+    path('notifications/mark-read/<int:notification_id>/', views.mark_notification_read, name='mark_notification_read'),
+    path('notifications/mark-all-read/', views.mark_all_notifications_read, name='mark_all_notifications_read'),
+    
+    # API per conteggi (AJAX)
+    path('api/unread-counts/', views.get_unread_counts, name='unread_counts'),
 ]

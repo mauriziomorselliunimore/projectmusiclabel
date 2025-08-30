@@ -1,0 +1,334 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Chat con {{ other_user.get_full_name|default:other_user.username }} - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
+            <!-- Header conversazione -->
+            <div class="card mb-3">
+                <div class="card-header d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center">
+                        <a href="{% url 'messaging:inbox' %}" class="btn btn-outline-secondary btn-sm me-3">
+                            <i class="bi bi-arrow-left"></i>
+                        </a>
+                        
+                        {% if other_user.profile.external_avatar_url %}
+                            <img src="{{ other_user.profile.external_avatar_url }}" 
+                                 class="rounded-circle me-3" style="width: 40px; height: 40px; object-fit: cover;">
+                        {% else %}
+                            <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center me-3" 
+                                 style="width: 40px; height: 40px;">
+                                <i class="bi bi-person-fill text-white"></i>
+                            </div>
+                        {% endif %}
+                        
+                        <div>
+                            <h6 class="mb-0 text-light">{{ other_user.get_full_name|default:other_user.username }}</h6>
+                            <small class="text-muted">
+                                {% if other_user.profile.user_type == 'artist' %}
+                                    <i class="bi bi-mic me-1"></i> Artista
+                                {% elif other_user.profile.user_type == 'associate' %}
+                                    <i class="bi bi-tools me-1"></i> Professionista
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <div>
+                        {% if other_user.profile.user_type == 'artist' %}
+                            <a href="{% url 'artists:detail' other_user.artist.pk %}" class="btn btn-outline-primary btn-sm">
+                                <i class="bi bi-eye me-1"></i> Profilo
+                            </a>
+                        {% elif other_user.profile.user_type == 'associate' %}
+                            <a href="{% url 'associates:detail' other_user.associate.pk %}" class="btn btn-outline-success btn-sm">
+                                <i class="bi bi-eye me-1"></i> Profilo
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Area messaggi -->
+            <div class="card">
+                <div class="card-body p-0">
+                    <div id="messages-container" class="p-3" style="height: 400px; overflow-y: auto;">
+                        {% for message in messages reversed %}
+                        <div class="message-bubble mb-3 {% if message.sender == user %}own-message{% else %}other-message{% endif %}">
+                            <div class="d-flex {% if message.sender == user %}justify-content-end{% else %}justify-content-start{% endif %}">
+                                <div class="message-content" style="max-width: 70%;">
+                                    {% if message.sender != user %}
+                                    <div class="d-flex align-items-start">
+                                        {% if message.sender.profile.external_avatar_url %}
+                                            <img src="{{ message.sender.profile.external_avatar_url }}" 
+                                                 class="rounded-circle me-2" style="width: 32px; height: 32px; object-fit: cover;">
+                                        {% else %}
+                                            <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                                 style="width: 32px; height: 32px; font-size: 0.8rem;">
+                                                <i class="bi bi-person-fill text-white"></i>
+                                            </div>
+                                        {% endif %}
+                                        <div class="flex-grow-1">
+                                            <div class="bg-secondary text-light p-3 rounded-3">
+                                                {{ message.content|linebreaks }}
+                                            </div>
+                                            <small class="text-muted mt-1 d-block">
+                                                {{ message.sent_at|date:"d/m H:i" }}
+                                                {% if message.is_read %}
+                                                    <i class="bi bi-check2-all text-primary ms-1"></i>
+                                                {% else %}
+                                                    <i class="bi bi-check2 text-muted ms-1"></i>
+                                                {% endif %}
+                                            </small>
+                                        </div>
+                                    </div>
+                                    {% else %}
+                                    <div class="text-end">
+                                        <div class="bg-primary text-white p-3 rounded-3 d-inline-block">
+                                            {{ message.content|linebreaks }}
+                                        </div>
+                                        <small class="text-muted mt-1 d-block">
+                                            {{ message.sent_at|date:"d/m H:i" }}
+                                            {% if message.is_read %}
+                                                <i class="bi bi-check2-all text-primary ms-1"></i>
+                                            {% else %}
+                                                <i class="bi bi-check2 text-muted ms-1"></i>
+                                            {% endif %}
+                                        </small>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-5">
+                            <i class="bi bi-chat text-muted" style="font-size: 3rem;"></i>
+                            <p class="text-muted mt-3">
+                                Inizia la conversazione inviando il primo messaggio!
+                            </p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Form invio messaggio -->
+                <div class="card-footer">
+                    <form method="post" id="message-form" class="d-flex align-items-end gap-2">
+                        {% csrf_token %}
+                        <div class="flex-grow-1">
+                            {{ form.content }}
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-send-fill"></i>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.message-bubble.own-message .message-content {
+    text-align: right;
+}
+
+.message-bubble.other-message .message-content {
+    text-align: left;
+}
+
+#messages-container {
+    background: linear-gradient(135deg, rgba(15, 23, 42, 0.3) 0%, rgba(30, 41, 59, 0.3) 100%);
+    border-radius: 0.5rem;
+}
+
+#messages-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+#messages-container::-webkit-scrollbar-track {
+    background: rgba(30, 41, 59, 0.3);
+    border-radius: 3px;
+}
+
+#messages-container::-webkit-scrollbar-thumb {
+    background: rgba(59, 130, 246, 0.5);
+    border-radius: 3px;
+}
+
+#messages-container::-webkit-scrollbar-thumb:hover {
+    background: rgba(59, 130, 246, 0.8);
+}
+
+.message-content .bg-primary {
+    background: linear-gradient(135deg, var(--primary-blue), var(--primary-light)) !important;
+}
+
+.message-content .bg-secondary {
+    background: var(--bg-surface) !important;
+}
+
+/* Animazioni per i nuovi messaggi */
+.new-message {
+    animation: slideInUp 0.3s ease-out;
+}
+
+@keyframes slideInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Indicatore di digitazione */
+.typing-indicator {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background: var(--bg-surface);
+    border-radius: 1rem;
+    margin: 10px 0;
+}
+
+.typing-indicator .dot {
+    width: 8px;
+    height: 8px;
+    background: var(--text-secondary);
+    border-radius: 50%;
+    margin: 0 2px;
+    animation: typing 1.4s infinite;
+}
+
+.typing-indicator .dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.typing-indicator .dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%, 60%, 100% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+    30% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const messagesContainer = document.getElementById('messages-container');
+    const messageForm = document.getElementById('message-form');
+    const messageInput = document.querySelector('#message-form textarea');
+    
+    // Scroll automatico al fondo
+    function scrollToBottom() {
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+    
+    scrollToBottom();
+    
+    // Gestisci invio messaggio con AJAX
+    messageForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        const submitBtn = this.querySelector('button[type="submit"]');
+        
+        // Disabilita il pulsante durante l'invio
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+        
+        fetch(this.action || window.location.href, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': formData.get('csrfmiddlewaretoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Aggiungi il nuovo messaggio alla chat
+                const newMessageHtml = `
+                    <div class="message-bubble mb-3 own-message new-message">
+                        <div class="d-flex justify-content-end">
+                            <div class="message-content" style="max-width: 70%;">
+                                <div class="text-end">
+                                    <div class="bg-primary text-white p-3 rounded-3 d-inline-block">
+                                        ${data.message.content.replace(/\n/g, '<br>')}
+                                    </div>
+                                    <small class="text-muted mt-1 d-block">
+                                        ${data.message.sent_at}
+                                        <i class="bi bi-check2 text-muted ms-1"></i>
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                messagesContainer.insertAdjacentHTML('beforeend', newMessageHtml);
+                messageInput.value = '';
+                scrollToBottom();
+            } else {
+                alert('Errore durante l\'invio del messaggio');
+            }
+        })
+        .catch(error => {
+            console.error('Errore:', error);
+            alert('Errore durante l\'invio del messaggio');
+        })
+        .finally(() => {
+            // Riabilita il pulsante
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="bi bi-send-fill"></i>';
+            messageInput.focus();
+        });
+    });
+    
+    // Invio con Ctrl+Enter
+    messageInput.addEventListener('keydown', function(e) {
+        if (e.ctrlKey && e.key === 'Enter') {
+            e.preventDefault();
+            messageForm.dispatchEvent(new Event('submit'));
+        }
+    });
+    
+    // Auto-resize textarea
+    messageInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
+    
+    // Segna messaggi come letti quando la pagina è visibile
+    function markMessagesAsRead() {
+        fetch('{% url "messaging:unread_counts" %}')
+        .then(response => response.json())
+        .then(data => {
+            // Aggiorna eventuali contatori nella pagina
+        });
+    }
+    
+    // Polling per nuovi messaggi ogni 10 secondi
+    setInterval(function() {
+        if (document.visibilityState === 'visible') {
+            // In una versione completa, qui potresti fare polling per nuovi messaggi
+            // Per ora ci limitiamo ad aggiornare i contatori
+            markMessagesAsRead();
+        }
+    }, 10000);
+});
+</script>
+{% endblock %}

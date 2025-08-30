@@ -1,630 +1,165 @@
-<!-- messaging/templates/messaging/inbox.html -->
-<!DOCTYPE html>
-<html lang="it">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Centro Messaggi - MyLabel</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
-    <style>
-        :root {
-            --primary-blue: #3b82f6;
-            --secondary-green: #10b981;
-            --bg-dark: #0f172a;
-            --bg-card: #1e293b;
-            --text-primary: #f8fafc;
-            --text-secondary: #cbd5e1;
-            --text-muted: #94a3b8;
-            --border: #475569;
-        }
+{% extends 'base.html' %}
+{% load static %}
 
-        body {
-            background: linear-gradient(135deg, var(--bg-dark) 0%, #1a202c 100%);
-            color: var(--text-primary);
-            font-family: 'Inter', sans-serif;
-            min-height: 100vh;
-        }
+{% block title %}Messaggi - MyLabel{% endblock %}
 
-        .messaging-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 2rem 1rem;
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .stat-card {
-            background: linear-gradient(135deg, var(--primary-blue), #60a5fa);
-            border-radius: 1rem;
-            padding: 1.5rem;
-            color: white;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .stat-card:nth-child(2) {
-            background: linear-gradient(135deg, var(--secondary-green), #34d399);
-        }
-
-        .stat-card:nth-child(3) {
-            background: linear-gradient(135deg, #f59e0b, #fbbf24);
-        }
-
-        .stat-card:nth-child(4) {
-            background: linear-gradient(135deg, #8b5cf6, #a78bfa);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .stat-card:hover::before {
-            left: 100%;
-        }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-        }
-
-        .message-list {
-            background: var(--bg-card);
-            border-radius: 1rem;
-            border: 1px solid var(--border);
-            overflow: hidden;
-            margin-bottom: 2rem;
-        }
-
-        .message-item {
-            padding: 1.5rem;
-            border-bottom: 1px solid var(--border);
-            transition: all 0.3s ease;
-            position: relative;
-            cursor: pointer;
-        }
-
-        .message-item:last-child {
-            border-bottom: none;
-        }
-
-        .message-item:hover {
-            background: rgba(59, 130, 246, 0.1);
-            transform: translateX(5px);
-        }
-
-        .message-item.unread {
-            background: rgba(59, 130, 246, 0.05);
-            border-left: 4px solid var(--primary-blue);
-        }
-
-        .message-item.unread .message-title {
-            font-weight: 600;
-        }
-
-        .user-avatar {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            object-fit: cover;
-            border: 2px solid var(--primary-blue);
-            transition: all 0.3s ease;
-        }
-
-        .user-avatar:hover {
-            transform: scale(1.1);
-            border-color: var(--secondary-green);
-        }
-
-        .message-content {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .message-title {
-            font-size: 1.1rem;
-            margin-bottom: 0.5rem;
-            color: var(--text-primary);
-        }
-
-        .message-preview {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
-            margin-bottom: 0.5rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-        }
-
-        .message-meta {
-            display: flex;
-            justify-content: between;
-            align-items: center;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-        }
-
-        .conversation-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .conversation-card {
-            background: var(--bg-card);
-            border-radius: 1rem;
-            border: 1px solid var(--border);
-            padding: 1.5rem;
-            transition: all 0.3s ease;
-        }
-
-        .conversation-card:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
-            border-color: var(--primary-blue);
-        }
-
-        .badge-notification {
-            background: var(--primary-blue);
-            color: white;
-            font-size: 0.7rem;
-            padding: 0.25rem 0.5rem;
-            border-radius: 0.5rem;
-            font-weight: 600;
-        }
-
-        .btn-action {
-            padding: 0.5rem 1rem;
-            border-radius: 0.5rem;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .btn-primary {
-            background: var(--primary-blue);
-            color: white;
-            border: none;
-        }
-
-        .btn-primary:hover {
-            background: #2563eb;
-            transform: translateY(-2px);
-            color: white;
-        }
-
-        .btn-outline {
-            border: 2px solid var(--border);
-            color: var(--text-secondary);
-            background: transparent;
-        }
-
-        .btn-outline:hover {
-            border-color: var(--primary-blue);
-            color: var(--primary-blue);
-            background: rgba(59, 130, 246, 0.1);
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .quick-actions {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .notification-item {
-            padding: 1rem;
-            border-bottom: 1px solid var(--border);
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-            transition: all 0.3s ease;
-        }
-
-        .notification-item:hover {
-            background: rgba(16, 185, 129, 0.05);
-        }
-
-        .notification-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--secondary-green);
-            color: white;
-            font-size: 1.2rem;
-        }
-
-        .status-online {
-            position: relative;
-        }
-
-        .status-online::after {
-            content: '';
-            position: absolute;
-            bottom: 2px;
-            right: 2px;
-            width: 12px;
-            height: 12px;
-            background: var(--secondary-green);
-            border: 2px solid var(--bg-card);
-            border-radius: 50%;
-        }
-
-        @media (max-width: 768px) {
-            .messaging-container {
-                padding: 1rem;
-            }
-
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .conversation-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .quick-actions {
-                flex-direction: column;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="messaging-container">
-        <!-- Header -->
-        <div class="text-center mb-4">
-            <h1 class="section-title">
-                <i class="bi bi-chat-dots-fill"></i>
-                Centro Messaggi
-            </h1>
-            <p class="text-secondary">Gestisci tutti i tuoi messaggi e notifiche in un unico posto</p>
-        </div>
-
-        <!-- Statistics Cards -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <i class="bi bi-envelope-exclamation" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
-                <div class="stat-number">12</div>
-                <div>Messaggi Non Letti</div>
-            </div>
-            <div class="stat-card">
-                <i class="bi bi-bell-fill" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
-                <div class="stat-number">5</div>
-                <div>Notifiche Nuove</div>
-            </div>
-            <div class="stat-card">
-                <i class="bi bi-chat-square-dots-fill" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
-                <div class="stat-number">8</div>
-                <div>Conversazioni Attive</div>
-            </div>
-            <div class="stat-card">
-                <i class="bi bi-person-plus-fill" style="font-size: 2rem; margin-bottom: 0.5rem;"></i>
-                <div class="stat-number">3</div>
-                <div>Nuove Richieste</div>
-            </div>
-        </div>
-
-        <!-- Quick Actions -->
-        <div class="quick-actions">
-            <a href="#" class="btn-action btn-primary">
-                <i class="bi bi-plus-circle"></i>
-                Nuovo Messaggio
-            </a>
-            <a href="#" class="btn-action btn-outline">
-                <i class="bi bi-funnel"></i>
-                Filtra Messaggi
-            </a>
-            <a href="#" class="btn-action btn-outline">
-                <i class="bi bi-archive"></i>
-                Archiviati
-            </a>
-            <a href="#" class="btn-action btn-outline">
-                <i class="bi bi-gear"></i>
-                Impostazioni
-            </a>
-        </div>
-
-        <!-- Recent Messages Section -->
-        <div class="section-header">
-            <h2 class="section-title">
-                <i class="bi bi-envelope"></i>
-                Messaggi Recenti
-            </h2>
-            <a href="#" class="btn-action btn-outline">Vedi tutti</a>
-        </div>
-
-        <div class="message-list">
-            <div class="message-item unread" onclick="openMessage(1)">
-                <div class="d-flex align-items-center gap-3">
-                    <div class="status-online">
-                        <img src="https://i.pravatar.cc/100?u=luca" alt="Luca Sound" class="user-avatar">
-                    </div>
-                    <div class="message-content">
-                        <div class="message-title">Luca Sound</div>
-                        <div class="message-preview">Ciao! Ho visto il tuo profilo e mi piacerebbe collaborare per il prossimo progetto. Quando sei disponibile per una sessione di registrazione?</div>
-                        <div class="message-meta">
-                            <span><i class="bi bi-tag me-1"></i>Collaborazione</span>
-                            <span class="ms-auto">2 min fa</span>
-                        </div>
-                    </div>
-                    <div class="d-flex flex-column align-items-end gap-2">
-                        <span class="badge-notification">Nuovo</span>
-                        <i class="bi bi-chevron-right text-muted"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="message-item" onclick="openMessage(2)">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="https://i.pravatar.cc/100?u=sofia" alt="Sofia Producer" class="user-avatar">
-                    <div class="message-content">
-                        <div class="message-title">Sofia Producer</div>
-                        <div class="message-preview">Grazie per la sessione di ieri! Il risultato finale è fantastico. Ti invio i file masterizzati entro domani.</div>
-                        <div class="message-meta">
-                            <span><i class="bi bi-calendar-check me-1"></i>Prenotazione</span>
-                            <span class="ms-auto">1 ora fa</span>
-                        </div>
-                    </div>
-                    <i class="bi bi-chevron-right text-muted"></i>
-                </div>
-            </div>
-
-            <div class="message-item unread" onclick="openMessage(3)">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="https://i.pravatar.cc/100?u=marco" alt="Marco Blues" class="user-avatar">
-                    <div class="message-content">
-                        <div class="message-title">Marco Blues</div>
-                        <div class="message-preview">Vorrei prenotare una sessione per la prossima settimana. Sei disponibile martedì pomeriggio?</div>
-                        <div class="message-meta">
-                            <span><i class="bi bi-calendar-plus me-1"></i>Richiesta Prenotazione</span>
-                            <span class="ms-auto">3 ore fa</span>
-                        </div>
-                    </div>
-                    <div class="d-flex flex-column align-items-end gap-2">
-                        <span class="badge-notification">Nuovo</span>
-                        <i class="bi bi-chevron-right text-muted"></i>
-                    </div>
-                </div>
-            </div>
-
-            <div class="message-item" onclick="openMessage(4)">
-                <div class="d-flex align-items-center gap-3">
-                    <img src="https://i.pravatar.cc/100?u=admin" alt="Admin MyLabel" class="user-avatar">
-                    <div class="message-content">
-                        <div class="message-title">Admin MyLabel</div>
-                        <div class="message-preview">Benvenuto su MyLabel! Ecco una guida rapida per iniziare a utilizzare la piattaforma...</div>
-                        <div class="message-meta">
-                            <span><i class="bi bi-info-circle me-1"></i>Sistema</span>
-                            <span class="ms-auto">2 giorni fa</span>
-                        </div>
-                    </div>
-                    <i class="bi bi-chevron-right text-muted"></i>
-                </div>
-            </div>
-        </div>
-
-        <!-- Active Conversations Section -->
-        <div class="section-header">
-            <h2 class="section-title">
-                <i class="bi bi-chat-square-dots"></i>
-                Conversazioni Attive
-            </h2>
-            <a href="#" class="btn-action btn-outline">Gestisci tutte</a>
-        </div>
-
-        <div class="conversation-grid">
-            <div class="conversation-card">
-                <div class="d-flex align-items-center gap-3 mb-3">
-                    <div class="status-online">
-                        <img src="https://i.pravatar.cc/60?u=anna" alt="Anna Producer" class="user-avatar" style="width: 40px; height: 40px;">
-                    </div>
-                    <div>
-                        <div class="fw-bold">Anna Producer</div>
-                        <small class="text-secondary">Music Producer</small>
-                    </div>
-                    <div class="ms-auto">
-                        <span class="badge-notification">3</span>
-                    </div>
-                </div>
-                <div class="text-secondary mb-3" style="font-size: 0.9rem;">
-                    "Ho ascoltato la tua demo "Midnight Blues" e mi piace molto il sound. Vuoi che produciamo insieme il prossimo brano?"
-                </div>
-                <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">Ultimo messaggio: 20 min fa</small>
-                    <a href="#" class="btn-action btn-primary" style="font-size: 0.8rem; padding: 0.25rem 0.75rem;">
-                        <i class="bi bi-chat"></i> Rispondi
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-light">
+                    <i class="bi bi-chat-dots me-2"></i> I Miei Messaggi
+                    {% if total_unread > 0 %}
+                    <span class="badge bg-danger">{{ total_unread }}</span>
+                    {% endif %}
+                </h2>
+                <div>
+                    <a href="{% url 'messaging:notifications' %}" class="btn btn-outline-primary">
+                        <i class="bi bi-bell me-2"></i> Notifiche
                     </a>
                 </div>
-            </div>
-
-            <div class="conversation-card">
-                <div class="d-flex align-items-center gap-3 mb-3">
-                    <img src="https://i.pravatar.cc/60?u=dj" alt="DJ Elektro" class="user-avatar" style="width: 40px; height: 40px;">
-                    <div>
-                        <div class="fw-bold">DJ Elektro</div>
-                        <small class="text-secondary">Electronic Producer</small>
-                    </div>
-                </div>
-                <div class="text-secondary mb-3" style="font-size: 0.9rem;">
-                    "La collaborazione per il remix è stata fantastica! Quando organizziamo la prossima sessione?"
-                </div>
-                <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">Ultimo messaggio: 2 ore fa</small>
-                    <a href="#" class="btn-action btn-outline" style="font-size: 0.8rem; padding: 0.25rem 0.75rem;">
-                        <i class="bi bi-eye"></i> Visualizza
-                    </a>
-                </div>
-            </div>
-
-            <div class="conversation-card">
-                <div class="d-flex align-items-center gap-3 mb-3">
-                    <img src="https://i.pravatar.cc/60?u=sara" alt="Sara Mix" class="user-avatar" style="width: 40px; height: 40px;">
-                    <div>
-                        <div class="fw-bold">Sara Mix</div>
-                        <small class="text-secondary">Mixing Engineer</small>
-                    </div>
-                    <div class="ms-auto">
-                        <span class="badge-notification">1</span>
-                    </div>
-                </div>
-                <div class="text-secondary mb-3" style="font-size: 0.9rem;">
-                    "I file del mixing sono pronti! Li trovi nella cartella condivisa. Fammi sapere se va tutto bene."
-                </div>
-                <div class="d-flex justify-content-between align-items-center">
-                    <small class="text-muted">Ultimo messaggio: 5 ore fa</small>
-                    <a href="#" class="btn-action btn-primary" style="font-size: 0.8rem; padding: 0.25rem 0.75rem;">
-                        <i class="bi bi-download"></i> Scarica
-                    </a>
-                </div>
-            </div>
-        </div>
-
-        <!-- Recent Notifications Section -->
-        <div class="section-header">
-            <h2 class="section-title">
-                <i class="bi bi-bell"></i>
-                Notifiche Recenti
-            </h2>
-            <a href="#" class="btn-action btn-outline">Vedi tutte</a>
-        </div>
-
-        <div class="message-list">
-            <div class="notification-item">
-                <div class="notification-icon">
-                    <i class="bi bi-calendar-check"></i>
-                </div>
-                <div class="flex-grow-1">
-                    <div class="fw-bold mb-1">Prenotazione Confermata</div>
-                    <div class="text-secondary">Marco Blues ha confermato la tua prenotazione per domani alle 14:00</div>
-                    <small class="text-muted">15 min fa</small>
-                </div>
-                <a href="#" class="btn-action btn-outline">Visualizza</a>
-            </div>
-
-            <div class="notification-item">
-                <div class="notification-icon" style="background: var(--primary-blue);">
-                    <i class="bi bi-music-note"></i>
-                </div>
-                <div class="flex-grow-1">
-                    <div class="fw-bold mb-1">Nuova Demo Caricata</div>
-                    <div class="text-secondary">Sofia Pop ha caricato una nuova demo: "Summer Vibes 2024"</div>
-                    <small class="text-muted">1 ora fa</small>
-                </div>
-                <a href="#" class="btn-action btn-outline">Ascolta</a>
-            </div>
-
-            <div class="notification-item">
-                <div class="notification-icon" style="background: #f59e0b;">
-                    <i class="bi bi-star"></i>
-                </div>
-                <div class="flex-grow-1">
-                    <div class="fw-bold mb-1">Recensione Ricevuta</div>
-                    <div class="text-secondary">Hai ricevuto una recensione 5 stelle da Luca Sound per la collaborazione</div>
-                    <small class="text-muted">3 ore fa</small>
-                </div>
-                <a href="#" class="btn-action btn-outline">Leggi</a>
             </div>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function openMessage(messageId) {
-            // Simula apertura messaggio
-            console.log('Opening message:', messageId);
-            
-            // Rimuovi classe unread
-            event.currentTarget.classList.remove('unread');
-            
-            // Simula navigazione
-            setTimeout(() => {
-                window.location.href = `/messages/conversation/${messageId}/`;
-            }, 200);
-        }
+    {% if conversations %}
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-body p-0">
+                    {% for conv_data in conversations %}
+                    <div class="conversation-item border-bottom p-3 {% if conv_data.has_unread %}bg-primary bg-opacity-10{% endif %}" 
+                         style="cursor: pointer; transition: all 0.2s ease;"
+                         onclick="window.location.href='{% url 'messaging:conversation' conv_data.conversation.id %}'">
+                        
+                        <div class="d-flex align-items-center">
+                            <!-- Avatar -->
+                            <div class="me-3">
+                                {% if conv_data.other_user.profile.external_avatar_url %}
+                                    <img src="{{ conv_data.other_user.profile.external_avatar_url }}" 
+                                         class="rounded-circle" style="width: 50px; height: 50px; object-fit: cover;">
+                                {% else %}
+                                    <div class="bg-primary rounded-circle d-flex align-items-center justify-content-center" 
+                                         style="width: 50px; height: 50px;">
+                                        <i class="bi bi-person-fill text-white"></i>
+                                    </div>
+                                {% endif %}
+                                
+                                <!-- Indicatore online (opzionale) -->
+                                <div class="position-relative">
+                                    <span class="position-absolute bottom-0 end-0 bg-success border border-white rounded-circle" 
+                                          style="width: 12px; height: 12px; transform: translate(25%, 25%);"></span>
+                                </div>
+                            </div>
+                            
+                            <!-- Info conversazione -->
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1 text-light fw-bold">
+                                            {{ conv_data.other_user.get_full_name|default:conv_data.other_user.username }}
+                                            {% if conv_data.has_unread %}
+                                            <span class="badge bg-danger ms-2">{{ conv_data.unread_count }}</span>
+                                            {% endif %}
+                                        </h6>
+                                        
+                                        {% if conv_data.other_user.profile.user_type %}
+                                        <small class="text-muted">
+                                            {% if conv_data.other_user.profile.user_type == 'artist' %}
+                                                <i class="bi bi-mic me-1"></i> Artista
+                                            {% elif conv_data.other_user.profile.user_type == 'associate' %}
+                                                <i class="bi bi-tools me-1"></i> Professionista
+                                            {% endif %}
+                                        </small>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="text-end">
+                                        {% if conv_data.last_message %}
+                                        <small class="text-muted">
+                                            {{ conv_data.last_message.sent_at|timesince }} fa
+                                        </small>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                <!-- Ultimo messaggio -->
+                                {% if conv_data.last_message %}
+                                <p class="mb-0 text-secondary small">
+                                    {% if conv_data.last_message.sender == user %}
+                                        <i class="bi bi-reply me-1"></i>
+                                    {% endif %}
+                                    {{ conv_data.last_message.content|truncatechars:80 }}
+                                </p>
+                                {% else %}
+                                <p class="mb-0 text-muted small">
+                                    <i>Nessun messaggio ancora</i>
+                                </p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <!-- Stato vuoto -->
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="bi bi-chat-dots text-muted" style="font-size: 4rem;"></i>
+                <h4 class="text-light mt-3">Nessun messaggio</h4>
+                <p class="text-muted">
+                    Non hai ancora conversazioni attive.<br>
+                    Inizia a chattare con artisti e professionisti!
+                </p>
+                <div class="mt-4">
+                    <a href="{% url 'artists:list' %}" class="btn btn-primary me-2">
+                        <i class="bi bi-mic me-2"></i> Trova Artisti
+                    </a>
+                    <a href="{% url 'associates:list' %}" class="btn btn-success">
+                        <i class="bi bi-tools me-2"></i> Trova Professionisti
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
 
-        // Aggiorna statistiche in tempo reale
-        function updateStats() {
-            // Simula aggiornamento contatori
-            const stats = document.querySelectorAll('.stat-number');
-            stats.forEach(stat => {
-                const currentValue = parseInt(stat.textContent);
-                if (Math.random() > 0.8) {
-                    stat.textContent = currentValue + (Math.random() > 0.5 ? 1 : -1);
-                }
-            });
-        }
+<style>
+.conversation-item:hover {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+    transform: translateX(5px);
+}
 
-        // Auto-aggiornamento ogni 30 secondi
-        setInterval(updateStats, 30000);
+.conversation-item:hover .text-light {
+    color: var(--primary-blue) !important;
+}
+</style>
 
-        // Animazioni di caricamento
-        document.addEventListener('DOMContentLoaded', function() {
-            const cards = document.querySelectorAll('.stat-card, .conversation-card, .message-item');
-            cards.forEach((card, index) => {
-                setTimeout(() => {
-                    card.style.opacity = '0';
-                    card.style.transform = 'translateY(20px)';
-                    card.style.transition = 'all 0.5s ease';
-                    
-                    setTimeout(() => {
-                        card.style.opacity = '1';
-                        card.style.transform = 'translateY(0)';
-                    }, 50);
-                }, index * 100);
-            });
-        });
-
-        // Gestione notifiche real-time (WebSocket placeholder)
-        if ('WebSocket' in window) {
-            // const ws = new WebSocket('ws://localhost:8000/ws/notifications/');
-            console.log('WebSocket support ready for real-time notifications');
-        }
-    </script>
-</body>
-</html>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Auto-refresh conteggi ogni 30 secondi
+    setInterval(function() {
+        fetch('{% url "messaging:unread_counts" %}')
+        .then(response => response.json())
+        .then(data => {
+            // Aggiorna badge nella navbar se presente
+            const navBadge = document.querySelector('.nav-link .badge');
+            if (navBadge && data.unread_messages > 0) {
+                navBadge.textContent = data.unread_messages;
+                navBadge.style.display = 'inline';
+            } else if (navBadge) {
+                navBadge.style.display = 'none';
+            }
+        })
+        .catch(error => console.log('Errore aggiornamento conteggi:', error));
+    }, 30000);
+});
+</script>
+{% endblock %}

@@ -1,0 +1,273 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Notifiche - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-light">
+                    <i class="bi bi-bell me-2"></i> Le Tue Notifiche
+                    {% if unread_count > 0 %}
+                    <span class="badge bg-warning">{{ unread_count }}</span>
+                    {% endif %}
+                </h2>
+                
+                <div>
+                    {% if unread_count > 0 %}
+                    <button id="mark-all-read" class="btn btn-outline-primary me-2">
+                        <i class="bi bi-check2-all me-2"></i>Segna tutte lette
+                    </button>
+                    {% endif %}
+                    <a href="{% url 'messaging:inbox' %}" class="btn btn-primary">
+                        <i class="bi bi-chat-dots me-2"></i>Messaggi
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifiche non lette -->
+    {% if unread_notifications %}
+    <div class="row mb-4">
+        <div class="col-12">
+            <h5 class="text-light mb-3">
+                <i class="bi bi-exclamation-circle me-2 text-warning"></i>
+                Non lette ({{ unread_count }})
+            </h5>
+            
+            <div class="card">
+                <div class="card-body p-0">
+                    {% for notification in unread_notifications %}
+                    <div class="notification-item border-bottom p-3 bg-warning bg-opacity-10" data-id="{{ notification.id }}">
+                        <div class="d-flex align-items-start">
+                            <!-- Icona tipo notifica -->
+                            <div class="me-3">
+                                <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center" 
+                                     style="width: 40px; height: 40px;">
+                                    {% if notification.notification_type == 'message' %}
+                                        <i class="bi bi-chat-fill text-dark"></i>
+                                    {% elif notification.notification_type == 'booking' %}
+                                        <i class="bi bi-calendar-fill text-dark"></i>
+                                    {% elif notification.notification_type == 'booking_confirmed' %}
+                                        <i class="bi bi-check-circle-fill text-dark"></i>
+                                    {% elif notification.notification_type == 'booking_cancelled' %}
+                                        <i class="bi bi-x-circle-fill text-dark"></i>
+                                    {% elif notification.notification_type == 'demo_feedback' %}
+                                        <i class="bi bi-music-note-beamed text-dark"></i>
+                                    {% elif notification.notification_type == 'profile_view' %}
+                                        <i class="bi bi-eye-fill text-dark"></i>
+                                    {% else %}
+                                        <i class="bi bi-bell-fill text-dark"></i>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Contenuto notifica -->
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1 text-light">{{ notification.title }}</h6>
+                                        <p class="mb-2 text-secondary">{{ notification.message }}</p>
+                                        
+                                        {% if notification.related_user %}
+                                        <div class="d-flex align-items-center mb-2">
+                                            {% if notification.related_user.profile.external_avatar_url %}
+                                                <img src="{{ notification.related_user.profile.external_avatar_url }}" 
+                                                     class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;">
+                                            {% else %}
+                                                <div class="bg-secondary rounded-circle d-flex align-items-center justify-content-center me-2" 
+                                                     style="width: 24px; height: 24px; font-size: 0.7rem;">
+                                                    <i class="bi bi-person-fill text-white"></i>
+                                                </div>
+                                            {% endif %}
+                                            <small class="text-muted">
+                                                {{ notification.related_user.get_full_name|default:notification.related_user.username }}
+                                            </small>
+                                        </div>
+                                        {% endif %}
+                                        
+                                        <small class="text-muted">
+                                            <i class="bi bi-clock me-1"></i>
+                                            {{ notification.created_at|timesince }} fa
+                                        </small>
+                                    </div>
+                                    
+                                    <div class="text-end">
+                                        <button class="btn btn-sm btn-outline-success mark-read-btn me-1" 
+                                                data-id="{{ notification.id }}" title="Segna come letta">
+                                            <i class="bi bi-check2"></i>
+                                        </button>
+                                        
+                                        {% if notification.related_url %}
+                                        <a href="{{ notification.related_url }}" class="btn btn-sm btn-primary">
+                                            <i class="bi bi-eye me-1"></i>Vai
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Notifiche lette -->
+    {% if read_notifications %}
+    <div class="row">
+        <div class="col-12">
+            <h5 class="text-light mb-3">
+                <i class="bi bi-check-circle me-2 text-success"></i>
+                Recenti
+            </h5>
+            
+            <div class="card">
+                <div class="card-body p-0">
+                    {% for notification in read_notifications %}
+                    <div class="notification-item border-bottom p-3" data-id="{{ notification.id }}">
+                        <div class="d-flex align-items-start">
+                            <!-- Icona tipo notifica (opaca) -->
+                            <div class="me-3">
+                                <div class="bg-secondary bg-opacity-50 rounded-circle d-flex align-items-center justify-content-center" 
+                                     style="width: 40px; height: 40px;">
+                                    {% if notification.notification_type == 'message' %}
+                                        <i class="bi bi-chat text-muted"></i>
+                                    {% elif notification.notification_type == 'booking' %}
+                                        <i class="bi bi-calendar text-muted"></i>
+                                    {% elif notification.notification_type == 'booking_confirmed' %}
+                                        <i class="bi bi-check-circle text-muted"></i>
+                                    {% elif notification.notification_type == 'booking_cancelled' %}
+                                        <i class="bi bi-x-circle text-muted"></i>
+                                    {% elif notification.notification_type == 'demo_feedback' %}
+                                        <i class="bi bi-music-note-beamed text-muted"></i>
+                                    {% elif notification.notification_type == 'profile_view' %}
+                                        <i class="bi bi-eye text-muted"></i>
+                                    {% else %}
+                                        <i class="bi bi-bell text-muted"></i>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            <!-- Contenuto notifica -->
+                            <div class="flex-grow-1">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1 text-secondary">{{ notification.title }}</h6>
+                                        <p class="mb-2 text-muted small">{{ notification.message }}</p>
+                                        
+                                        <small class="text-muted">
+                                            <i class="bi bi-clock me-1"></i>
+                                            {{ notification.created_at|timesince }} fa
+                                        </small>
+                                    </div>
+                                    
+                                    {% if notification.related_url %}
+                                    <div class="text-end">
+                                        <a href="{{ notification.related_url }}" class="btn btn-sm btn-outline-secondary">
+                                            <i class="bi bi-eye me-1"></i>Vai
+                                        </a>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Stato vuoto -->
+    {% if not unread_notifications and not read_notifications %}
+    <div class="row">
+        <div class="col-12">
+            <div class="text-center py-5">
+                <i class="bi bi-bell text-muted" style="font-size: 4rem;"></i>
+                <h4 class="text-light mt-3">Nessuna notifica</h4>
+                <p class="text-muted">
+                    Non hai ancora ricevuto notifiche.<br>
+                    Ti avviseremo quando ci saranno novità!
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Segna singola notifica come letta
+    document.querySelectorAll('.mark-read-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const notificationId = this.dataset.id;
+            const notificationItem = this.closest('.notification-item');
+            
+            fetch(`{% url 'messaging:mark_notification_read' 0 %}`.replace('0', notificationId), {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Animazione di fade out e rimozione
+                    notificationItem.style.transition = 'all 0.3s ease';
+                    notificationItem.style.opacity = '0.5';
+                    notificationItem.classList.remove('bg-warning', 'bg-opacity-10');
+                    this.remove();
+                    
+                    // Aggiorna contatore
+                    const badge = document.querySelector('h2 .badge');
+                    if (badge) {
+                        const currentCount = parseInt(badge.textContent) - 1;
+                        if (currentCount > 0) {
+                            badge.textContent = currentCount;
+                        } else {
+                            badge.remove();
+                        }
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Errore:', error);
+            });
+        });
+    });
+    
+    // Segna tutte come lette
+    const markAllBtn = document.getElementById('mark-all-read');
+    if (markAllBtn) {
+        markAllBtn.addEventListener('click', function() {
+            if (confirm('Segnare tutte le notifiche come lette?')) {
+                fetch('{% url "messaging:mark_all_notifications_read" %}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                })
+                .catch(error => {
+                    console.error('Errore:', error);
+                });
+            }
+        });
+    }
+});
+</script>
+{% endblock %}
