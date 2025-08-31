@@ -1,6 +1,13 @@
-from .monitor.health import health_check
+from django.http import JsonResponse
+from django.db import connections
+from django.db.utils import OperationalError
+from django.core.cache import cache
+from redis.exceptions import RedisError
+import logging
 
-__all__ = ['health_check']
+logger = logging.getLogger(__name__)
+
+def health_check(request):
     """
     Verifica lo stato del sistema
     """
