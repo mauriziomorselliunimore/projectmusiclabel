@@ -14,6 +14,7 @@ urlpatterns = [
     path('notifications/mark-read/<int:notification_id>/', views.mark_notification_read, name='mark_notification_read'),
     path('notifications/mark-all-read/', views.mark_all_notifications_read, name='mark_all_notifications_read'),
     
-    # API per conteggi (AJAX)
+    # API per conteggi e polling (AJAX)
     path('api/unread-counts/', views.get_unread_counts, name='unread_counts'),
+    path('api/new-messages/<int:conversation_id>/', views.get_new_messages, name='get_new_messages'),
 ]

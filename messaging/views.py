@@ -12,6 +12,36 @@ import json
 from .models import Conversation, Message, Notification
 from .forms import MessageForm
 
+@login_required
+def get_new_messages(request, conversation_id):
+    """API endpoint per il polling dei nuovi messaggi"""
+    conversation = get_object_or_404(Conversation, id=conversation_id)
+    last_message_id = request.GET.get('last_message_id', '0')
+    
+    # Verifica che l'utente sia parte della conversazione
+    if request.user not in [conversation.participant_1, conversation.participant_2]:
+        return JsonResponse({'error': 'Non autorizzato'}, status=403)
+    
+    # Recupera i nuovi messaggi
+    new_messages = Message.objects.filter(
+        conversation=conversation,
+        id__gt=last_message_id
+    ).order_by('created_at')
+    
+    messages_data = []
+    for msg in new_messages:
+        messages_data.append({
+            'id': msg.id,
+            'content': msg.content,
+            'subject': msg.subject,
+            'is_sender': msg.sender == request.user,
+            'sender_name': msg.sender.get_full_name(),
+            'sender_avatar': msg.sender.profile.get_avatar_url(),
+            'timestamp': msg.created_at.strftime('%H:%M')
+        })
+    
+    return JsonResponse({'messages': messages_data})
+
 
 @login_required
 def inbox(request):

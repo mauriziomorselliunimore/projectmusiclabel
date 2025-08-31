@@ -83,13 +83,14 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                #'messaging.context_processors.messaging_context',
+                'messaging.context_processors.messaging_context',
             ],
         },
     },
 ]
 
 WSGI_APPLICATION = 'record_label.wsgi.application'
+ASGI_APPLICATION = 'record_label.asgi.application'
 
 # Database configuration
 if 'DATABASE_URL' in os.environ:
@@ -260,12 +261,29 @@ if 'REDIS_URL' in os.environ:
             'LOCATION': os.environ.get('REDIS_URL'),
         }
     }
+    
+    # Channels configuration
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels_redis.core.RedisChannelLayer',
+            'CONFIG': {
+                'hosts': [os.environ.get('REDIS_URL')],
+            },
+        },
+    }
 else:
     # Sviluppo con cache locale
     CACHES = {
         'default': {
             'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
             'LOCATION': 'unique-snowflake',
+        }
+    }
+    
+    # Channels configuration for development
+    CHANNEL_LAYERS = {
+        'default': {
+            'BACKEND': 'channels.layers.InMemoryChannelLayer',
         }
     }
 
