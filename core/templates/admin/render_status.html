@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Stato Render{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h4>Stato dell'Ambiente Render</h4>
+    </div>
+    <div class="card-body">
+        <ul class="list-group">
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Stato
+                <span class="badge bg-{{ status|yesno:'success,danger' }} rounded-pill">{{ status }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Ambiente
+                <span class="badge bg-info rounded-pill">{{ environment }}</span>
+            </li>
+            <li class="list-group-item d-flex justify-content-between align-items-center">
+                Database
+                <span class="badge bg-{{ database|yesno:'success,danger' }} rounded-pill">{{ database }}</span>
+            </li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
