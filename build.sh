@@ -23,3 +23,6 @@ python manage.py migrate --noinput
 
 # Raccoglie i file statici
 python manage.py collectstatic --noinput
+
+# Invia i messaggi di benvenuto
+python manage.py send_welcome_messages
