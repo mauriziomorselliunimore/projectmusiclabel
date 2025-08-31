@@ -90,7 +90,7 @@ Il team MyLabel 🎼"""
                 sender=admin,
                 recipient=user,
                 subject=welcome_message['subject'],
-                content=welcome_message['content'],
+                message=welcome_message['content'],
                 message_type='general'
             )
             count += 1

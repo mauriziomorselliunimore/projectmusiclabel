@@ -1,17 +1,23 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% endblock %}
+
 {% block title %}Registrazione - MyLabel{% endblock %}
 
 {% block content %}
 <div class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-6">
-            <div class="card">
+            <div class="card auth-card">
                 <div class="card-body">
                     <div class="text-center mb-4">
-                        <h2 class="text-light">
-                            <i class="bi bi-person-plus-fill text-magenta"></i> Registrazione
+                        <h2 class="auth-title">
+                            <i class="bi bi-person-plus-fill"></i> Registrazione
                         </h2>
-                        <p class="text-muted">Crea il tuo account MyLabel</p>
+                        <p class="auth-subtitle">Crea il tuo account MyLabel</p>
                     </div>
                     
                     <form method="post">
@@ -20,31 +26,31 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="id_first_name" class="form-label text-light">Nome</label>
-                                <input type="text" name="first_name" class="form-control" 
+                                <input type="text" name="first_name" class="form-control auth-form-control" 
                                        id="id_first_name" value="{{ form.first_name.value|default:'' }}" 
                                        placeholder="Il tuo nome" required>
                                 {% if form.first_name.errors %}
-                                    <div class="text-danger small">{{ form.first_name.errors|join:", " }}</div>
+                                    <div class="auth-error mt-1">{{ form.first_name.errors|join:", " }}</div>
                                 {% endif %}
                             </div>
                             <div class="col-md-6 mb-3">
                                 <label for="id_last_name" class="form-label text-light">Cognome</label>
-                                <input type="text" name="last_name" class="form-control" 
+                                <input type="text" name="last_name" class="form-control auth-form-control" 
                                        id="id_last_name" value="{{ form.last_name.value|default:'' }}" 
                                        placeholder="Il tuo cognome" required>
                                 {% if form.last_name.errors %}
-                                    <div class="text-danger small">{{ form.last_name.errors|join:", " }}</div>
+                                    <div class="auth-error mt-1">{{ form.last_name.errors|join:", " }}</div>
                                 {% endif %}
                             </div>
                         </div>
                         
                         <div class="mb-3">
                             <label for="id_username" class="form-label text-light">Username</label>
-                            <input type="text" name="username" class="form-control" 
+                            <input type="text" name="username" class="form-control auth-form-control" 
                                    id="id_username" value="{{ form.username.value|default:'' }}" 
                                    placeholder="Scegli un username unico" required>
                             {% if form.username.errors %}
-                                <div class="text-danger small">{{ form.username.errors|join:", " }}</div>
+                                <div class="auth-error mt-1">{{ form.username.errors|join:", " }}</div>
                             {% endif %}
                         </div>
                         

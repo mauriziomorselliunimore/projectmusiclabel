@@ -1,0 +1,89 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+<style>
+    .health-status {
+        padding: 20px;
+        margin: 20px 0;
+        border-radius: 4px;
+    }
+    .healthy {
+        background-color: #dff0d8;
+        border: 1px solid #d6e9c6;
+        color: #3c763d;
+    }
+    .unhealthy {
+        background-color: #f2dede;
+        border: 1px solid #ebccd1;
+        color: #a94442;
+    }
+    .component {
+        margin: 10px 0;
+        padding: 10px;
+        background: white;
+        border-radius: 4px;
+    }
+    .component i {
+        margin-right: 10px;
+    }
+    .success i:before {
+        content: "✓";
+        color: green;
+    }
+    .error i:before {
+        content: "✗";
+        color: red;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+    <h1>Stato del Sistema</h1>
+    
+    <div class="health-status {% if '"status": "healthy"' in health_data %}healthy{% else %}unhealthy{% endif %}">
+        <h2>
+            {% if '"status": "healthy"' in health_data %}
+                Sistema in Salute
+            {% else %}
+                Problemi Rilevati
+            {% endif %}
+        </h2>
+        
+        <div class="components">
+            {% if '"database": true' in health_data %}
+                <div class="component success">
+                    <i></i> Database: Connesso e funzionante
+                </div>
+            {% else %}
+                <div class="component error">
+                    <i></i> Database: Problemi di connessione
+                </div>
+            {% endif %}
+
+            {% if '"cache": true' in health_data %}
+                <div class="component success">
+                    <i></i> Cache: Connessa e funzionante
+                </div>
+            {% else %}
+                <div class="component error">
+                    <i></i> Cache: Problemi di connessione
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="module">
+        <h2>Dettagli Tecnici</h2>
+        <pre>{{ health_data|safe }}</pre>
+    </div>
+</div>
+
+<script>
+    // Aggiorna la pagina ogni 30 secondi
+    setTimeout(function() {
+        window.location.reload();
+    }, 30000);
+</script>
+{% endblock %}
