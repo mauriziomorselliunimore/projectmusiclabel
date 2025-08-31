@@ -17,7 +17,17 @@ echo "🚀 Avvio processo di build..."
 echo "📦 Installazione dipendenze..."
 pip install -r requirements.txt || handle_error "Installazione dipendenze fallita"
 
-# Rimuove le tabelle problematiche in maniera sicura
+# Pulisce i file statici vecchi
+echo "🧹 Pulizia file statici..."
+rm -rf staticfiles/* || handle_error "Pulizia file statici fallita"
+
+# Raccoglie i file statici
+echo "📥 Raccolta file statici..."
+python manage.py collectstatic --no-input || handle_error "Raccolta file statici fallita"
+
+# Applica le migrazioni
+echo "🔄 Applicazione migrazioni..."
+python manage.py migrate --no-input || handle_error "Migrazione database fallita"
 echo "🗑️ Pulizia database..."
 __temp_psql << 'EOSQL'
 DO $$ 
