@@ -72,10 +72,10 @@
                                         {% endif %}
                                         <div class="flex-grow-1">
                                             <div class="bg-secondary text-light p-3 rounded-3">
-                                                {{ message.content|linebreaks }}
+                                                {{ message.message|linebreaks }}
                                             </div>
                                             <small class="text-muted mt-1 d-block">
-                                                {{ message.sent_at|date:"d/m H:i" }}
+                                                {{ message.created_at|date:"d/m H:i" }}
                                                 {% if message.is_read %}
                                                     <i class="bi bi-check2-all text-primary ms-1"></i>
                                                 {% else %}
@@ -87,10 +87,10 @@
                                     {% else %}
                                     <div class="text-end">
                                         <div class="bg-primary text-white p-3 rounded-3 d-inline-block">
-                                            {{ message.content|linebreaks }}
+                                            {{ message.message|linebreaks }}
                                         </div>
                                         <small class="text-muted mt-1 d-block">
-                                            {{ message.sent_at|date:"d/m H:i" }}
+                                            {{ message.created_at|date:"d/m H:i" }}
                                             {% if message.is_read %}
                                                 <i class="bi bi-check2-all text-primary ms-1"></i>
                                             {% else %}
@@ -118,7 +118,7 @@
                     <form method="post" id="message-form" class="d-flex align-items-end gap-2">
                         {% csrf_token %}
                         <div class="flex-grow-1">
-                            {{ form.content }}
+                            {{ form.message }}
                         </div>
                         <button type="submit" class="btn btn-primary">
                             <i class="bi bi-send-fill"></i>
@@ -183,44 +183,6 @@
     to {
         opacity: 1;
         transform: translateY(0);
-    }
-}
-
-/* Indicatore di digitazione */
-.typing-indicator {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    background: var(--bg-surface);
-    border-radius: 1rem;
-    margin: 10px 0;
-}
-
-.typing-indicator .dot {
-    width: 8px;
-    height: 8px;
-    background: var(--text-secondary);
-    border-radius: 50%;
-    margin: 0 2px;
-    animation: typing 1.4s infinite;
-}
-
-.typing-indicator .dot:nth-child(2) {
-    animation-delay: 0.2s;
-}
-
-.typing-indicator .dot:nth-child(3) {
-    animation-delay: 0.4s;
-}
-
-@keyframes typing {
-    0%, 60%, 100% {
-        transform: scale(1);
-        opacity: 0.5;
-    }
-    30% {
-        transform: scale(1.2);
-        opacity: 1;
     }
 }
 </style>
@@ -311,24 +273,6 @@ document.addEventListener('DOMContentLoaded', function() {
         this.style.height = 'auto';
         this.style.height = Math.min(this.scrollHeight, 120) + 'px';
     });
-    
-    // Segna messaggi come letti quando la pagina è visibile
-    function markMessagesAsRead() {
-        fetch('{% url "messaging:unread_counts" %}')
-        .then(response => response.json())
-        .then(data => {
-            // Aggiorna eventuali contatori nella pagina
-        });
-    }
-    
-    // Polling per nuovi messaggi ogni 10 secondi
-    setInterval(function() {
-        if (document.visibilityState === 'visible') {
-            // In una versione completa, qui potresti fare polling per nuovi messaggi
-            // Per ora ci limitiamo ad aggiornare i contatori
-            markMessagesAsRead();
-        }
-    }, 10000);
 });
 </script>
 {% endblock %}

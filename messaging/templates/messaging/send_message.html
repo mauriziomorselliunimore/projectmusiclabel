@@ -57,10 +57,10 @@
                         {% csrf_token %}
                         
                         <div class="mb-3">
-                            <label for="{{ form.content.id_for_label }}" class="form-label">
-                                <i class="bi bi-chat-text me-2"></i>{{ form.content.label }}
+                            <label for="{{ form.message.id_for_label }}" class="form-label">
+                                <i class="bi bi-chat-text me-2"></i>{{ form.message.label }}
                             </label>
-                            {{ form.content }}
+                            {{ form.message }}
                             <div class="form-text text-muted">
                                 Scrivi un messaggio professionale e cortese. Premi Ctrl+Enter per inviare rapidamente.
                             </div>
@@ -162,7 +162,7 @@
 
 <script>
 function insertQuickMessage(message) {
-    const textarea = document.getElementById('{{ form.content.id_for_label }}');
+    const textarea = document.getElementById('{{ form.message.id_for_label }}');
     textarea.value = message;
     textarea.focus();
     
@@ -172,7 +172,7 @@ function insertQuickMessage(message) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    const textarea = document.getElementById('{{ form.content.id_for_label }}');
+    const textarea = document.getElementById('{{ form.message.id_for_label }}');
     
     // Auto-resize textarea
     textarea.addEventListener('input', function() {

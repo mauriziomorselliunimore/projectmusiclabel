@@ -7,9 +7,9 @@ class MessageForm(forms.ModelForm):
     
     class Meta:
         model = Message
-        fields = ['content']
+        fields = ['message']  # CORRETTO: 'message' non 'content'
         widgets = {
-            'content': forms.Textarea(attrs={
+            'message': forms.Textarea(attrs={
                 'class': 'form-control',
                 'rows': 3,
                 'placeholder': 'Scrivi il tuo messaggio...',
@@ -17,12 +17,12 @@ class MessageForm(forms.ModelForm):
             })
         }
         labels = {
-            'content': 'Messaggio'
+            'message': 'Messaggio'
         }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['content'].widget.attrs.update({
+        self.fields['message'].widget.attrs.update({
             'style': 'resize: none; border-radius: 0.75rem;'
         })
 
@@ -39,3 +39,28 @@ class QuickMessageForm(forms.Form):
         max_length=500,
         label='Messaggio'
     )
+
+
+class CompleteMessageForm(forms.ModelForm):
+    """Form completo per messaggi con soggetto e tipo"""
+    
+    class Meta:
+        model = Message
+        fields = ['message_type', 'subject', 'message']
+        widgets = {
+            'message_type': forms.Select(attrs={'class': 'form-control'}),
+            'subject': forms.TextInput(attrs={
+                'class': 'form-control',
+                'placeholder': 'Oggetto del messaggio...'
+            }),
+            'message': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 5,
+                'placeholder': 'Scrivi il tuo messaggio...'
+            })
+        }
+        labels = {
+            'message_type': 'Tipo Messaggio',
+            'subject': 'Oggetto',
+            'message': 'Messaggio'
+        }
