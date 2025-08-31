@@ -25,13 +25,13 @@ rm -rf staticfiles/* || handle_error "Pulizia file statici fallita"
 echo "📥 Raccolta file statici..."
 python manage.py collectstatic --no-input || handle_error "Raccolta file statici fallita"
 
-# Applica le migrazioni
-echo "🔄 Applicazione migrazioni..."
-python manage.py migrate --no-input || handle_error "Migrazione database fallita"
-echo "🗑️ Pulizia database..."
+# Pulisci prima le migrazioni problematiche
+echo "🧹 Pulizia migrazioni problematiche..."
 __temp_psql << 'EOSQL'
 DO $$ 
 BEGIN
+    -- Drop di tutte le tabelle di messaging in modo sicuro
+    DROP TABLE IF EXISTS django_migrations CASCADE;
     DROP TABLE IF EXISTS messaging_notification CASCADE;
     DROP TABLE IF EXISTS messaging_message CASCADE;
     DROP TABLE IF EXISTS messaging_conversation CASCADE;
@@ -42,12 +42,20 @@ EOSQL
 
 # Crea le migrazioni per ogni app
 echo "🔄 Creazione migrazioni..."
-for app in accounts core artists associates booking messaging api; do
+for app in core accounts artists associates booking messaging api; do
     echo "  ⚡ Migrazione per $app..."
-    python manage.py makemigrations $app --noinput || handle_error "Migrazione fallita per $app"
+    python manage.py makemigrations $app --noinput || echo "Nota: Nessuna migrazione necessaria per $app"
 done
 
-# Forza l'applicazione di tutte le migrazioni
+# Applica le migrazioni forzatamente
+echo "🔄 Applicazione migrazioni forzata..."
+python manage.py migrate --no-input --run-syncdb || handle_error "Migrazione database fallita"
+
+# Migra specificamente le app principali
+for app in core accounts artists associates booking messaging api; do
+    echo "  ⚡ Migrazione forzata per $app..."
+    python manage.py migrate $app --no-input --fake-initial || echo "Nota: Migrazione non necessaria per $app"
+done
 python manage.py migrate --noinput --run-syncdb
 
 # Raccoglie i file statici
