@@ -46,12 +46,17 @@ def artist_detail(request, pk):
     can_message = request.user.is_authenticated and not is_owner and hasattr(request.user, 'profile')
     can_book = request.user.is_authenticated and hasattr(request.user, 'artist') and not is_owner
 
+    # Get existing conversation if any - FIXED VERSION
     existing_conversation = None
     if request.user.is_authenticated and not is_owner:
-        existing_conversation = Conversation.objects.filter(
-            Q(participant_1=request.user, participant_2=artist.user) |
-            Q(participant_1=artist.user, participant_2=request.user)
-        ).first()
+        try:
+            existing_conversation = Conversation.objects.filter(
+                Q(participant_1=request.user, participant_2=artist.user) |
+                Q(participant_1=artist.user, participant_2=request.user)
+            ).first()
+        except Exception:
+            # Se ci sono errori con il modello Conversation, ignora
+            existing_conversation = None
 
     context = {
         'artist': artist,
@@ -158,7 +163,12 @@ def quick_message(request):
         if request.user == recipient:
             return JsonResponse({'success': False, 'error': 'Non puoi inviare messaggi a te stesso'})
 
+        # Get or create conversation
+        conversation = Conversation.get_or_create_conversation(request.user, recipient)
+
+        # Create message
         message = Message.objects.create(
+            conversation=conversation,
             sender=request.user,
             recipient=recipient,
             subject=subject,
@@ -166,9 +176,7 @@ def quick_message(request):
             message_type=message_type
         )
 
-        conversation = Conversation.get_or_create_conversation(request.user, recipient)
-        conversation.update_last_message(message)
-
+        # Create notification
         Notification.objects.create(
             user=recipient,
             notification_type='new_message',

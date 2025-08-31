@@ -17,23 +17,24 @@ from .forms import MessageForm
 def inbox(request):
     """Vista per la lista delle conversazioni (inbox)"""
     conversations = Conversation.objects.filter(
-        participants=request.user
-    ).prefetch_related('participants', 'messages')
+        Q(participant_1=request.user) | Q(participant_2=request.user)
+    ).select_related('participant_1', 'participant_2', 'last_message')
     
     # Aggiungi info extra per ogni conversazione
     conversation_data = []
     for conv in conversations:
         other_user = conv.get_other_participant(request.user)
-        last_message = conv.get_last_message()
-        unread_count = conv.unread_count(request.user)
-        
-        conversation_data.append({
-            'conversation': conv,
-            'other_user': other_user,
-            'last_message': last_message,
-            'unread_count': unread_count,
-            'has_unread': unread_count > 0
-        })
+        if other_user:  # Solo se l'altro utente esiste
+            last_message = conv.last_message
+            unread_count = conv.unread_count_for_user(request.user)
+            
+            conversation_data.append({
+                'conversation': conv,
+                'other_user': other_user,
+                'last_message': last_message,
+                'unread_count': unread_count,
+                'has_unread': unread_count > 0
+            })
     
     context = {
         'conversations': conversation_data,
@@ -48,9 +49,13 @@ def conversation_detail(request, conversation_id):
     """Vista per una singola conversazione"""
     conversation = get_object_or_404(
         Conversation,
-        id=conversation_id,
-        participants=request.user
+        id=conversation_id
     )
+    
+    # Verifica che l'utente sia partecipante della conversazione
+    if request.user not in [conversation.participant_1, conversation.participant_2]:
+        messages.error(request, 'Non hai accesso a questa conversazione!')
+        return redirect('messaging:inbox')
     
     # Segna tutti i messaggi come letti
     unread_messages = conversation.messages.filter(
@@ -70,16 +75,12 @@ def conversation_detail(request, conversation_id):
             message = form.save(commit=False)
             message.conversation = conversation
             message.sender = request.user
+            message.recipient = conversation.get_other_participant(request.user)
             message.save()
             
-            # Aggiorna timestamp conversazione
-            conversation.updated_at = timezone.now()
-            conversation.save()
-            
             # Crea notifica per l'altro utente
-            other_user = conversation.get_other_participant(request.user)
             create_message_notification(
-                user=other_user,
+                user=message.recipient,
                 sender=request.user,
                 conversation=conversation
             )
@@ -89,9 +90,9 @@ def conversation_detail(request, conversation_id):
                     'success': True,
                     'message': {
                         'id': message.id,
-                        'content': message.content,
+                        'content': message.message,
                         'sender_name': message.sender.get_full_name() or message.sender.username,
-                        'sent_at': message.sent_at.strftime('%H:%M'),
+                        'sent_at': message.created_at.strftime('%H:%M'),
                         'is_own': True
                     }
                 })
@@ -123,15 +124,13 @@ def send_message(request, user_id):
     
     # Cerca conversazione esistente
     conversation = Conversation.objects.filter(
-        participants=request.user
-    ).filter(
-        participants=recipient
+        Q(participant_1=request.user, participant_2=recipient) |
+        Q(participant_1=recipient, participant_2=request.user)
     ).first()
     
     # Se non esiste, creala
     if not conversation:
-        conversation = Conversation.objects.create()
-        conversation.participants.set([request.user, recipient])
+        conversation = Conversation.get_or_create_conversation(request.user, recipient)
     
     # Se è una richiesta POST, invia il messaggio direttamente
     if request.method == 'POST':
@@ -140,10 +139,8 @@ def send_message(request, user_id):
             message = form.save(commit=False)
             message.conversation = conversation
             message.sender = request.user
+            message.recipient = recipient
             message.save()
-            
-            conversation.updated_at = timezone.now()
-            conversation.save()
             
             # Crea notifica
             create_message_notification(
@@ -225,7 +222,7 @@ def get_unread_counts(request):
     """API per ottenere conteggi messaggi/notifiche non letti"""
     # Conta messaggi non letti
     unread_messages = Message.objects.filter(
-        conversation__participants=request.user,
+        Q(conversation__participant_1=request.user) | Q(conversation__participant_2=request.user),
         is_read=False
     ).exclude(sender=request.user).count()
     
@@ -245,9 +242,9 @@ def create_message_notification(user, sender, conversation):
     """Utility per creare notifica nuovo messaggio"""
     Notification.objects.create(
         user=user,
-        notification_type='message',
+        notification_type='new_message',
         title='Nuovo messaggio',
         message=f'{sender.get_full_name() or sender.username} ti ha inviato un messaggio',
         related_user=sender,
-        related_url=f'/messaging/conversation/{conversation.id}/'
+        action_url=f'/messaging/conversation/{conversation.id}/'
     )

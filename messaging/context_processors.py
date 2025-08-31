@@ -1,5 +1,6 @@
 from django.db import connection
 from django.db.utils import ProgrammingError, OperationalError
+from django.db.models import Q
 
 def messaging_context(request):
     """Context processor sicuro per messaggi e notifiche"""
@@ -14,41 +15,68 @@ def messaging_context(request):
     try:
         # Verifica che le tabelle esistano prima di importare i modelli
         with connection.cursor() as cursor:
-            # Check PostgreSQL per tabelle messaging
-            cursor.execute("""
-                SELECT EXISTS (
-                    SELECT 1 FROM information_schema.tables 
-                    WHERE table_schema = 'public' 
-                    AND table_name = 'messaging_conversation'
-                );
-            """)
-            conversation_exists = cursor.fetchone()[0]
+            # Check PostgreSQL/SQLite per tabelle messaging
+            try:
+                # Per PostgreSQL
+                cursor.execute("""
+                    SELECT EXISTS (
+                        SELECT 1 FROM information_schema.tables 
+                        WHERE table_schema = 'public' 
+                        AND table_name = 'messaging_conversation'
+                    );
+                """)
+                conversation_exists = cursor.fetchone()[0]
+            except:
+                # Fallback per SQLite
+                cursor.execute("""
+                    SELECT name FROM sqlite_master 
+                    WHERE type='table' AND name='messaging_conversation';
+                """)
+                conversation_exists = bool(cursor.fetchone())
             
-            cursor.execute("""
-                SELECT EXISTS (
-                    SELECT 1 FROM information_schema.tables 
-                    WHERE table_schema = 'public' 
-                    AND table_name = 'messaging_message'
-                );
-            """)
-            message_exists = cursor.fetchone()[0]
+            try:
+                # Per PostgreSQL
+                cursor.execute("""
+                    SELECT EXISTS (
+                        SELECT 1 FROM information_schema.tables 
+                        WHERE table_schema = 'public' 
+                        AND table_name = 'messaging_message'
+                    );
+                """)
+                message_exists = cursor.fetchone()[0]
+            except:
+                # Fallback per SQLite
+                cursor.execute("""
+                    SELECT name FROM sqlite_master 
+                    WHERE type='table' AND name='messaging_message';
+                """)
+                message_exists = bool(cursor.fetchone())
             
-            cursor.execute("""
-                SELECT EXISTS (
-                    SELECT 1 FROM information_schema.tables 
-                    WHERE table_schema = 'public' 
-                    AND table_name = 'messaging_notification'
-                );
-            """)
-            notification_exists = cursor.fetchone()[0]
+            try:
+                # Per PostgreSQL
+                cursor.execute("""
+                    SELECT EXISTS (
+                        SELECT 1 FROM information_schema.tables 
+                        WHERE table_schema = 'public' 
+                        AND table_name = 'messaging_notification'
+                    );
+                """)
+                notification_exists = cursor.fetchone()[0]
+            except:
+                # Fallback per SQLite
+                cursor.execute("""
+                    SELECT name FROM sqlite_master 
+                    WHERE type='table' AND name='messaging_notification';
+                """)
+                notification_exists = bool(cursor.fetchone())
         
         # Solo se tutte le tabelle esistono
         if conversation_exists and message_exists and notification_exists:
             from .models import Message, Notification
             
-            # Conta messaggi non letti
+            # Conta messaggi non letti - VERSIONE CORRETTA
             context['unread_messages_count'] = Message.objects.filter(
-                conversation__participants=request.user,
+                Q(conversation__participant_1=request.user) | Q(conversation__participant_2=request.user),
                 is_read=False
             ).exclude(sender=request.user).count()
             

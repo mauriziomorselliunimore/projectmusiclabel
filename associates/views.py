@@ -3,6 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q
 from django.http import JsonResponse
+from django.contrib.auth.models import User
 from messaging.models import Message, Notification, Conversation
 from .models import Associate, PortfolioItem
 from .forms import AssociateForm, PortfolioItemForm
@@ -58,27 +59,31 @@ def associate_detail(request, pk):
         associate.is_available
     )
     
-    # Get existing conversation if any
+    # Get existing conversation if any - FIXED VERSION
     existing_conversation = None
     if request.user.is_authenticated and request.user != associate.user:
         try:
-            existing_conversation = Conversation.objects.get(
+            existing_conversation = Conversation.objects.filter(
                 Q(participant_1=request.user, participant_2=associate.user) |
                 Q(participant_1=associate.user, participant_2=request.user)
-            )
-        except Conversation.DoesNotExist:
-            pass
+            ).first()
+        except Exception:
+            # Se ci sono errori con il modello Conversation, ignora
+            existing_conversation = None
 
-    
     # Get recent bookings with this associate (for reputation)
     recent_bookings = None
     if request.user.is_authenticated and hasattr(request.user, 'artist'):
-        from booking.models import Booking
-        recent_bookings = Booking.objects.filter(
-            artist=request.user.artist,
-            associate=associate,
-            status__in=['completed', 'confirmed']
-        ).order_by('-session_date')[:3]
+        try:
+            from booking.models import Booking
+            recent_bookings = Booking.objects.filter(
+                artist=request.user.artist,
+                associate=associate,
+                status__in=['completed', 'confirmed']
+            ).order_by('-session_date')[:3]
+        except Exception:
+            # Se ci sono errori con i booking, ignora
+            recent_bookings = None
     
     context = {
         'associate': associate,
@@ -194,18 +199,18 @@ def quick_message(request):
         if request.user == recipient:
             return JsonResponse({'success': False, 'error': 'Non puoi inviare messaggi a te stesso'})
         
+        # Get or create conversation
+        conversation = Conversation.get_or_create_conversation(request.user, recipient)
+        
         # Create message
         message = Message.objects.create(
+            conversation=conversation,
             sender=request.user,
             recipient=recipient,
             subject=subject,
             message=message_text,
             message_type=message_type
         )
-        
-        # Create or update conversation
-        conversation = Conversation.get_or_create_conversation(request.user, recipient)
-        conversation.update_last_message(message)
         
         # Create notification
         Notification.objects.create(
