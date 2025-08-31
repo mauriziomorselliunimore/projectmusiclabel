@@ -55,8 +55,8 @@ def inbox(request):
     for conv in conversations:
         other_user = conv.get_other_participant(request.user)
         if other_user:  # Solo se l'altro utente esiste
-            last_message = conv.last_message
             unread_count = conv.unread_count_for_user(request.user)
+            last_message = conv.messages.order_by('-created_at').first() if not conv.last_message else conv.last_message
             
             conversation_data.append({
                 'conversation': conv,
