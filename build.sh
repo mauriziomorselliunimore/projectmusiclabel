@@ -25,37 +25,33 @@ rm -rf staticfiles/* || handle_error "Pulizia file statici fallita"
 echo "📥 Raccolta file statici..."
 python manage.py collectstatic --no-input || handle_error "Raccolta file statici fallita"
 
-# Pulisci prima le migrazioni problematiche
-echo "🧹 Pulizia migrazioni problematiche..."
+# Reset completo del database se necessario
+echo "🧹 Reset del database se necessario..."
 __temp_psql << 'EOSQL'
 DO $$ 
 BEGIN
-    -- Drop di tutte le tabelle di messaging in modo sicuro
-    DROP TABLE IF EXISTS django_migrations CASCADE;
-    DROP TABLE IF EXISTS messaging_notification CASCADE;
-    DROP TABLE IF EXISTS messaging_message CASCADE;
-    DROP TABLE IF EXISTS messaging_conversation CASCADE;
+    -- Drop di tutte le tabelle in modo sicuro
+    DROP SCHEMA public CASCADE;
+    CREATE SCHEMA public;
+    GRANT ALL ON SCHEMA public TO current_user;
+    GRANT ALL ON SCHEMA public TO public;
 EXCEPTION WHEN OTHERS THEN
-    RAISE NOTICE 'Ignoro errori di drop table: %', SQLERRM;
+    RAISE NOTICE 'Ignoro errori di schema: %', SQLERRM;
 END $$;
 EOSQL
 
-# Crea le migrazioni per ogni app
-echo "🔄 Creazione migrazioni..."
-for app in core accounts artists associates booking messaging api; do
-    echo "  ⚡ Migrazione per $app..."
-    python manage.py makemigrations $app --noinput || echo "Nota: Nessuna migrazione necessaria per $app"
-done
+# Crea le migrazioni per messaging (con il nuovo campo message)
+echo "🔄 Creazione migrazioni per messaging..."
+python manage.py makemigrations messaging --noinput || echo "Nota: Nessuna migrazione necessaria per messaging"
 
-# Applica le migrazioni forzatamente
-echo "🔄 Applicazione migrazioni forzata..."
-python manage.py migrate --no-input --run-syncdb || handle_error "Migrazione database fallita"
-
-# Migra specificamente le app principali
-for app in core accounts artists associates booking messaging api; do
-    echo "  ⚡ Migrazione forzata per $app..."
-    python manage.py migrate $app --no-input --fake-initial || echo "Nota: Migrazione non necessaria per $app"
-done
+# Applica le migrazioni in ordine corretto
+echo "🔄 Applicazione migrazioni in ordine..."
+python manage.py migrate contenttypes --noinput
+python manage.py migrate auth --noinput
+python manage.py migrate admin --noinput
+python manage.py migrate sessions --noinput
+python manage.py migrate messaging --noinput
+python manage.py migrate --noinput
 python manage.py migrate --noinput --run-syncdb
 
 # Raccoglie i file statici

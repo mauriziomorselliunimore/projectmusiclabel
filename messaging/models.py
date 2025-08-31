@@ -98,11 +98,10 @@ class Message(models.Model):
         on_delete=models.CASCADE,
         related_name='received_messages'
     )
-    
     # Contenuto messaggio
     message_type = models.CharField(max_length=20, choices=MESSAGE_TYPES, default='general')
     subject = models.CharField(max_length=200, blank=True)
-    message = models.TextField()
+    message = models.TextField(default='')  # Campo message con valore di default
     
     # Metadata
     created_at = models.DateTimeField(default=timezone.now)
