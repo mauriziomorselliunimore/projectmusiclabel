@@ -13,6 +13,7 @@ class Migration(migrations.Migration):
             name='Associate',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('created_at', models.DateTimeField(auto_now_add=True, default='2025-09-01')),
                 ('specialization', models.CharField(help_text='Specializzazione principale', max_length=100)),
                 ('skills', models.CharField(help_text='Competenze separate da virgola', max_length=300)),
                 ('experience_level', models.CharField(choices=[('beginner', 'Principiante'), ('intermediate', 'Intermedio'), ('advanced', 'Avanzato'), ('professional', 'Professionale')], default='intermediate', max_length=20)),
