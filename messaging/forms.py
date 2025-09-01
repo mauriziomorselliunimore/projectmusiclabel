@@ -7,7 +7,7 @@ class MessageForm(forms.ModelForm):
     
     class Meta:
         model = Message
-        fields = ['message']  # CORRETTO: 'message' non 'content'
+        fields = ['message']
         widgets = {
             'message': forms.Textarea(attrs={
                 'class': 'form-control',
@@ -43,50 +43,27 @@ class QuickMessageForm(forms.Form):
 
 class CompleteMessageForm(forms.ModelForm):
     """Form completo per messaggi con soggetto e tipo"""
-    
     class Meta:
         model = Message
         fields = ['message_type', 'subject', 'message']
         widgets = {
-            'message_type': forms.Select(
-                attrs={
-                    'class': 'form-select',
-                    'required': True
-                }
-            ),
-            'subject': forms.TextInput(
-                attrs={
-                    'class': 'form-control',
-                    'placeholder': 'Oggetto del messaggio...'
-                }
-            ),
-            'message': forms.Textarea(
-                attrs={
-                    'class': 'form-control',
-                    'rows': 4,
-                    'placeholder': 'Scrivi il tuo messaggio...',
-                    'style': 'resize: none; border-radius: 0.75rem;'
-                }
-            )
-        }
-        labels = {
-            'message_type': 'Tipo di messaggio',
-            'subject': 'Oggetto',
-            'message': 'Messaggio'
-        }
-            'message_type': forms.Select(attrs={'class': 'form-control'}),
+            'message_type': forms.Select(attrs={
+                'class': 'form-select',
+                'required': True
+            }),
             'subject': forms.TextInput(attrs={
                 'class': 'form-control',
                 'placeholder': 'Oggetto del messaggio...'
             }),
             'message': forms.Textarea(attrs={
                 'class': 'form-control',
-                'rows': 5,
-                'placeholder': 'Scrivi il tuo messaggio...'
+                'rows': 4,
+                'placeholder': 'Scrivi il tuo messaggio...',
+                'style': 'resize: none; border-radius: 0.75rem;'
             })
         }
         labels = {
-            'message_type': 'Tipo Messaggio',
+            'message_type': 'Tipo di messaggio',
             'subject': 'Oggetto',
             'message': 'Messaggio'
         }
