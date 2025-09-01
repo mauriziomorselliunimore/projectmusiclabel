@@ -30,10 +30,6 @@ class Artist(models.Model):
     soundcloud_url = models.URLField(blank=True)
     instagram_url = models.URLField(blank=True)
 
-    # Profile customization
-    profile_icon = models.CharField(max_length=50, default="bi-music-note-beamed")
-    profile_icon_color = models.CharField(max_length=50, default="#ffffff")
-
     def __str__(self):
         return self.stage_name
 

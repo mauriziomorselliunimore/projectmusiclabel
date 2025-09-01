@@ -30,20 +30,33 @@ class CustomUserCreationForm(UserCreationForm):
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
-        fields = ['phone', 'location', 'bio', 'external_avatar_url']
+        fields = ['phone', 'location', 'bio', 'external_avatar_url', 'profile_icon', 'profile_icon_color']
         widgets = {
             'bio': forms.Textarea(attrs={'rows': 4}),
             'phone': forms.TextInput(attrs={'placeholder': '+39 123 456 7890'}),
             'location': forms.TextInput(attrs={'placeholder': 'Roma, Italia'}),
             'external_avatar_url': forms.URLInput(attrs={
-                'placeholder': 'https://imgur.com/abc123.jpg (opzionale)'
+                'placeholder': 'https://imgur.com/abc123.jpg (opzionale)',
+                'class': 'form-control'
             }),
+            'profile_icon': forms.Select(attrs={'class': 'form-control'}),
+            'profile_icon_color': forms.TextInput(attrs={
+                'type': 'color',
+                'class': 'form-control form-control-color'
+            })
         }
         labels = {
             'phone': 'Telefono',
             'location': 'Località',
             'bio': 'Biografia',
             'external_avatar_url': 'Link Foto Profilo',
+            'profile_icon': 'Icona del profilo',
+            'profile_icon_color': 'Colore dell\'icona'
+        }
+        help_texts = {
+            'external_avatar_url': 'Inserisci l\'URL di una tua immagine (da Imgur, Google Drive, etc.)',
+            'profile_icon': 'Scegli un\'icona per il tuo profilo',
+            'profile_icon_color': 'Scegli il colore dell\'icona'
         }
     
     def __init__(self, *args, **kwargs):

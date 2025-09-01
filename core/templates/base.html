@@ -10,6 +10,33 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Fallback per le icone -->
+    <style>
+        .bi {
+            display: inline-block;
+            font-family: bootstrap-icons !important;
+            font-style: normal;
+            font-weight: normal !important;
+            font-feature-settings: normal;
+            font-variant: normal;
+            text-transform: none;
+            line-height: 1;
+            vertical-align: -0.125em;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .bi::before {
+            display: inline-block;
+        }
+        
+        /* Fallback per le icone non caricate */
+        i.bi:empty::before {
+            content: "⚠️";
+            color: var(--text-muted);
+        }
+    </style>
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     
@@ -582,11 +609,12 @@
                     {% if user.is_authenticated %}
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown">
-                                {% if user.profile.external_avatar_url %}
-                                    <img src="{{ user.profile.external_avatar_url }}" class="user-avatar rounded-circle me-2" style="width: 32px; height: 32px;" alt="Avatar">
-                                {% else %}
-                                    <img src="{{ user.profile.get_avatar_url }}" class="user-avatar rounded-circle me-2" style="width: 32px; height: 32px;" alt="Avatar">
-                                {% endif %}
+                                <img src="{{ user.profile.get_avatar_url }}" 
+                                     class="user-avatar rounded-circle me-2" 
+                                     style="width: 32px; height: 32px; object-fit: cover; background-color: var(--bg-surface);" 
+                                     onerror="this.src='https://ui-avatars.com/api/?name={{ user.get_full_name|default:user.username|urlencode }}&background=475569&color=fff'; this.onerror=null;"
+                                     alt="{{ user.get_full_name|default:user.username }}"
+                                >
                                 <span>{{ user.first_name|default:user.username }}</span>
                                 {% if unread_notifications_count > 0 %}
                                 <span class="badge bg-warning ms-1">{{ unread_notifications_count }}</span>

@@ -102,18 +102,6 @@
                         {% elif user.is_authenticated %}
                             <!-- Visitor Actions -->
                             <div class="d-grid gap-2">
-                                <!-- Follow Button -->
-                                {% if not is_owner %}
-                                <button class="btn btn-outline-primary follow-button" 
-                                        data-content-type-id="{{ content_type_id }}" 
-                                        data-object-id="{{ artist.id }}"
-                                        data-is-following="{{ is_following|lower }}">
-                                    <i class="bi {% if is_following %}bi-person-check-fill{% else %}bi-person-plus-fill{% endif %}"></i>
-                                    <span class="follow-text">{% if is_following %}Smetti di seguire{% else %}Segui artista{% endif %}</span>
-                                    <span class="followers-count">({{ followers_count }})</span>
-                                </button>
-                                {% endif %}
-                                
                                 <!-- Message Button -->
                                 {% if existing_conversation %}
                                     <a href="{% url 'messaging:conversation' existing_conversation.pk %}" class="btn btn-success">
@@ -132,22 +120,7 @@
                                     </button>
                                 {% endif %}
 
-                                <!-- Follow Button -->
-                                <button class="btn btn-outline-primary follow-button" 
-                                        data-content-type-id="{{ artist_content_type_id }}" 
-                                        data-object-id="{{ artist.id }}"
-                                        data-is-following="{{ is_following|lower }}">
-                                    <i class="bi bi-person-{% if is_following %}check{% else %}plus{% endif %}-fill"></i>
-                                    <span class="follow-text">
-                                        {% if is_following %}Smetti di seguire{% else %}Segui artista{% endif %}
-                                    </span>
-                                    <span class="followers-count ms-1">({{ followers_count }})</span>
-                                </button>
-                                
-                                <!-- Follow/Unfollow (future feature) -->
-                                <button class="btn btn-outline-primary" onclick="toggleFollow({{ artist.user.id }})">
-                                    <i class="bi bi-heart"></i> <span id="follow-text">Segui Artista</span>
-                                </button>
+
                             </div>
                         {% else %}
                             <!-- Anonymous User -->
@@ -919,19 +892,7 @@ function confirmAndSendProposal() {
     });
 }
 
-function toggleFollow(userId) {
-    // Placeholder for follow/unfollow functionality
-    const followBtn = document.getElementById('follow-text');
-    const isFollowing = followBtn.textContent.includes('Segui');
-    
-    if (isFollowing) {
-        followBtn.textContent = 'Smetti di Seguire';
-        showNotification('Ora segui questo artista!', 'info');
-    } else {
-        followBtn.textContent = 'Segui Artista';
-        showNotification('Non segui più questo artista', 'info');
-    }
-}
+
 
 function showNotification(message, type) {
     // Create notification element
@@ -987,44 +948,7 @@ document.getElementById('collaborationModal').addEventListener('hidden.bs.modal'
     document.getElementById('collaboration-form').reset();
 });
 
-// Follow functionality
-document.addEventListener('click', function(e) {
-    if (e.target.closest('.follow-button')) {
-        const button = e.target.closest('.follow-button');
-        const contentTypeId = button.dataset.contentTypeId;
-        const objectId = button.dataset.objectId;
-        const isFollowing = button.dataset.isFollowing === 'true';
-        
-        fetch(`/core/follow/${contentTypeId}/${objectId}/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
-                'X-Requested-With': 'XMLHttpRequest'
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.error) {
-                showNotification(data.error, 'danger');
-                return;
-            }
-            
-            // Update button state
-            button.dataset.isFollowing = data.is_following;
-            const icon = button.querySelector('i');
-            const text = button.querySelector('.follow-text');
-            const count = button.querySelector('.followers-count');
-            
-            if (data.is_following) {
-                icon.className = 'bi bi-person-check-fill';
-                text.textContent = 'Smetti di seguire';
-            } else {
-                icon.className = 'bi bi-person-plus-fill';
-                text.textContent = 'Segui artista';
-            }
-            
-            count.textContent = `(${data.followers_count})`;
-            showNotification(data.message, 'success');
+
         })
         .catch(error => {
             console.error('Error:', error);
