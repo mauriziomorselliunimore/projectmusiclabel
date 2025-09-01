@@ -60,22 +60,3 @@ class Migration(migrations.Migration):
             },
         ),
     ]
-                ('content', models.TextField()),
-                ('subject', models.CharField(blank=True, max_length=255)),
-                ('created_at', models.DateTimeField(default=django.utils.timezone.now)),
-                ('is_read', models.BooleanField(default=False)),
-                ('message_type', models.CharField(choices=[('general', 'Messaggio Generale'), ('booking_request', 'Richiesta Prenotazione'), ('collaboration', 'Proposta Collaborazione'), ('inquiry', 'Richiesta Informazioni'), ('quote_request', 'Richiesta Preventivo'), ('other', 'Altro')], default='general', max_length=20)),
-                ('conversation', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='messages', to='messaging.conversation')),
-                ('recipient', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='received_messages', to=settings.AUTH_USER_MODEL)),
-                ('sender', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sent_messages', to=settings.AUTH_USER_MODEL)),
-            ],
-            options={
-                'ordering': ['-created_at'],
-            },
-        ),
-        migrations.AddField(
-            model_name='conversation',
-            name='last_message',
-            field=models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='messaging.message'),
-        ),
-    ]
