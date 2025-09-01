@@ -16,6 +16,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         self.stdout.write('🚀 Setup Render in corso...')
         
+        # Prima esegui le migrazioni
+        self.stdout.write('🔄 Applico le migrazioni...')
+        from django.core.management import call_command
+        call_command('migrate', verbosity=1, interactive=False)
+        
         if not options['skip_superuser']:
             self.create_superuser()
         
