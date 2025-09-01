@@ -13,8 +13,9 @@ handle_error() {
 
 echo "🚀 Avvio processo di build..."
 
-# Installa le dipendenze base e audio
+# Installa ffmpeg e le dipendenze base e audio
 echo "📦 Installazione dipendenze..."
+apt-get update && apt-get install -y ffmpeg || handle_error "Installazione ffmpeg fallita"
 pip install -r requirements.txt || handle_error "Installazione dipendenze base fallita"
 pip install -r requirements_audio.txt || handle_error "Installazione dipendenze audio fallita"
 
