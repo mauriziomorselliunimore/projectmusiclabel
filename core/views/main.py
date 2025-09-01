@@ -235,13 +235,14 @@ def populate_database(request):
             portfolio_description=data['portfolio_description']
         )
         
-        # Crea i portfolio
+        # Crea i portfolio items
         for portfolio in data['portfolios']:
-            from associates.models import Portfolio
-            Portfolio.objects.create(
+            from associates.models import PortfolioItem
+            PortfolioItem.objects.create(
                 associate=associate,
                 title=portfolio['title'],
-                description=portfolio['description']
+                description=portfolio['description'],
+                external_url='https://example.com/portfolio/' + portfolio['title'].lower().replace(' ', '-')
             )
     
     return render(request, 'admin/populate_success.html')
