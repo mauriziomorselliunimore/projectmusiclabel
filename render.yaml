@@ -2,10 +2,8 @@ services:
   # Web service
   - type: web
     name: record-label
-    env: python
+    env: docker
     plan: starter
-    buildCommand: ./build.sh
-    startCommand: gunicorn record_label.wsgi:application
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0

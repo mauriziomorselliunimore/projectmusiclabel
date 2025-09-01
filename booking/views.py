@@ -110,10 +110,15 @@ def create_booking(request, associate_id):
                 action_url=f'/booking/{booking.pk}/'
             )
             
+            # Ottieni o crea conversazione
+            from messaging.models import Conversation
+            conversation = Conversation.get_or_create_conversation(request.user, associate.user)
+            
             # Messaggio automatico
             Message.objects.create(
                 sender=request.user,
                 recipient=associate.user,
+                conversation=conversation,
                 message_type='booking_request',
                 subject=f'Richiesta prenotazione - {booking.get_booking_type_display()}',
                 message=f'Ciao {associate.user.first_name},\n\n'

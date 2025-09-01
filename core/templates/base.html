@@ -246,9 +246,40 @@
             box-shadow: 0 0 0 0.25rem rgba(59, 130, 246, 0.2);
         }
 
+        /* Stili per i placeholder */
         .form-control::placeholder {
             color: var(--text-muted);
             font-weight: 400;
+            opacity: 1; /* Mantiene l'opacità al 100% */
+            transition: none; /* Disabilita le transizioni */
+        }
+        
+        .form-control:focus::placeholder {
+            color: var(--text-muted);
+            opacity: 1; /* Mantiene l'opacità anche quando il campo è in focus */
+            transition: none;
+        }
+        
+        /* Supporto per browser webkit (Chrome, Safari, Edge) */
+        .form-control::-webkit-input-placeholder {
+            opacity: 1 !important;
+            transition: none;
+        }
+        
+        .form-control:focus::-webkit-input-placeholder {
+            opacity: 1 !important;
+            color: var(--text-muted);
+        }
+        
+        /* Supporto per Firefox */
+        .form-control::-moz-placeholder {
+            opacity: 1 !important;
+            transition: none;
+        }
+        
+        .form-control:focus::-moz-placeholder {
+            opacity: 1 !important;
+            color: var(--text-muted);
         }
 
         .form-label {
