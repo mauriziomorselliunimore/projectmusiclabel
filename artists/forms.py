@@ -50,6 +50,8 @@ class DemoForm(forms.ModelForm):
             'external_audio_url': 'Link Audio',
             'genre': 'Genere',
             'description': 'Descrizione',
+            'duration': 'Durata',
+            'is_public': 'Pubblica (visibile a tutti)',
         }
 
     def clean(self):
@@ -68,9 +70,6 @@ class DemoForm(forms.ModelForm):
             )
         
         return cleaned_data
-            'duration': 'Durata',
-            'is_public': 'Pubblica (visibile a tutti)',
-        }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
