@@ -11,7 +11,7 @@
                          class="rounded-circle mb-3" style="width: 100px; height: 100px; object-fit: cover;">
                     
                     <h4 class="text-light">{{ associate.user.get_full_name }}</h4>
-                    <p class="text-magenta">{{ associate.specialization }}</p>
+                    <p class="text-primary">{{ associate.specialization }}</p>
                     
                     {% if associate.hourly_rate %}
                     <div class="alert alert-success py-2">
@@ -121,7 +121,7 @@
                         {% endif %}
                         
                         <div class="d-flex gap-2">
-                            <button type="submit" class="btn btn-magenta">
+                            <button type="submit" class="btn btn-primary">
                                 <i class="bi bi-calendar-check"></i> Invia Richiesta
                             </button>
                             <a href="{% url 'associates:detail' associate.pk %}" class="btn btn-outline-light">
@@ -150,9 +150,11 @@
                             - {{ booking.duration_hours }}h
                             <small class="text-muted">({{ booking.artist.stage_name }})</small>
                         </div>
-                        <span class="badge bg-{{ booking.status == 'confirmed' and 'success' or 'warning' }}">
-                            {{ booking.get_status_display }}
-                        </span>
+                        {% if booking.status == 'confirmed' %}
+                            <span class="badge bg-success">{{ booking.get_status_display }}</span>
+                        {% else %}
+                            <span class="badge bg-warning">{{ booking.get_status_display }}</span>
+                        {% endif %}
                     </div>
                     {% endfor %}
                 </div>
@@ -171,9 +173,9 @@
 
 .form-control:focus {
     background: rgba(255, 255, 255, 0.15);
-    border-color: #ff2e88;
+    border-color: #ff6b6b;
     color: #fff;
-    box-shadow: 0 0 0 0.25rem rgba(255, 46, 136, 0.25);
+    box-shadow: 0 0 0 0.25rem rgba(255, 107, 107, 0.25);
 }
 </style>
 {% endblock %}
