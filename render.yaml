@@ -1,0 +1,54 @@
+services:
+  # Web service
+  - type: web
+    name: record-label
+    env: python
+    plan: starter
+    buildCommand: ./build.sh
+    startCommand: gunicorn record_label.wsgi:application
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: DEBUG
+        value: false
+      - key: DJANGO_SETTINGS_MODULE
+        value: record_label.settings_production
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DATABASE_URL
+        fromDatabase:
+          name: record-label-db
+          property: connectionString
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+
+  # Database service
+  - type: pserv
+    name: record-label-db
+    env: docker
+    plan: starter
+    disk:
+      name: data
+      mountPath: /var/lib/postgresql/data
+      sizeGB: 10
+    image: postgres:15-alpine
+    envVars:
+      - key: POSTGRES_USER
+        fromService:
+          type: web
+          name: record-label
+          envVarKey: POSTGRES_USER
+      - key: POSTGRES_PASSWORD
+        fromService:
+          type: web
+          name: record-label
+          envVarKey: POSTGRES_PASSWORD
+      - key: POSTGRES_DB
+        fromService:
+          type: web
+          name: record-label
+          envVarKey: POSTGRES_DB

@@ -1,6 +1,18 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.core.validators import FileExtensionValidator
+from django.core.exceptions import ValidationError
+from record_label.storage import AudioFileStorage
+
+def validate_audio_file_size(value):
+    filesize = value.size
+    max_size = 5 * 1024 * 1024  # 5MB per rimanere entro i limiti di Cloudinary Free
+    if filesize > max_size:
+        raise ValidationError(
+            f"Il file non può superare i 5MB. Per file più grandi, "
+            f"usa un servizio esterno come SoundCloud o YouTube"
+        )
 
 ARTIST_ICONS = [
     ('bi-person-circle', 'Persona'),
@@ -72,9 +84,21 @@ class Demo(models.Model):
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='demos')
     title = models.CharField(max_length=200)
     external_audio_url = models.URLField(blank=True, help_text="Link a SoundCloud, YouTube, Spotify, etc.")
+    audio_file = models.FileField(
+        upload_to='audio_files/%Y/%m/%d/',
+        storage=AudioFileStorage(),
+        validators=[
+            FileExtensionValidator(allowed_extensions=['mp3', 'wav']),
+            validate_audio_file_size
+        ],
+        blank=True,
+        null=True,
+        help_text="File audio (max 10MB, formati: MP3, WAV)"
+    )
     genre = models.CharField(max_length=50, choices=MUSIC_GENRES)
     description = models.TextField(max_length=500, blank=True)
     duration = models.CharField(max_length=10, blank=True, help_text="mm:ss")
+    waveform_data = models.JSONField(null=True, blank=True, help_text="Dati per la visualizzazione della forma d'onda")
     
     uploaded_at = models.DateTimeField(auto_now_add=True)
     is_public = models.BooleanField(default=True)
@@ -85,6 +109,21 @@ class Demo(models.Model):
     def __str__(self):
         return f"{self.artist.stage_name} - {self.title}"
     
+    def clean(self):
+        """Validazione del modello"""
+        super().clean()
+        if not self.external_audio_url and not self.audio_file:
+            raise ValidationError("È necessario fornire un file audio o un URL esterno")
+        if self.external_audio_url and self.audio_file:
+            raise ValidationError("Non è possibile fornire sia un file audio che un URL esterno")
+
+    def save(self, *args, **kwargs):
+        """Override del metodo save per gestire il waveform"""
+        if self.audio_file and not self.waveform_data:
+            # TODO: Implementare la generazione del waveform
+            pass
+        super().save(*args, **kwargs)
+
     def get_platform(self):
         """Identifica la piattaforma dal URL"""
         if not self.external_audio_url:
@@ -101,3 +140,9 @@ class Demo(models.Model):
             return 'bandcamp'
         else:
             return 'other'
+            
+    def get_audio_url(self):
+        """Restituisce l'URL dell'audio, sia esso file locale o esterno"""
+        if self.audio_file:
+            return self.audio_file.url
+        return self.external_audio_url

@@ -25,6 +25,15 @@
                             {% endif %}
                         </div>
                         
+                        <div class="alert alert-info mb-3">
+                            <h5><i class="bi bi-info-circle"></i> Opzioni per il caricamento audio:</h5>
+                            <p class="mb-2">Hai due opzioni per condividere la tua musica:</p>
+                            <ol>
+                                <li><strong>Link esterno</strong>: Carica la tua traccia su piattaforme come SoundCloud, YouTube o Spotify (consigliato per file più grandi)</li>
+                                <li><strong>Caricamento diretto</strong>: Per demo brevi fino a 5MB (formato MP3 o WAV)</li>
+                            </ol>
+                        </div>
+
                         <div class="mb-3">
                             <label for="id_external_audio_url" class="form-label text-light">
                                 <i class="bi bi-link-45deg"></i> {{ form.external_audio_url.label }}

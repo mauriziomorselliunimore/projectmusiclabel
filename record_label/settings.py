@@ -46,6 +46,8 @@ THIRD_PARTY_APPS = [
     'corsheaders',
     'crispy_forms',
     'crispy_bootstrap5',
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 LOCAL_APPS = [

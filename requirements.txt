@@ -18,6 +18,17 @@ django-cors-headers==4.3.1
 Pillow==10.1.0
 python-decouple==3.8
 
+# Storage e Media
+cloudinary==1.36.0
+django-cloudinary-storage==0.3.0
+
+# Server WSGI
+gunicorn==21.2.0
+
+# Security
+django-cleanup==8.0.0
+python-magic==0.4.27
+
 # Production
 gunicorn==21.2.0
 
