@@ -81,6 +81,7 @@ def get_audio_duration(audio_file: UploadedFile) -> str:
     Returns:
         str: Durata nel formato mm:ss
     """
+    from pydub import AudioSegment
     with tempfile.NamedTemporaryFile(suffix=os.path.splitext(audio_file.name)[1], delete=False) as temp_file:
         for chunk in audio_file.chunks():
             temp_file.write(chunk)
