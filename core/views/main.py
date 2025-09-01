@@ -18,10 +18,20 @@ def home(request):
     - Ultimi artisti registrati
     - Professionisti in evidenza
     - Ultime prenotazioni (se l'utente è loggato)
+    - Statistiche generali
     """
+    # Ottieni gli ultimi artisti e professionisti
+    latest_artists = Artist.objects.filter(is_active=True).order_by('-created_at')[:6]
+    featured_associates = Associate.objects.filter(is_active=True).order_by('?')[:6]
+    
+    # Calcola le statistiche
+    from artists.models import Demo
     context = {
-        'latest_artists': Artist.objects.filter(is_active=True).order_by('-created_at')[:6],
-        'featured_associates': Associate.objects.filter(is_active=True).order_by('?')[:6],
+        'latest_artists': latest_artists,
+        'featured_associates': featured_associates,
+        'total_artists': Artist.objects.filter(is_active=True).count() or 0,
+        'total_associates': Associate.objects.filter(is_active=True).count() or 0,
+        'total_demos': Demo.objects.filter(is_public=True).count() or 0,
     }
     
     if request.user.is_authenticated:
