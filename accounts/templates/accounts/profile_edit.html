@@ -90,6 +90,39 @@
                             {% endif %}
                         </div>
                         
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="id_profile_icon" class="form-label text-light">
+                                    <i class="bi bi-emoji-smile"></i> Icona del Profilo
+                                </label>
+                                <select name="profile_icon" class="form-control" id="id_profile_icon">
+                                    {% for value, label in form.fields.profile_icon.choices %}
+                                        <option value="{{ value }}" {% if form.profile_icon.value == value %}selected{% endif %}>
+                                            <i class="{{ value }}"></i> {{ label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                {% if form.profile_icon.errors %}
+                                    <div class="text-danger small">{{ form.profile_icon.errors|join:", " }}</div>
+                                {% endif %}
+                                <div class="mt-2">
+                                    <i id="iconPreview" class="{{ form.profile_icon.value|default:'bi-person-circle' }} fs-1" 
+                                       style="color: {{ form.profile_icon_color.value|default:'#6366f1' }}"></i>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="id_profile_icon_color" class="form-label text-light">
+                                    <i class="bi bi-palette"></i> Colore dell'Icona
+                                </label>
+                                <input type="color" name="profile_icon_color" class="form-control form-control-color w-100" 
+                                       id="id_profile_icon_color" value="{{ form.profile_icon_color.value|default:'#6366f1' }}">
+                                {% if form.profile_icon_color.errors %}
+                                    <div class="text-danger small">{{ form.profile_icon_color.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
                         <div class="alert alert-info">
                             <i class="bi bi-lightbulb"></i>
                             <strong>Suggerimento:</strong> Per caricare immagini facilmente:
@@ -133,4 +166,25 @@
     color: rgba(255, 255, 255, 0.6);
 }
 </style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const iconSelect = document.getElementById('id_profile_icon');
+        const colorInput = document.getElementById('id_profile_icon_color');
+        const iconPreview = document.getElementById('iconPreview');
+
+        // Funzione per aggiornare l'anteprima
+        function updatePreview() {
+            iconPreview.className = iconSelect.value + ' fs-1';
+            iconPreview.style.color = colorInput.value;
+        }
+
+        // Eventi per aggiornare l'anteprima
+        iconSelect.addEventListener('change', updatePreview);
+        colorInput.addEventListener('input', updatePreview);
+        
+        // Aggiorna l'anteprima al caricamento
+        updatePreview();
+    });
+</script>
 {% endblock %}

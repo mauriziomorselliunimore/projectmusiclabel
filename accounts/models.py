@@ -41,6 +41,12 @@ class Profile(models.Model):
     def __str__(self):
         return f"{self.user.username} - {self.get_user_type_display()}"
     
+    def get_avatar_url(self):
+        """Ritorna l'URL dell'avatar dell'utente"""
+        if self.external_avatar_url:
+            return self.external_avatar_url
+        return f"https://ui-avatars.com/api/?name={self.user.get_full_name()}&background=6366f1&color=fff"
+    
     def get_absolute_url(self):
         if self.user_type == 'artist':
             try:
