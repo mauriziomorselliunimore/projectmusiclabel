@@ -9,7 +9,7 @@ import json
 @login_required
 def proposal_list(request):
     """Lista le proposte di collaborazione ricevute"""
-    proposals = CollaborationProposal.objects.filter(receiver=request.user)
+    proposals = CollaborationProposal.objects.filter(Q(recipient=request.user.artist) | Q(sender=request.user.artist))
     
     # Apply filters
     status_filter = request.GET.get('status')
