@@ -61,16 +61,24 @@ class PortfolioItemForm(forms.ModelForm):
 class AvailabilityForm(forms.ModelForm):
     class Meta:
         model = Availability
-        fields = ['day_of_week', 'start_time', 'end_time', 'is_available', 'note']
+        fields = ['date', 'start_time', 'end_time', 'is_available', 'is_recurring', 'recurrence_end_date', 'note']
         widgets = {
+            'date': forms.DateInput(attrs={'type': 'date'}),
             'start_time': forms.TimeInput(attrs={'type': 'time'}),
             'end_time': forms.TimeInput(attrs={'type': 'time'}),
+            'recurrence_end_date': forms.DateInput(attrs={'type': 'date'}),
             'note': forms.TextInput(attrs={'placeholder': 'Note opzionali sulla disponibilità'}),
         }
         labels = {
-            'day_of_week': 'Giorno',
+            'date': 'Data',
             'start_time': 'Ora inizio',
             'end_time': 'Ora fine',
             'is_available': 'Disponibile',
+            'is_recurring': 'Ripeti settimanalmente',
+            'recurrence_end_date': 'Data fine ricorrenza',
             'note': 'Note',
+        }
+        help_texts = {
+            'is_recurring': 'Se selezionato, questa disponibilità si ripeterà ogni settimana fino alla data di fine',
+            'recurrence_end_date': 'Opzionale, solo se si vuole che la disponibilità si ripeta settimanalmente'
         }
