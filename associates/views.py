@@ -4,9 +4,11 @@ from django.contrib import messages
 from django.db.models import Q
 from django.http import JsonResponse
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from datetime import datetime, time
 from messaging.models import Message, Notification, Conversation
-from .models import Associate, PortfolioItem
-from .forms import AssociateForm, PortfolioItemForm
+from .models import Associate, PortfolioItem, Availability
+from .forms import AssociateForm, PortfolioItemForm, AvailabilityForm
 
 def associate_list(request):
     """Lista tutti gli associati con ricerca"""
@@ -231,3 +233,89 @@ def quick_message(request):
         
     except Exception as e:
         return JsonResponse({'success': False, 'error': str(e)})
+
+@login_required
+def availability_manage(request):
+    """Gestione disponibilità associate"""
+    if not hasattr(request.user, 'associate'):
+        messages.error(request, 'Devi avere un profilo associato per gestire la disponibilità!')
+        return redirect('associates:create')
+    
+    associate = request.user.associate
+    availability_slots = associate.availabilities.all().order_by('day_of_week', 'start_time')
+    
+    if request.method == 'POST':
+        form = AvailabilityForm(request.POST)
+        if form.is_valid():
+            availability = form.save(commit=False)
+            availability.associate = associate
+            try:
+                availability.full_clean()  # Run model validation
+                availability.save()
+                messages.success(request, 'Disponibilità aggiunta con successo!')
+                return redirect('associates:availability_manage')
+            except ValidationError as e:
+                for field, errors in e.message_dict.items():
+                    for error in errors:
+                        form.add_error(field if field != '__all__' else None, error)
+    else:
+        form = AvailabilityForm()
+    
+    context = {
+        'form': form,
+        'availability_slots': availability_slots,
+        'days': dict(Availability.DAYS_OF_WEEK)
+    }
+    return render(request, 'associates/availability_manage.html', context)
+
+@login_required
+def availability_delete(request, pk):
+    """Elimina slot disponibilità"""
+    availability = get_object_or_404(Availability, pk=pk)
+    
+    # Check ownership
+    if availability.associate.user != request.user:
+        messages.error(request, 'Non hai i permessi per eliminare questo slot di disponibilità!')
+        return redirect('associates:availability_manage')
+    
+    if request.method == 'POST':
+        availability.delete()
+        messages.success(request, 'Slot di disponibilità eliminato!')
+        return redirect('associates:availability_manage')
+    
+    context = {
+        'availability': availability,
+        'day': dict(Availability.DAYS_OF_WEEK)[availability.day_of_week]
+    }
+    return render(request, 'associates/availability_confirm_delete.html', context)
+
+@login_required
+def availability_update(request, pk):
+    """Modifica slot disponibilità"""
+    availability = get_object_or_404(Availability, pk=pk)
+    
+    # Check ownership
+    if availability.associate.user != request.user:
+        messages.error(request, 'Non hai i permessi per modificare questo slot di disponibilità!')
+        return redirect('associates:availability_manage')
+    
+    if request.method == 'POST':
+        form = AvailabilityForm(request.POST, instance=availability)
+        if form.is_valid():
+            try:
+                form.save()
+                messages.success(request, 'Slot di disponibilità aggiornato!')
+                return redirect('associates:availability_manage')
+            except ValidationError as e:
+                for field, errors in e.message_dict.items():
+                    for error in errors:
+                        form.add_error(field if field != '__all__' else None, error)
+    else:
+        form = AvailabilityForm(instance=availability)
+    
+    context = {
+        'form': form,
+        'availability': availability,
+        'day': dict(Availability.DAYS_OF_WEEK)[availability.day_of_week]
+    }
+    return render(request, 'associates/availability_form.html', context)

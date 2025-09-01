@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load form_tags %}
+
+{% block title %}Modifica Disponibilità{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Modifica Disponibilità - {{ day }}</h5>
+        </div>
+        <div class="card-body">
+            <form method="post">
+                {% csrf_token %}
+                {{ form|crispy }}
+                <button type="submit" class="btn btn-primary">Salva Modifiche</button>
+                <a href="{% url 'associates:availability_manage' %}" class="btn btn-secondary">Annulla</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

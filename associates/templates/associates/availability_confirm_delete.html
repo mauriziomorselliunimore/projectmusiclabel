@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Elimina Disponibilità{% endblock %}
+
+{% block content %}
+<div class="container my-4">
+    <div class="card">
+        <div class="card-header">
+            <h5 class="mb-0">Conferma Eliminazione</h5>
+        </div>
+        <div class="card-body">
+            <p>Sei sicuro di voler eliminare questo slot di disponibilità?</p>
+            <p><strong>{{ day }}</strong> dalle <strong>{{ availability.start_time|time:"H:i" }}</strong> alle <strong>{{ availability.end_time|time:"H:i" }}</strong></p>
+            {% if availability.note %}
+                <p class="text-muted">Note: {{ availability.note }}</p>
+            {% endif %}
+            
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger">Elimina</button>
+                <a href="{% url 'associates:availability_manage' %}" class="btn btn-secondary">Annulla</a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

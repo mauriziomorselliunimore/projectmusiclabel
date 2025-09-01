@@ -1,5 +1,5 @@
 from django import forms
-from .models import Associate, PortfolioItem, SKILLS, EXPERIENCE_LEVELS
+from .models import Associate, PortfolioItem, Availability, SKILLS, EXPERIENCE_LEVELS
 
 class AssociateForm(forms.ModelForm):
     class Meta:
@@ -41,6 +41,23 @@ class PortfolioItemForm(forms.ModelForm):
         model = PortfolioItem
         fields = ['title', 'description', 'external_image_url', 'external_audio_url', 'external_url']
         widgets = {
+
+class AvailabilityForm(forms.ModelForm):
+    class Meta:
+        model = Availability
+        fields = ['day_of_week', 'start_time', 'end_time', 'is_available', 'note']
+        widgets = {
+            'start_time': forms.TimeInput(attrs={'type': 'time'}),
+            'end_time': forms.TimeInput(attrs={'type': 'time'}),
+            'note': forms.TextInput(attrs={'placeholder': 'Note opzionali sulla disponibilità'}),
+        }
+        labels = {
+            'day_of_week': 'Giorno',
+            'start_time': 'Ora inizio',
+            'end_time': 'Ora fine',
+            'is_available': 'Disponibile',
+            'note': 'Note',
+        }
             'title': forms.TextInput(attrs={'placeholder': 'Nome del progetto/lavoro'}),
             'description': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Descrizione del lavoro svolto...'}),
             'external_image_url': forms.URLInput(attrs={'placeholder': 'https://imgur.com/abc123.jpg (opzionale)'}),

@@ -1,10 +1,12 @@
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 from django.db import transaction
+from django.utils import timezone
 from accounts.models import Profile
 from artists.models import Artist, Demo
-from associates.models import Associate, PortfolioItem
+from associates.models import Associate, PortfolioItem, Availability
 import random
+from datetime import time
 
 class Command(BaseCommand):
     help = 'Setup iniziale per Render: crea superuser e popola DB (con URL esterni)'
@@ -224,8 +226,26 @@ class Command(BaseCommand):
                             **data.get('profile_data', {})
                         )
                         
-                        Associate.objects.create(user=user, **data['associate_data'])
+                        associate = Associate.objects.create(user=user, **data['associate_data'])
                         created_associates += 1
+
+                        # Crea slot di disponibilità di esempio
+                        availability_slots = [
+                            (0, '09:00', '13:00', 'Mattina'), # Lunedì mattina
+                            (0, '14:00', '18:00', 'Pomeriggio'), # Lunedì pomeriggio
+                            (2, '09:00', '18:00', 'Giornata intera'), # Mercoledì full
+                            (4, '14:00', '22:00', 'Pomeriggio/Sera'), # Venerdì tardo
+                        ]
+                        
+                        for day, start, end, note in availability_slots:
+                            Availability.objects.create(
+                                associate=associate,
+                                day_of_week=day,
+                                start_time=time.fromisoformat(start),
+                                end_time=time.fromisoformat(end),
+                                is_available=True,
+                                note=note
+                            )
 
                 # Demo con link esterni funzionanti
                 demo_data = [
@@ -301,7 +321,8 @@ class Command(BaseCommand):
                         f'   🔧 Associati creati: {created_associates}\n'
                         f'   🎵 Demo create: {created_demos}\n'
                         f'   💼 Portfolio items: {created_portfolio}\n'
-                        f'   🔗 Tutti utilizzano URL esterni (Render-friendly!)\n'
+                        f'   � Slot disponibilità: {created_associates * 4}\n'
+                        f'   �🔗 Tutti utilizzano URL esterni (Render-friendly!)\n'
                         f'   📷 Avatar: pravatar.cc (placeholder)\n'
                         f'   🎶 Demo: SoundCloud/YouTube links\n'
                         f'   🖼️ Immagini: Picsum (placeholder)'

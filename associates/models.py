@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
+from django.core.exceptions import ValidationError
+from datetime import datetime, timedelta
 
 SKILLS = [
     ('sound-engineer', 'Fonico'),
@@ -115,3 +117,45 @@ class PortfolioItem(models.Model):
             return 'imgur'
         else:
             return 'website'
+
+class Availability(models.Model):
+    DAYS_OF_WEEK = [
+        (0, 'Lunedì'),
+        (1, 'Martedì'),
+        (2, 'Mercoledì'),
+        (3, 'Giovedì'),
+        (4, 'Venerdì'),
+        (5, 'Sabato'),
+        (6, 'Domenica'),
+    ]
+
+    associate = models.ForeignKey(Associate, on_delete=models.CASCADE, related_name='availabilities')
+    day_of_week = models.IntegerField(choices=DAYS_OF_WEEK)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    is_available = models.BooleanField(default=True)
+    note = models.CharField(max_length=200, blank=True)
+
+    class Meta:
+        verbose_name_plural = "Availabilities"
+        ordering = ['day_of_week', 'start_time']
+        unique_together = ['associate', 'day_of_week', 'start_time', 'end_time']
+
+    def __str__(self):
+        day = dict(self.DAYS_OF_WEEK)[self.day_of_week]
+        return f"{self.associate} - {day} {self.start_time.strftime('%H:%M')} - {self.end_time.strftime('%H:%M')}"
+
+    def clean(self):
+        if self.start_time >= self.end_time:
+            raise ValidationError("L'ora di inizio deve essere prima dell'ora di fine")
+
+        # Verifica sovrapposizioni
+        overlapping = Availability.objects.filter(
+            associate=self.associate,
+            day_of_week=self.day_of_week,
+            is_available=True
+        ).exclude(pk=self.pk)
+
+        for slot in overlapping:
+            if (self.start_time < slot.end_time and self.end_time > slot.start_time):
+                raise ValidationError("Questo orario si sovrappone con un altro slot di disponibilità")
