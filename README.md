@@ -7,6 +7,7 @@
 **Database:** PostgreSQL (Produzione) / SQLite (Sviluppo)  
 **Deploy:** Render Cloud Platform  
 **Linguaggio:** Python 3.11+  
+**Repository:** [github.com/mauriziomorselliunimore/projectmusiclabel](https://github.com/mauriziomorselliunimore/projectmusiclabel)
 
 ## 👥 Utenti Demo
 
@@ -109,38 +110,35 @@ record_label/
 ---
 ## 💾 Setup Database e Popolamento
 
-### 🗃️ Inizializzazione Automatica:
+### 🗃️ Inizializzazione Automatica
 
-Il sistema è configurato per auto-inizializzarsi al primo deploy:
+Il sistema è configurato per auto-inizializzarsi al primo deploy. Il comando `populate_db` crea:
 
-```python
-# Il comando setup_render.py viene eseguito automaticamente
-# e crea:
+1. **Superuser di amministrazione**
+   - Username: admin
+   - Password: admin
 
-1. Superuser admin (admin/admin123)
-2. Artisti demo (marco_blues, sofia_pop, dj_elektro)
-3. Associati demo (luca_sound, anna_producer)
-4. Demo musicali con link funzionanti
-5. Portfolio items con link esterni
-```
+2. **Artisti demo**
+   - MR Wave (Rock)
+     * Username: marco_rossi
+     * Password: testpass123
+   - LauraB (Pop)
+     * Username: laura_bianchi
+     * Password: testpass123
+   - DJ Verde (Electronic)
+     * Username: giovanni_verdi
+     * Password: testpass123
 
-### 👨‍💼 Account Predefiniti:
-
-```bash
-# ADMIN
-Username: admin
-Password: admin123
-Accesso: /admin/
-
-# ARTISTI DEMO
-Username: marco_blues     | Password: password123
-Username: sofia_pop       | Password: password123  
-Username: dj_elektro     | Password: password123
-
-# ASSOCIATI DEMO
-Username: luca_sound      | Password: password123
-Username: anna_producer   | Password: password123
-```
+3. **Professionisti demo**
+   - Studio Sound (Studio di Registrazione)
+     * Username: studio_sound
+     * Password: testpass123
+   - Talent Scout Agency (Management)
+     * Username: talent_scout
+     * Password: testpass123
+   - PromoEvents (Promoter)
+     * Username: promo_events
+     * Password: testpass123
 
 ---
 
@@ -286,7 +284,7 @@ GET  /api/search/?q=term    # Ricerca globale
 - **Card Background:** #1b1b1b (Dark Gray)
 - **Text:** #ffffff (White)
 
-### 📱 Responsive Design:
+### 📱 Responsive Design
 - **Mobile-first** approach
 - **Bootstrap 5.3** integration
 - **Touch-friendly** interface
@@ -296,7 +294,18 @@ GET  /api/search/?q=term    # Ricerca globale
 
 ## 📞 Supporto e Manutenzione
 
-### 🛠️ Comandi Utili:
+### 🛠️ Comandi Utili
+```bash
+# Sviluppo locale
+python -m venv venv               # Crea ambiente virtuale
+.\venv\Scripts\activate           # Attiva ambiente virtuale (Windows)
+source venv/bin/activate         # Attiva ambiente virtuale (Linux/Mac)
+pip install -r requirements.txt   # Installa dipendenze
+
+# Setup iniziale
+python manage.py migrate         # Applica migrazioni
+python manage.py populate_db     # Popola database con dati demo
+python manage.py runserver       # Avvia server di sviluppo
 
 ```bash
 # Sviluppo locale
