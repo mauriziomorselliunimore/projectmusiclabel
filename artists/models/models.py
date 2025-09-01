@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.validators import FileExtensionValidator
+from .constants import MUSIC_GENRES
 
 class Artist(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
@@ -33,7 +35,15 @@ class Demo(models.Model):
     artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='demos')
     title = models.CharField(max_length=100)
     description = models.TextField(blank=True)
-    file = models.FileField(upload_to='demos/')
+    audio_file = models.FileField(
+        upload_to='demos/',
+        validators=[FileExtensionValidator(['mp3', 'wav', 'ogg', 'm4a'])],
+        blank=True,
+        null=True
+    )
+    external_audio_url = models.URLField(blank=True, null=True)
+    genre = models.CharField(max_length=50, choices=MUSIC_GENRES)
+    duration = models.DurationField(null=True, blank=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
     is_public = models.BooleanField(default=True)
 
