@@ -222,7 +222,7 @@ Il sistema è configurato per auto-inizializzarsi al primo deploy. Il comando `p
 ## 🎯 Funzionalità Principali
 
 ### 🎼 Gestione Audio
-- Upload demo tramite file (max 5MB) o link esterni
+- Upload demo tramite file (max 10MB) o link esterni
 - Supporto per piattaforme: SoundCloud, YouTube, Spotify
 - Player audio integrato con waveform
 - Gestione automatica dello storage con Cloudinary

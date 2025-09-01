@@ -7,10 +7,10 @@ from record_label.storage import AudioFileStorage
 
 def validate_audio_file_size(value):
     filesize = value.size
-    max_size = 5 * 1024 * 1024  # 5MB per rimanere entro i limiti di Cloudinary Free
+    max_size = 10 * 1024 * 1024  # 10MB massimo
     if filesize > max_size:
         raise ValidationError(
-            f"Il file non può superare i 5MB. Per file più grandi, "
+            f"Il file non può superare i 10MB. Per file più grandi, "
             f"usa un servizio esterno come SoundCloud o YouTube"
         )
 
