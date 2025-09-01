@@ -71,12 +71,3 @@ class AvailabilityForm(forms.ModelForm):
             'is_available': 'Disponibile',
             'note': 'Note',
         }
-            'external_audio_url': 'Link Audio',
-            'external_url': 'Link Principale',
-        }
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['external_image_url'].help_text = 'Link a immagine online (Imgur, Google Drive, etc.)'
-        self.fields['external_audio_url'].help_text = 'Link audio (SoundCloud, YouTube, etc.)'
-        self.fields['external_url'].help_text = 'Link principale del progetto (YouTube, sito web, etc.)'
