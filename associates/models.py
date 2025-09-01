@@ -149,20 +149,36 @@ class Availability(models.Model):
     ]
 
     associate = models.ForeignKey(Associate, on_delete=models.CASCADE, related_name='availabilities')
-    day_of_week = models.IntegerField(choices=DAYS_OF_WEEK)
+    date = models.DateField(help_text="Data di disponibilità")
     start_time = models.TimeField()
     end_time = models.TimeField()
     is_available = models.BooleanField(default=True)
+    is_recurring = models.BooleanField(default=False, help_text="Se true, questa disponibilità si ripete ogni settimana")
+    recurrence_end_date = models.DateField(null=True, blank=True, help_text="Data fine ricorrenza")
     note = models.CharField(max_length=200, blank=True)
 
     class Meta:
         verbose_name_plural = "Availabilities"
-        ordering = ['day_of_week', 'start_time']
-        unique_together = ['associate', 'day_of_week', 'start_time', 'end_time']
+        ordering = ['date', 'start_time']
+        unique_together = ['associate', 'date', 'start_time', 'end_time']
 
     def __str__(self):
-        day = dict(self.DAYS_OF_WEEK)[self.day_of_week]
-        return f"{self.associate} - {day} {self.start_time.strftime('%H:%M')} - {self.end_time.strftime('%H:%M')}"
+        return f"{self.associate} - {self.date.strftime('%d/%m/%Y')} {self.start_time.strftime('%H:%M')} - {self.end_time.strftime('%H:%M')}"
+
+    def get_recurring_dates(self, end_date=None):
+        """Restituisce tutte le date in cui questo slot si ripete"""
+        if not self.is_recurring:
+            return [self.date]
+        
+        end = end_date or self.recurrence_end_date or (self.date + timedelta(days=90))  # max 3 mesi
+        dates = []
+        current = self.date
+        
+        while current <= end:
+            dates.append(current)
+            current += timedelta(days=7)
+        
+        return dates
 
     def clean(self):
         if self.start_time >= self.end_time:

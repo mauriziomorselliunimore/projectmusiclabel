@@ -14,6 +14,13 @@ class Booking(models.Model):
         ('confirmed', 'Confermato'),
         ('completed', 'Completato'),
         ('cancelled', 'Cancellato'),
+        ('counter_proposed', 'Controproposta Inviata'),
+    ]
+    
+    COUNTER_PROPOSAL_STATUS = [
+        ('pending', 'In Attesa'),
+        ('accepted', 'Accettata'),
+        ('rejected', 'Rifiutata'),
     ]
     
     BOOKING_TYPES = [
