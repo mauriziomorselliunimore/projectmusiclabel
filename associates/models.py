@@ -5,6 +5,7 @@ from django.core.exceptions import ValidationError
 from datetime import datetime, timedelta
 
 ASSOCIATE_ICONS = [
+    ('bi-person-circle', 'Persona'),
     ('bi-gear', 'Ingranaggio'),
     ('bi-tools', 'Strumenti'),
     ('bi-sliders', 'Mixer'),
