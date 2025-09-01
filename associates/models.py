@@ -97,6 +97,9 @@ class PortfolioItem(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField(max_length=500, blank=True)
     
+    # Data di completamento del progetto
+    completion_date = models.DateField(null=True, blank=True)
+    
     # URL esterni invece di file upload
     external_image_url = models.URLField(blank=True, help_text="Link a immagine (Imgur, Google Drive, etc.)")
     external_audio_url = models.URLField(blank=True, help_text="Link audio (SoundCloud, YouTube, etc.)")

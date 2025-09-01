@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=200)),
                 ('description', models.TextField(blank=True)),
                 ('project_type', models.CharField(max_length=100)),
-                ('date', models.DateField()),
+                ('completion_date', models.DateField(null=True, blank=True)),
                 ('link', models.URLField(blank=True)),
                 ('image', models.ImageField(blank=True, null=True, upload_to='portfolio/')),
                 ('associate', models.ForeignKey(on_delete=models.deletion.CASCADE, related_name='portfolio_items', to='associates.associate')),
