@@ -11,6 +11,7 @@ class Artist(models.Model):
     location = models.CharField(max_length=100, blank=True)
     phone = models.CharField(max_length=20, blank=True)
     is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
     
     # Social media
     spotify_url = models.URLField(blank=True)
