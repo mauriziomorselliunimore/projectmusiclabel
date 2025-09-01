@@ -134,10 +134,18 @@ def populate_database(request):
     associate_data = [
         {
             'username': 'luca_sound',
-            'name': 'Luca Verdi',
+            'first_name': 'Luca',
+            'last_name': 'Verdi',
             'email': 'luca@example.com',
-            'profession': 'Sound Engineer',
+            'specialization': 'Sound Engineer',
+            'skills': 'sound-engineer, mixing, mastering',
+            'experience_level': 'professional',
+            'hourly_rate': '50.00',
+            'availability': 'Lunedì-Venerdì, 9:00-18:00',
             'bio': 'Tecnico del suono con esperienza in studio e live',
+            'location': 'Milano, Italia',
+            'website': 'https://lucaverdi.it',
+            'portfolio_description': 'Specializzato in registrazione, mix e mastering per progetti musicali di ogni genere',
             'portfolios': [
                 {'title': 'Studio Mix', 'description': 'Mix e mastering per album jazz'},
                 {'title': 'Live Sound', 'description': 'Gestione audio per concerti dal vivo'}
@@ -145,10 +153,18 @@ def populate_database(request):
         },
         {
             'username': 'anna_producer',
-            'name': 'Anna Neri',
+            'first_name': 'Anna',
+            'last_name': 'Neri',
             'email': 'anna@example.com',
-            'profession': 'Music Producer',
+            'specialization': 'Music Producer',
+            'skills': 'producer, mixing, arranging',
+            'experience_level': 'professional',
+            'hourly_rate': '60.00',
+            'availability': 'Flessibile, anche weekend',
             'bio': 'Produttrice musicale specializzata in musica elettronica',
+            'location': 'Roma, Italia',
+            'website': 'https://annaneri.it',
+            'portfolio_description': 'Produttrice con focus su elettronica e sound design moderno',
             'portfolios': [
                 {'title': 'EDM Production', 'description': 'Produzione di tracce EDM'},
                 {'title': 'Remix Work', 'description': 'Remix per artisti internazionali'}
@@ -192,17 +208,34 @@ def populate_database(request):
 
     # Crea professionisti e i loro portfolio
     for data in associate_data:
+        # Crea l'utente
         user = User.objects.create_user(
             username=data['username'],
             email=data['email'],
-            password='password123'
+            password='password123',
+            first_name=data['first_name'],
+            last_name=data['last_name']
         )
+        
+        # Crea il profilo del professionista
+        from accounts.models import Profile
+        Profile.objects.create(user=user, user_type='associate')
+        
+        # Crea il professionista
         associate = Associate.objects.create(
             user=user,
-            name=data['name'],
-            profession=data['profession'],
-            bio=data['bio']
+            specialization=data['specialization'],
+            skills=data['skills'],
+            experience_level=data['experience_level'],
+            hourly_rate=data['hourly_rate'],
+            availability=data['availability'],
+            bio=data['bio'],
+            location=data['location'],
+            website=data['website'],
+            portfolio_description=data['portfolio_description']
         )
+        
+        # Crea i portfolio
         for portfolio in data['portfolios']:
             from associates.models import Portfolio
             Portfolio.objects.create(
