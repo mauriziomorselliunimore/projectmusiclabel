@@ -4,6 +4,7 @@ services:
     name: record-label
     env: docker
     plan: starter
+    buildCommand: apt-get update && apt-get install -y ffmpeg
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0

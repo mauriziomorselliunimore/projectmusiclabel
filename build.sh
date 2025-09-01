@@ -18,9 +18,13 @@ echo "📦 Installazione dipendenze..."
 pip install -r requirements.txt || handle_error "Installazione dipendenze base fallita"
 pip install -r requirements_audio.txt || handle_error "Installazione dipendenze audio fallita"
 
-# Prova a installare ffmpeg, ma non bloccare il build se fallisce
-echo "🎵 Tentativo di installazione ffmpeg..."
-apt-get update && apt-get install -y ffmpeg || echo "⚠️ ffmpeg non installato, alcune funzionalità audio potrebbero essere limitate"
+# Verifica se ffmpeg è già installato
+if ! command -v ffmpeg &> /dev/null; then
+    echo "🎵 ffmpeg non trovato, salto l'installazione in ambiente read-only..."
+    echo "⚠️ Assicurarsi che ffmpeg sia installato nell'immagine Docker"
+else
+    echo "✅ ffmpeg già installato"
+fi
 
 # Reset del database
 echo "🗑️ Reset del database..."
