@@ -5,9 +5,68 @@
 **Autore:** Morselli Maurizio  
 **Framework:** Django 4.2.7  
 **Database:** PostgreSQL (Produzione) / SQLite (Sviluppo)  
+**Storage:** Cloudinary (file multimediali)  
 **Deploy:** Render Cloud Platform  
 **Linguaggio:** Python 3.11+  
 **Repository:** [github.com/mauriziomorselliunimore/projectmusiclabel](https://github.com/mauriziomorselliunimore/projectmusiclabel)
+
+## 🚀 Setup Progetto
+
+### Requisiti
+- Python 3.11+
+- PostgreSQL (per produzione)
+- Account Cloudinary (per file storage)
+
+### 🔧 Installazione Locale
+```bash
+# Clone repository
+git clone https://github.com/mauriziomorselliunimore/projectmusiclabel.git
+cd projectmusiclabel
+
+# Crea ambiente virtuale
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+venv\Scripts\activate     # Windows
+
+# Installa dipendenze
+pip install -r requirements.txt
+
+# Configurazione .env
+cp .env.example .env
+# Modifica .env con le tue configurazioni
+```
+
+### ⚙️ Variabili Ambiente (.env)
+```properties
+# Database
+DATABASE_URL=your_database_url
+
+# Security
+SECRET_KEY=your_secret_key
+DEBUG=True  # False in produzione
+
+# Cloudinary
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_API_SECRET=your_api_secret
+
+# Host
+ALLOWED_HOSTS=localhost,127.0.0.1
+```
+
+## 🌐 Deploy su Render
+
+1. Fork del repository
+2. Crea un nuovo Web Service su Render
+3. Collega il repository
+4. Configura le variabili d'ambiente:
+   - `DATABASE_URL`
+   - `SECRET_KEY`
+   - `DEBUG=False`
+   - `CLOUDINARY_CLOUD_NAME`
+   - `CLOUDINARY_API_KEY`
+   - `CLOUDINARY_API_SECRET`
+   - `DJANGO_SETTINGS_MODULE=record_label.settings_production`
 
 ## 👥 Utenti Demo
 
@@ -160,18 +219,35 @@ Il sistema è configurato per auto-inizializzarsi al primo deploy. Il comando `p
 
 ---
 
-## 🎯 Funzionalità Implementate
+## 🎯 Funzionalità Principali
 
-### ✅ Sistema Multi-Utente
-- **Registrazione differenziata** per artisti e associati
-- **Profili personalizzati** con avatar esterni
-- **Autenticazione completa** con ruoli
+### 🎼 Gestione Audio
+- Upload demo tramite file (max 5MB) o link esterni
+- Supporto per piattaforme: SoundCloud, YouTube, Spotify
+- Player audio integrato con waveform
+- Gestione automatica dello storage con Cloudinary
 
-### ✅ Gestione Demo Musicali
-- **Upload tramite link esterni** (SoundCloud, YouTube, Spotify)
-- **Player audio integrato** nei risultati ricerca
-- **Categorizzazione per genere** musicale
-- **Validazione formati** e business rules
+### 👥 Sistema Multi-Utente
+- Registrazione differenziata (Artisti/Professionisti)
+- Profili personalizzati
+- Sistema di autenticazione completo
+
+### 📅 Sistema Booking
+- Calendario disponibilità
+- Prenotazione sessioni
+- Prevenzione conflitti orario
+- Notifiche automatiche
+
+### 🔍 Ricerca Avanzata
+- Filtri per genere musicale
+- Ricerca per competenze
+- Filtri per disponibilità e tariffe
+- Player integrato nei risultati
+
+### 💬 Messaging System
+- Chat interna
+- Notifiche in tempo reale
+- Gestione conversazioni
 
 ### ✅ Sistema Booking Avanzato
 - **Calendario integrato** per prenotazioni
