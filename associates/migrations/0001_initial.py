@@ -26,6 +26,7 @@ class Migration(migrations.Migration):
             name='PortfolioItem',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('created_at', models.DateTimeField(auto_now_add=True, default='2025-09-01')),
                 ('title', models.CharField(max_length=200)),
                 ('description', models.TextField(blank=True)),
                 ('project_type', models.CharField(max_length=100)),
