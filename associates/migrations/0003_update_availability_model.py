@@ -7,6 +7,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.AlterUniqueTogether(
+            name='availability',
+            unique_together=set(),  # Rimuove tutti i vincoli unique_together esistenti
+        ),
         migrations.RemoveField(
             model_name='availability',
             name='day_of_week',
