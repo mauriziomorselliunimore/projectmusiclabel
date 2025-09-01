@@ -3,6 +3,32 @@
 {% block title %}{{ associate.user.get_full_name }} - MyLabel{% endblock %}
 
 {% block content %}
+<style>
+    .associate-icon-container {
+        position: relative;
+        transition: transform 0.3s ease;
+    }
+    .associate-icon-circle {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+    .associate-icon-container:hover {
+        transform: scale(1.05);
+    }
+    .associate-icon-circle:hover {
+        box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
+    }
+    .associate-icon-container i {
+        text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    }
+</style>
+
 <div class="container mt-4">
     <div class="row">
         <!-- Associate Info Sidebar -->
@@ -10,13 +36,11 @@
             <div class="card text-center sticky-top" style="top: 100px;">
                 <div class="card-body">
                     <div class="mb-3 position-relative">
-                        {% if associate.user.profile.external_avatar_url %}
-                            <img src="{{ associate.user.profile.external_avatar_url }}" alt="Foto profilo" 
-                                 class="rounded-circle associate-avatar" style="width: 120px; height: 120px; object-fit: cover;">
-                        {% else %}
-                            <img src="{{ associate.user.profile.get_avatar_url }}" alt="Avatar" 
-                                 class="rounded-circle associate-avatar" style="width: 120px; height: 120px; object-fit: cover;">
-                        {% endif %}
+                        <div class="associate-icon-container">
+                            <div class="associate-icon-circle" style="width: 120px; height: 120px;">
+                                <i class="bi {{ associate.profile_icon }}" style="font-size: 3.5rem; color: {{ associate.profile_icon_color }};"></i>
+                            </div>
+                        </div>
                         
                         <!-- Availability Status -->
                         <div class="availability-badge 

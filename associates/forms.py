@@ -5,9 +5,10 @@ class AssociateForm(forms.ModelForm):
     class Meta:
         model = Associate
         fields = [
-            'specialization', 'skills', 'experience_level', 'hourly_rate', 
-            'availability', 'bio', 'location', 'phone', 'website',
-            'portfolio_description', 'years_experience', 'is_available'
+            'specialization', 'profile_icon', 'profile_icon_color', 'skills', 
+            'experience_level', 'hourly_rate', 'availability', 'bio', 
+            'location', 'phone', 'website', 'portfolio_description', 
+            'years_experience', 'is_available'
         ]
         widgets = {
             'specialization': forms.TextInput(attrs={'placeholder': 'Sound Engineer, Producer, Guitarist...'}),
@@ -23,6 +24,8 @@ class AssociateForm(forms.ModelForm):
         }
         labels = {
             'specialization': 'Specializzazione principale',
+            'profile_icon': 'Icona del profilo',
+            'profile_icon_color': 'Colore dell\'icona',
             'skills': 'Competenze',
             'experience_level': 'Livello di esperienza',
             'hourly_rate': 'Tariffa oraria (€)',

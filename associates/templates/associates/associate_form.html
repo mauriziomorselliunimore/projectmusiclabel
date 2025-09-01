@@ -2,6 +2,26 @@
 {% block title %}{{ title }} - MyLabel{% endblock %}
 
 {% block content %}
+<style>
+    .icon-choice input[type="radio"]:checked + label {
+        background-color: #10b981 !important;
+        border-color: #10b981 !important;
+        transform: scale(1.1);
+    }
+    .icon-choice label {
+        transition: all 0.2s ease;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    .icon-choice label:hover {
+        background-color: #10b981 !important;
+        border-color: #10b981 !important;
+        transform: scale(1.1);
+    }
+</style>
+
 <div class="container mt-4">
     <div class="row justify-content-center">
         <div class="col-md-10">
@@ -15,6 +35,32 @@
                     <form method="post">
                         {% csrf_token %}
                         
+                        <!-- Selezione Icona e Colore -->
+                        <div class="row mb-4">
+                            <div class="col-md-8 mb-3">
+                                <label class="form-label text-light">{{ form.profile_icon.label }}</label>
+                                <div class="d-flex flex-wrap gap-2 p-3 border rounded bg-dark">
+                                    {% for value, label in form.profile_icon.field.choices %}
+                                    <div class="icon-choice">
+                                        <input type="radio" name="profile_icon" value="{{ value }}" 
+                                               id="icon_{{ value }}" class="d-none"
+                                               {% if form.profile_icon.value == value %}checked{% endif %}>
+                                        <label for="icon_{{ value }}" class="btn btn-outline-light p-2" 
+                                               style="width: 50px; height: 50px;">
+                                            <i class="bi {{ value }}" style="font-size: 1.5rem;"></i>
+                                        </label>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label for="id_profile_icon_color" class="form-label text-light">{{ form.profile_icon_color.label }}</label>
+                                <input type="color" name="profile_icon_color" class="form-control form-control-color w-100" 
+                                       id="id_profile_icon_color" value="{{ form.profile_icon_color.value|default:'#10b981' }}"
+                                       title="Scegli il colore dell'icona">
+                            </div>
+                        </div>
+
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="id_specialization" class="form-label text-light">{{ form.specialization.label }}</label>

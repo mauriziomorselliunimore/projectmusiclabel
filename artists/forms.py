@@ -1,11 +1,11 @@
 from django import forms
-from .models import Artist, Demo, MUSIC_GENRES
+from .models import Artist, Demo, MUSIC_GENRES, ARTIST_ICONS
 
 class ArtistForm(forms.ModelForm):
     class Meta:
         model = Artist
         fields = [
-            'stage_name', 'genres', 'bio', 'location', 'phone',
+            'stage_name', 'profile_icon', 'profile_icon_color', 'genres', 'bio', 'location', 'phone',
             'spotify_url', 'youtube_url', 'soundcloud_url', 'instagram_url'
         ]
         widgets = {
@@ -21,6 +21,8 @@ class ArtistForm(forms.ModelForm):
         }
         labels = {
             'stage_name': 'Nome d\'arte',
+            'profile_icon': 'Icona del profilo',
+            'profile_icon_color': 'Colore dell\'icona',
             'genres': 'Generi musicali',
             'bio': 'Biografia',
             'location': 'Località',

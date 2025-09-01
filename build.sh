@@ -17,6 +17,11 @@ echo "🚀 Avvio processo di build..."
 echo "📦 Installazione dipendenze..."
 pip install -r requirements.txt || handle_error "Installazione dipendenze fallita"
 
+# Esegue le migrazioni del database
+echo "🔄 Esecuzione migrazioni..."
+python manage.py makemigrations --noinput || handle_error "Creazione migrazioni fallita"
+python manage.py migrate --noinput || handle_error "Applicazione migrazioni fallita"
+
 # Pulisce i file statici vecchi
 echo "🧹 Pulizia file statici..."
 rm -rf staticfiles/* || handle_error "Pulizia file statici fallita"
@@ -24,21 +29,6 @@ rm -rf staticfiles/* || handle_error "Pulizia file statici fallita"
 # Raccoglie i file statici
 echo "📥 Raccolta file statici..."
 python manage.py collectstatic --no-input || handle_error "Raccolta file statici fallita"
-
-# Reset completo del database se necessario
-echo "🧹 Reset del database se necessario..."
-__temp_psql << 'EOSQL'
-DO $$ 
-BEGIN
-    -- Drop di tutte le tabelle in modo sicuro
-    DROP SCHEMA public CASCADE;
-    CREATE SCHEMA public;
-    GRANT ALL ON SCHEMA public TO current_user;
-    GRANT ALL ON SCHEMA public TO public;
-EXCEPTION WHEN OTHERS THEN
-    RAISE NOTICE 'Ignoro errori di schema: %', SQLERRM;
-END $$;
-EOSQL
 
 # Crea le migrazioni per tutte le app in ordine corretto
 echo "🔄 Creazione migrazioni per tutte le app..."

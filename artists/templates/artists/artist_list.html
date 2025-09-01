@@ -2,6 +2,25 @@
 {% block title %}Artisti - MyLabel{% endblock %}
 
 {% block content %}
+<style>
+    .artist-icon-container {
+        position: relative;
+        transition: transform 0.3s ease;
+    }
+    .artist-icon-circle {
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+    }
+    .card:hover .artist-icon-container {
+        transform: scale(1.1);
+    }
+    .card:hover .artist-icon-circle {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+    .artist-icon-container i {
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+</style>
 <div class="container mt-4">
     <div class="row">
         <div class="col-12">
@@ -50,7 +69,11 @@
             <div class="card h-100">
                 <div class="card-body text-center">
                     <div class="mb-3">
-                        <i class="bi bi-person-circle" style="font-size: 4rem; color: #ff2e88;"></i>
+                        <div class="artist-icon-container mx-auto" style="width: 80px; height: 80px;">
+                            <div class="artist-icon-circle" style="width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                <i class="bi {{ artist.profile_icon }}" style="font-size: 2.5rem; color: {{ artist.profile_icon_color }};"></i>
+                            </div>
+                        </div>
                     </div>
                     <h5 class="card-title text-light">{{ artist.stage_name }}</h5>
                     <p class="text-magenta small mb-2">{{ artist.user.get_full_name }}</p>

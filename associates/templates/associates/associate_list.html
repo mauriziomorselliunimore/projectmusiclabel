@@ -2,6 +2,33 @@
 {% block title %}Professionisti - MyLabel{% endblock %}
 
 {% block content %}
+<style>
+    .associate-icon-container {
+        position: relative;
+        transition: transform 0.3s ease;
+    }
+    .associate-icon-circle {
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        transition: all 0.3s ease;
+        background-color: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+    }
+    .card:hover .associate-icon-container {
+        transform: scale(1.1);
+    }
+    .card:hover .associate-icon-circle {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+    .associate-icon-container i {
+        text-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+</style>
 <div class="container mt-4">
     <div class="row">
         <div class="col-12">
@@ -52,7 +79,11 @@
             <div class="card h-100">
                 <div class="card-body">
                     <div class="text-center mb-3">
-                        <i class="bi bi-gear-fill" style="font-size: 3rem; color: #ff2e88;"></i>
+                        <div class="associate-icon-container">
+                            <div class="associate-icon-circle">
+                                <i class="bi {{ associate.profile_icon }}" style="font-size: 2.5rem; color: {{ associate.profile_icon_color }};"></i>
+                            </div>
+                        </div>
                         <h5 class="card-title text-light mt-2">{{ associate.user.get_full_name }}</h5>
                         <p class="text-magenta mb-1">{{ associate.specialization }}</p>
                         
