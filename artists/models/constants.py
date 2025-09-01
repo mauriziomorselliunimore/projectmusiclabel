@@ -1,0 +1,31 @@
+ARTIST_ICONS = [
+    ('bi-person-circle', 'Persona'),
+    ('bi-music-note', 'Nota Musicale'),
+    ('bi-mic', 'Microfono'),
+    ('bi-vinyl', 'Vinile'),
+    ('bi-headphones', 'Cuffie'),
+    ('bi-speaker', 'Speaker'),
+    ('bi-soundwave', 'Onda Sonora'),
+    ('bi-boombox', 'Boombox'),
+    ('bi-stars', 'Stelle'),
+    ('bi-lightning', 'Fulmine'),
+]
+
+MUSIC_GENRES = [
+    ('rock', 'Rock'),
+    ('pop', 'Pop'),
+    ('hip-hop', 'Hip-Hop'),
+    ('electronic', 'Electronic'),
+    ('jazz', 'Jazz'),
+    ('blues', 'Blues'),
+    ('country', 'Country'),
+    ('reggae', 'Reggae'),
+    ('folk', 'Folk'),
+    ('classical', 'Classical'),
+    ('r&b', 'R&B'),
+    ('metal', 'Metal'),
+    ('punk', 'Punk'),
+    ('latin', 'Latin'),
+    ('world', 'World'),
+    ('indie', 'Indie'),
+]
