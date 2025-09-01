@@ -16,29 +16,4 @@ class Migration(migrations.Migration):
             name='profile_icon_color',
             field=models.CharField(blank=True, default='#ff2e88', help_text="Colore dell'icona (es. #ff2e88)", max_length=7, null=True),
         ),
-        migrations.AddField(
-            model_name='artist',
-            name='location',
-            field=models.CharField(blank=True, max_length=100),
-        ),
-        migrations.AddField(
-            model_name='artist',
-            name='phone',
-            field=models.CharField(blank=True, max_length=20),
-        ),
-        migrations.AddField(
-            model_name='artist',
-            name='is_active',
-            field=models.BooleanField(default=True),
-        ),
-        migrations.AddField(
-            model_name='artist',
-            name='created_at',
-            field=models.DateTimeField(auto_now_add=True, null=True),
-        ),
-        migrations.AddField(
-            model_name='artist',
-            name='updated_at',
-            field=models.DateTimeField(auto_now=True, null=True),
-        ),
     ]
