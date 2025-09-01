@@ -81,7 +81,8 @@
                     <div class="text-center mb-3">
                         <div class="associate-icon-container">
                             <div class="associate-icon-circle">
-                                <i class="bi {{ associate.profile_icon }}" style="font-size: 2.5rem; color: {{ associate.profile_icon_color }};"></i>
+                                <i class="bi {% if associate.profile_icon %}{{ associate.profile_icon }}{% else %}bi-tools{% endif %}" 
+                                   style="font-size: 2.5rem; color: {% if associate.profile_icon_color %}{{ associate.profile_icon_color }}{% else %}#10b981{% endif %};"></i>
                             </div>
                         </div>
                         <h5 class="card-title text-light mt-2">{{ associate.user.get_full_name }}</h5>

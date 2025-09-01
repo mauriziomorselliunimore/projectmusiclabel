@@ -37,8 +37,8 @@ MUSIC_GENRES = [
 class Artist(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     stage_name = models.CharField(max_length=100, help_text="Nome d'arte")
-    profile_icon = models.CharField(max_length=50, choices=ARTIST_ICONS, default='bi-person-circle', help_text="Icona del profilo")
-    profile_icon_color = models.CharField(max_length=7, default='#ff2e88', help_text="Colore dell'icona (es. #ff2e88)")
+    profile_icon = models.CharField(max_length=50, choices=ARTIST_ICONS, default='bi-person-circle', null=True, blank=True, help_text="Icona del profilo")
+    profile_icon_color = models.CharField(max_length=7, default='#ff2e88', null=True, blank=True, help_text="Colore dell'icona (es. #ff2e88)")
     genres = models.CharField(max_length=200, help_text="Generi musicali separati da virgola")
     bio = models.TextField(max_length=1000, blank=True)
     

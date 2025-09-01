@@ -48,8 +48,8 @@ EXPERIENCE_LEVELS = [
 class Associate(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     specialization = models.CharField(max_length=100, help_text="Specializzazione principale")
-    profile_icon = models.CharField(max_length=50, choices=ASSOCIATE_ICONS, default='bi-tools', help_text="Icona del profilo")
-    profile_icon_color = models.CharField(max_length=7, default='#10b981', help_text="Colore dell'icona (es. #10b981)")
+    profile_icon = models.CharField(max_length=50, choices=ASSOCIATE_ICONS, default='bi-tools', null=True, blank=True, help_text="Icona del profilo")
+    profile_icon_color = models.CharField(max_length=7, default='#10b981', null=True, blank=True, help_text="Colore dell'icona (es. #10b981)")
     skills = models.CharField(max_length=300, help_text="Competenze separate da virgola")
     experience_level = models.CharField(max_length=20, choices=EXPERIENCE_LEVELS, default='intermediate')
     

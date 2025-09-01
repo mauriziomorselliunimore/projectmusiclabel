@@ -17,9 +17,14 @@ echo "🚀 Avvio processo di build..."
 echo "📦 Installazione dipendenze..."
 pip install -r requirements.txt || handle_error "Installazione dipendenze fallita"
 
-# Esegue le migrazioni del database
-echo "🔄 Esecuzione migrazioni..."
-python manage.py makemigrations --noinput || handle_error "Creazione migrazioni fallita"
+# Esegue le migrazioni del database per ogni app in ordine
+echo "🔄 Creazione migrazioni per ogni app..."
+for app in accounts artists associates; do
+    echo "  ⚡ Creazione migrazioni per $app..."
+    python manage.py makemigrations $app --noinput || handle_error "Creazione migrazioni per $app fallita"
+done
+
+echo "🔄 Applicazione migrazioni..."
 python manage.py migrate --noinput || handle_error "Applicazione migrazioni fallita"
 
 # Pulisce i file statici vecchi
