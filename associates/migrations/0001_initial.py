@@ -57,9 +57,10 @@ class Migration(migrations.Migration):
                 ('associate', models.ForeignKey(on_delete=models.deletion.CASCADE, related_name='availability_slots', to='associates.associate')),
             ],
             options={
-                'verbose_name': 'Disponibilità',
-                'verbose_name_plural': 'Disponibilità',
-                'unique_together': {('associate', 'day_of_week')},
+                'verbose_name_plural': 'Availabilities',
+                'ordering': ['day_of_week', 'start_time'],
+                'db_table': 'associates_availability',
+                'unique_together': {('associate', 'day_of_week', 'start_time', 'end_time')},
             },
         ),
     ]
