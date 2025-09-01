@@ -1,0 +1,256 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Ricerca Avanzata - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="text-light mb-4">
+        <i class="bi bi-search"></i> Ricerca Avanzata
+    </h1>
+    
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <!-- Search Query -->
+                <div class="col-md-6">
+                    <label class="form-label">Cerca</label>
+                    <input type="text" name="q" class="form-control" 
+                           value="{{ search_query }}" placeholder="Nome, genere, competenze...">
+                </div>
+                
+                <!-- User Type -->
+                <div class="col-md-6">
+                    <label class="form-label">Tipo</label>
+                    <select name="type" class="form-select">
+                        <option value="all" {% if user_type == 'all' %}selected{% endif %}>Tutti</option>
+                        <option value="artists" {% if user_type == 'artists' %}selected{% endif %}>Artisti</option>
+                        <option value="associates" {% if user_type == 'associates' %}selected{% endif %}>Professionisti</option>
+                    </select>
+                </div>
+                
+                <!-- Genre (for artists) -->
+                <div class="col-md-6 artist-filter">
+                    <label class="form-label">Genere Musicale</label>
+                    <select name="genre" class="form-select">
+                        <option value="">Tutti i generi</option>
+                        {% for code, name in genres %}
+                        <option value="{{ code }}" {% if genre == code %}selected{% endif %}>
+                            {{ name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Skills (for associates) -->
+                <div class="col-12 associate-filter">
+                    <label class="form-label">Competenze</label>
+                    <div class="row g-2">
+                        {% for code, name in skill_choices %}
+                        <div class="col-md-4">
+                            <div class="form-check">
+                                <input type="checkbox" name="skills" value="{{ code }}" 
+                                       class="form-check-input" id="skill_{{ code }}"
+                                       {% if code in skills %}checked{% endif %}>
+                                <label class="form-check-label" for="skill_{{ code }}">
+                                    {{ name }}
+                                </label>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                
+                <!-- Price Range (for associates) -->
+                <div class="col-md-6 associate-filter">
+                    <label class="form-label">Prezzo Orario (€)</label>
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <input type="number" name="min_price" class="form-control" 
+                                   value="{{ min_price }}" placeholder="Min" min="0">
+                        </div>
+                        <div class="col-6">
+                            <input type="number" name="max_price" class="form-control" 
+                                   value="{{ max_price }}" placeholder="Max" min="0">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Availability (for associates) -->
+                <div class="col-md-6 associate-filter">
+                    <label class="form-label">Disponibilità</label>
+                    <select name="availability" class="form-select">
+                        <option value="">Qualsiasi</option>
+                        <option value="weekday" {% if availability == 'weekday' %}selected{% endif %}>
+                            Giorni Feriali
+                        </option>
+                        <option value="weekend" {% if availability == 'weekend' %}selected{% endif %}>
+                            Weekend
+                        </option>
+                    </select>
+                </div>
+                
+                <div class="col-12">
+                    <button type="submit" class="btn btn-magenta">
+                        <i class="bi bi-search"></i> Cerca
+                    </button>
+                    <a href="{% url 'search:advanced' %}" class="btn btn-outline-light">
+                        <i class="bi bi-arrow-counterclockwise"></i> Reset
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Results -->
+    {% if artists or associates %}
+        <!-- Artists -->
+        {% if artists %}
+        <div class="artists-section mb-4">
+            <h2 class="text-light mb-3">
+                <i class="bi bi-mic"></i> Artisti 
+                <small class="text-muted">({{ artists|length }})</small>
+            </h2>
+            
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% for artist in artists %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="{{ artist.user.profile.get_avatar_url }}" 
+                                     class="rounded-circle me-2" style="width: 40px; height: 40px;">
+                                <div>
+                                    <h5 class="card-title mb-0">{{ artist.stage_name }}</h5>
+                                    <small class="text-muted">{{ artist.genres }}</small>
+                                </div>
+                            </div>
+                            
+                            <p class="card-text small">{{ artist.bio|truncatewords:30 }}</p>
+                            
+                            {% if artist.demos.exists %}
+                            <div class="demo-player mb-3">
+                                {% with demo=artist.demos.first %}
+                                <audio controls class="w-100">
+                                    <source src="{{ demo.file.url }}" type="audio/mpeg">
+                                    Il tuo browser non supporta l'elemento audio.
+                                </audio>
+                                <small class="text-muted d-block text-center mt-1">
+                                    {{ demo.title }}
+                                </small>
+                                {% endwith %}
+                            </div>
+                            {% endif %}
+                            
+                            <a href="{% url 'artists:detail' artist.pk %}" class="btn btn-outline-light btn-sm w-100">
+                                <i class="bi bi-eye"></i> Vedi Profilo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Associates -->
+        {% if associates %}
+        <div class="associates-section">
+            <h2 class="text-light mb-3">
+                <i class="bi bi-tools"></i> Professionisti 
+                <small class="text-muted">({{ associates|length }})</small>
+            </h2>
+            
+            <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+                {% for associate in associates %}
+                <div class="col">
+                    <div class="card h-100">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center mb-3">
+                                <img src="{{ associate.user.profile.get_avatar_url }}" 
+                                     class="rounded-circle me-2" style="width: 40px; height: 40px;">
+                                <div>
+                                    <h5 class="card-title mb-0">{{ associate.user.get_full_name }}</h5>
+                                    <small class="text-muted">{{ associate.specialization }}</small>
+                                </div>
+                            </div>
+                            
+                            <p class="card-text small mb-2">{{ associate.bio|truncatewords:30 }}</p>
+                            
+                            <div class="mb-3">
+                                <small class="text-muted">Competenze:</small><br>
+                                {% for skill in associate.get_skills_display %}
+                                    <span class="badge bg-secondary me-1">{{ skill }}</span>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <div class="price">
+                                    <small class="text-muted">Tariffa oraria:</small><br>
+                                    <strong class="text-magenta">€{{ associate.hourly_rate }}/h</strong>
+                                </div>
+                                <div class="availability text-end">
+                                    <small class="text-muted">Disponibilità:</small><br>
+                                    <span class="badge bg-success">{{ associate.get_availability_display }}</span>
+                                </div>
+                            </div>
+                            
+                            <a href="{% url 'associates:detail' associate.pk %}" class="btn btn-outline-light btn-sm w-100">
+                                <i class="bi bi-eye"></i> Vedi Profilo
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    {% else %}
+        {% if search_query %}
+        <div class="text-center py-5">
+            <i class="bi bi-search" style="font-size: 4rem; color: #666;"></i>
+            <h4 class="mt-3 text-muted">Nessun risultato trovato</h4>
+            <p class="text-muted">
+                Prova a modificare i filtri di ricerca
+            </p>
+        </div>
+        {% endif %}
+    {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const typeSelect = document.querySelector('select[name="type"]');
+    const artistFilters = document.querySelectorAll('.artist-filter');
+    const associateFilters = document.querySelectorAll('.associate-filter');
+    
+    function updateFilters() {
+        const selectedType = typeSelect.value;
+        
+        artistFilters.forEach(filter => {
+            filter.style.display = (selectedType === 'all' || selectedType === 'artists') ? 'block' : 'none';
+        });
+        
+        associateFilters.forEach(filter => {
+            filter.style.display = (selectedType === 'all' || selectedType === 'associates') ? 'block' : 'none';
+        });
+    }
+    
+    typeSelect.addEventListener('change', updateFilters);
+    updateFilters();
+});
+</script>
+
+<style>
+.demo-player audio {
+    height: 30px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+}
+
+.form-check-input:checked {
+    background-color: #ff2e88;
+    border-color: #ff2e88;
+}
+</style>
+{% endblock %}

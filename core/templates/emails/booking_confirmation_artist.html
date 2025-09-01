@@ -1,0 +1,38 @@
+{% extends "emails/base_email.html" %}
+
+{% block content %}
+<tr>
+    <td class="content-block">
+        <h1>La tua prenotazione è confermata!</h1>
+    </td>
+</tr>
+<tr>
+    <td class="content-block">
+        Ciao {{ booking.artist.stage_name }},
+    </td>
+</tr>
+<tr>
+    <td class="content-block">
+        La tua prenotazione con {{ booking.associate.user.get_full_name }} è stata confermata.
+    </td>
+</tr>
+<tr>
+    <td class="content-block">
+        <strong>Dettagli prenotazione:</strong>
+        <ul>
+            <li>Data: {{ booking.session_date|date:"d/m/Y" }}</li>
+            <li>Ora: {{ booking.session_date|date:"H:i" }}</li>
+            <li>Durata: {{ booking.duration_hours }} ore</li>
+            <li>Tipo: {{ booking.get_booking_type_display }}</li>
+            {% if booking.location %}
+            <li>Luogo: {{ booking.location }}</li>
+            {% endif %}
+        </ul>
+    </td>
+</tr>
+<tr>
+    <td class="content-block">
+        <a href="{{ booking.get_absolute_url }}" class="btn-primary">Vedi dettagli prenotazione</a>
+    </td>
+</tr>
+{% endblock %}

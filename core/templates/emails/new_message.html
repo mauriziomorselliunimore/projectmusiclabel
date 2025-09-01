@@ -1,0 +1,32 @@
+{% extends "emails/base_email.html" %}
+
+{% block content %}
+<tr>
+    <td class="content-block">
+        <h1>Nuovo messaggio!</h1>
+    </td>
+</tr>
+<tr>
+    <td class="content-block">
+        Ciao {{ recipient.get_full_name }},
+    </td>
+</tr>
+<tr>
+    <td class="content-block">
+        Hai ricevuto un nuovo messaggio da {{ sender.get_full_name }}.
+    </td>
+</tr>
+<tr>
+    <td class="content-block quote">
+        <strong>Oggetto:</strong> {{ message.subject }}<br>
+        <em>{{ message.content|truncatewords:50 }}</em>
+    </td>
+</tr>
+<tr>
+    <td class="content-block">
+        <a href="{% url 'messaging:conversation' message.conversation.id %}" class="btn-primary">
+            Rispondi al messaggio
+        </a>
+    </td>
+</tr>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "emails/base_email.html" %}
+
+{% block content %}
+<tr>
+    <td class="content-block">
+        <h1>Benvenuto su MyLabel!</h1>
+    </td>
+</tr>
+<tr>
+    <td class="content-block">
+        Ciao {{ user.get_full_name }},
+    </td>
+</tr>
+<tr>
+    <td class="content-block">
+        Grazie per esserti registrato su MyLabel! Siamo felici di averti con noi.
+    </td>
+</tr>
+<tr>
+    <td class="content-block">
+        {% if user.profile.user_type == 'artist' %}
+            Come artista, puoi:
+            <ul>
+                <li>Creare il tuo profilo artistico</li>
+                <li>Caricare le tue demo</li>
+                <li>Trovare professionisti del settore</li>
+                <li>Prenotare sessioni studio</li>
+            </ul>
+        {% else %}
+            Come professionista, puoi:
+            <ul>
+                <li>Creare il tuo profilo professionale</li>
+                <li>Impostare le tue disponibilità</li>
+                <li>Gestire le prenotazioni</li>
+                <li>Connetterti con gli artisti</li>
+            </ul>
+        {% endif %}
+    </td>
+</tr>
+<tr>
+    <td class="content-block">
+        <a href="{{ login_url }}" class="btn-primary">Accedi al tuo account</a>
+    </td>
+</tr>
+{% endblock %}

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style>
+        /* Stili email responsive */
+        body {
+            background-color: #f6f6f6;
+            font-family: sans-serif;
+            -webkit-font-smoothing: antialiased;
+            font-size: 14px;
+            line-height: 1.4;
+            margin: 0;
+            padding: 0;
+            -ms-text-size-adjust: 100%;
+            -webkit-text-size-adjust: 100%;
+        }
+        
+        .container {
+            display: block;
+            margin: 0 auto !important;
+            max-width: 580px;
+            padding: 10px;
+            width: 580px;
+        }
+        
+        .content {
+            box-sizing: border-box;
+            display: block;
+            margin: 0 auto;
+            max-width: 580px;
+            padding: 10px;
+        }
+        
+        .main {
+            background: #ffffff;
+            border-radius: 3px;
+            width: 100%;
+        }
+        
+        .content-block {
+            padding: 0 0 20px;
+        }
+        
+        .header {
+            padding: 20px 0;
+            text-align: center;
+            background-color: #6366f1;
+            border-radius: 3px 3px 0 0;
+        }
+        
+        .footer {
+            clear: both;
+            margin-top: 10px;
+            text-align: center;
+            width: 100%;
+        }
+        
+        h1 {
+            color: #6366f1;
+            font-size: 24px;
+            font-weight: 300;
+            margin: 0;
+            text-align: center;
+        }
+        
+        .btn-primary {
+            background-color: #6366f1;
+            border-radius: 5px;
+            color: #ffffff;
+            cursor: pointer;
+            display: inline-block;
+            font-size: 14px;
+            font-weight: bold;
+            margin: 0;
+            padding: 12px 25px;
+            text-decoration: none;
+            text-transform: capitalize;
+        }
+        
+        .quote {
+            background: #f8f9fa;
+            border-left: 4px solid #6366f1;
+            margin: 0 0 20px;
+            padding: 15px;
+        }
+        
+        @media only screen and (max-width: 620px) {
+            .container {
+                width: 100% !important;
+                padding: 0 !important;
+            }
+            
+            .content {
+                padding: 0 !important;
+            }
+            
+            .main {
+                border-left-width: 0 !important;
+                border-radius: 0 !important;
+                border-right-width: 0 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="content">
+            <div class="header">
+                <img src="https://mylabel.com/static/img/logo-white.png" alt="MyLabel" height="50">
+            </div>
+            <div class="main">
+                <div style="padding: 20px;">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
+            <div class="footer">
+                <p>© {% now "Y" %} MyLabel. Tutti i diritti riservati.</p>
+                <p>
+                    <small>
+                        Hai ricevuto questa email perché sei registrato su MyLabel.
+                        Se non vuoi più ricevere queste email, puoi <a href="#">disiscriverti</a>.
+                    </small>
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
