@@ -12,11 +12,6 @@ class HealthCheckAdminSite(admin.AdminSite):
         ]
         return custom_urls + urls
         
-    def index(self, request, extra_context=None):
-        """Reindirizza la homepage admin al control panel"""
-        from django.shortcuts import redirect
-        return redirect('core:admin_control_panel')
-
     def health_check_view(self, request):
         # Riutilizziamo la funzione health_check esistente per ottenere lo stato
         health_response = health_check(request)

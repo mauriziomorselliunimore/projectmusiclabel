@@ -242,7 +242,7 @@ def availability_manage(request):
         return redirect('associates:create')
     
     associate = request.user.associate
-    availability_slots = associate.availabilities.all().order_by('day_of_week', 'start_time')
+    availability_slots = associate.availabilities.all().order_by('date', 'start_time')
     
     if request.method == 'POST':
         # Inizializzamo il form con l'associate
@@ -255,8 +255,9 @@ def availability_manage(request):
                 messages.success(request, 'Disponibilità aggiunta con successo!')
                 return redirect('associates:availability_manage')
             except ValidationError as e:
-                for field, errors in e.message_dict.items():
-                    form.add_error(field if field != '__all__' else None, error)
+                for field, field_errors in e.message_dict.items():
+                    for error in field_errors:
+                        form.add_error(field if field != '__all__' else None, error)
     else:
         form = AvailabilityForm()
     

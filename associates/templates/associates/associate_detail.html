@@ -157,10 +157,7 @@
                                     <i class="bi bi-calculator"></i> Richiedi Preventivo
                                 </button>
                                 
-                                <!-- Add to Favorites -->
-                                <button class="btn btn-outline-warning" onclick="toggleFavorite({{ associate.user.id }})">
-                                    <i class="bi bi-star"></i> <span id="favorite-text">Aggiungi ai Preferiti</span>
-                                </button>
+
                             </div>
                         {% else %}
                             <!-- Anonymous User -->
@@ -841,9 +838,7 @@ function showAvailabilityModal() {
     window.location.href = '/associates/availability/manage/';
 }
 
-function toggleFavorite(userId) {
-    const favoriteBtn = document.getElementById('favorite-text');
-    const isFavorite = favoriteBtn.textContent.includes('Aggiungi');
+
     
     if (isFavorite) {
         favoriteBtn.textContent = 'Rimuovi dai Preferiti';

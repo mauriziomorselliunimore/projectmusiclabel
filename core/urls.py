@@ -6,7 +6,7 @@ from .views.main import (
     create_superuser_render,
     render_status,
 )
-from .views.follow import toggle_follow
+
 from .views.admin import control_panel
 
 app_name = 'core'
@@ -17,7 +17,7 @@ urlpatterns = [
     path('clear-db/', clear_database, name='clear_db'),
     path('create-admin/', create_superuser_render, name='create_admin'),
     path('render-status/', render_status, name='render_status'),
-    path('follow/<int:content_type_id>/<int:object_id>/', toggle_follow, name='toggle_follow'),
+
     
     # Admin views
     path('admin/control-panel/', control_panel, name='admin_control_panel'),

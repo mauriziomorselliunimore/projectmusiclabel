@@ -76,28 +76,36 @@
                     </div>
                     
                     <div class="mt-4">
-                        {% if profile.user_type == 'artist' and user.artist %}
-                            <a href="{% url 'artists:detail' user.artist.pk %}" class="btn btn-outline-light">
-                                <i class="bi bi-mic"></i> Visualizza Profilo Artista
-                            </a>
-                        {% elif profile.user_type == 'associate' and user.associate %}
-                            <a href="{% url 'associates:detail' user.associate.pk %}" class="btn btn-outline-light">
-                                <i class="bi bi-tools"></i> Visualizza Profilo Professionale
-                            </a>
-                        {% else %}
-                            <div class="alert alert-info">
-                                <i class="bi bi-info-circle"></i>
-                                {% if profile.user_type == 'artist' %}
+                        {% if profile.user_type == 'artist' %}
+                            {% if not user.artist %}
+                                <div class="alert alert-info mb-3">
+                                    <i class="bi bi-info-circle"></i>
                                     Completa il tuo profilo artista per iniziare!
                                     <a href="{% url 'artists:create' %}" class="btn btn-sm btn-magenta ms-2">
                                         Crea Profilo Artista
                                     </a>
-                                {% else %}
+                                </div>
+                            {% endif %}
+                            {% if user.artist %}
+                                <a href="{% url 'artists:detail' user.artist.pk %}" class="btn btn-outline-light">
+                                    <i class="bi bi-mic"></i> Visualizza Profilo Artista
+                                </a>
+                            {% endif %}
+                        {% elif profile.user_type == 'associate' %}
+                            {% if not user.associate %}
+                                <div class="alert alert-info mb-3">
+                                    <i class="bi bi-info-circle"></i>
                                     Completa il tuo profilo professionale per iniziare!
                                     <a href="{% url 'associates:create' %}" class="btn btn-sm btn-magenta ms-2">
                                         Crea Profilo Associato
                                     </a>
-                                {% endif %}
+                                </div>
+                            {% endif %}
+                            {% if user.associate %}
+                                <a href="{% url 'associates:detail' user.associate.pk %}" class="btn btn-outline-light">
+                                    <i class="bi bi-tools"></i> Visualizza Profilo Professionale
+                                </a>
+                            {% endif %}
                             </div>
                         {% endif %}
                     </div>

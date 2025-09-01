@@ -38,11 +38,11 @@
                     </div>
                     
                     <div>
-                        {% if other_user.profile.user_type == 'artist' %}
+                        {% if other_user.profile.user_type == 'artist' and hasattr(other_user, 'artist') %}
                             <a href="{% url 'artists:detail' other_user.artist.pk %}" class="btn btn-outline-primary btn-sm">
                                 <i class="bi bi-eye me-1"></i> Profilo
                             </a>
-                        {% elif other_user.profile.user_type == 'associate' %}
+                        {% elif other_user.profile.user_type == 'associate' and hasattr(other_user, 'associate') %}
                             <a href="{% url 'associates:detail' other_user.associate.pk %}" class="btn btn-outline-success btn-sm">
                                 <i class="bi bi-eye me-1"></i> Profilo
                             </a>
