@@ -27,7 +27,7 @@ class Migration(migrations.Migration):
             name='recurrence_end_date',
             field=models.DateField(blank=True, null=True, help_text='Data fine ricorrenza'),
         ),
-        migrations.AlterUnique_together(
+        migrations.AlterUniqueTogether(
             name='availability',
             unique_together={('associate', 'date', 'start_time', 'end_time')},
         ),
