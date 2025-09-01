@@ -44,6 +44,8 @@ DJANGO_APPS = [
 THIRD_PARTY_APPS = [
     'rest_framework',
     'corsheaders',
+    'crispy_forms',
+    'crispy_bootstrap5',
 ]
 
 LOCAL_APPS = [
@@ -91,6 +93,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'record_label.wsgi.application'
 ASGI_APPLICATION = 'record_label.asgi.application'
+
+# Crispy Forms
+CRISPY_ALLOWED_TEMPLATE_PACKS = "bootstrap5"
+CRISPY_TEMPLATE_PACK = "bootstrap5"
 
 # Database configuration
 if 'DATABASE_URL' in os.environ:

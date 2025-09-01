@@ -1,6 +1,8 @@
 # Django
 Django==4.2.7
 djangorestframework==3.14.0
+django-crispy-forms==2.0
+crispy-bootstrap5==0.7
 
 # Database
 dj-database-url==2.1.0
