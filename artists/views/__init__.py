@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 
 from ..models import Artist, Demo
 from ..forms import ArtistForm, DemoForm
+from .messages import quick_message
 
 def artist_list(request):
     """List all active artists"""
