@@ -34,9 +34,35 @@ class Command(BaseCommand):
     def create_superuser(self):
         """Crea superuser se non esiste già"""
         if not User.objects.filter(username='admin').exists():
-            User.objects.create_superuser(
+            admin = User.objects.create_superuser(
                 username='admin',
                 email='admin@example.com',
+                password='admin',
+                first_name='Admin',
+                last_name='User'
+            )
+            # Crea anche il profilo per l'admin
+            Profile.objects.create(
+                user=admin,
+                user_type='admin',
+                external_avatar_url='https://i.pravatar.cc/300?img=68'
+            )
+            self.stdout.write('👨‍💼 Superuser creato: admin/admin')
+        else:
+            # Se l'admin esiste già, aggiorna la sua password
+            admin = User.objects.get(username='admin')
+            admin.set_password('admin')
+            admin.is_staff = True
+            admin.is_superuser = True
+            admin.save()
+            # Assicurati che abbia un profilo
+            Profile.objects.get_or_create(
+                user=admin,
+                defaults={
+                    'user_type': 'admin',
+                    'external_avatar_url': 'https://i.pravatar.cc/300?img=68'
+                }
+            )
                 password='admin',
                 first_name='Admin',
                 last_name='User'
