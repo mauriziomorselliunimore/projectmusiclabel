@@ -21,6 +21,28 @@
     .artist-icon-container i {
         text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     }
+    .character-count {
+        font-size: 0.8rem;
+        color: #6c757d;
+        transition: color 0.3s ease;
+    }
+    .character-count.warning {
+        color: #ffc107;
+    }
+    .character-count.danger {
+        color: #dc3545;
+    }
+    .modal-body .preview-content {
+        background-color: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 0.25rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        font-family: monospace;
+    }
+    .tooltip-inner {
+        max-width: 300px;
+    }
 </style>
 <div class="container mt-4">
     <div class="row">
@@ -80,6 +102,18 @@
                         {% elif user.is_authenticated %}
                             <!-- Visitor Actions -->
                             <div class="d-grid gap-2">
+                                <!-- Follow Button -->
+                                {% if not is_owner %}
+                                <button class="btn btn-outline-primary follow-button" 
+                                        data-content-type-id="{{ content_type_id }}" 
+                                        data-object-id="{{ artist.id }}"
+                                        data-is-following="{{ is_following|lower }}">
+                                    <i class="bi {% if is_following %}bi-person-check-fill{% else %}bi-person-plus-fill{% endif %}"></i>
+                                    <span class="follow-text">{% if is_following %}Smetti di seguire{% else %}Segui artista{% endif %}</span>
+                                    <span class="followers-count">({{ followers_count }})</span>
+                                </button>
+                                {% endif %}
+                                
                                 <!-- Message Button -->
                                 {% if existing_conversation %}
                                     <a href="{% url 'messaging:conversation' existing_conversation.pk %}" class="btn btn-success">
@@ -97,6 +131,18 @@
                                         <i class="bi bi-handshake"></i> Proponi Collaborazione
                                     </button>
                                 {% endif %}
+
+                                <!-- Follow Button -->
+                                <button class="btn btn-outline-primary follow-button" 
+                                        data-content-type-id="{{ artist_content_type_id }}" 
+                                        data-object-id="{{ artist.id }}"
+                                        data-is-following="{{ is_following|lower }}">
+                                    <i class="bi bi-person-{% if is_following %}check{% else %}plus{% endif %}-fill"></i>
+                                    <span class="follow-text">
+                                        {% if is_following %}Smetti di seguire{% else %}Segui artista{% endif %}
+                                    </span>
+                                    <span class="followers-count ms-1">({{ followers_count }})</span>
+                                </button>
                                 
                                 <!-- Follow/Unfollow (future feature) -->
                                 <button class="btn btn-outline-primary" onclick="toggleFollow({{ artist.user.id }})">
@@ -373,15 +419,29 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label class="form-label text-light">Descrizione Progetto</label>
+                        <label class="form-label text-light">
+                            Descrizione Progetto
+                            <i class="bi bi-info-circle ms-1" 
+                               data-bs-toggle="tooltip" 
+                               data-bs-html="true"
+                               title="Una buona descrizione dovrebbe includere:<br>- Obiettivi del progetto<br>- Risultati attesi<br>- Competenze richieste<br>- Tempistiche indicative<br>- Eventuali referenze o esempi"></i>
+                        </label>
                         <textarea class="form-control" id="collaboration-description" rows="4"
-                                  placeholder="Descrivi il progetto, i tuoi obiettivi e cosa ti aspetti dalla collaborazione..."></textarea>
+                                  placeholder="Descrivi il progetto, i tuoi obiettivi e cosa ti aspetti dalla collaborazione..."
+                                  onkeyup="updateCharacterCount(this, 'description-count', 50)"></textarea>
+                        <div class="character-count" id="description-count">0 caratteri (min: 50)</div>
                     </div>
                     
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <label class="form-label text-light">Timeline Progetto</label>
+                            <label class="form-label text-light">
+                                Timeline Progetto
+                                <i class="bi bi-info-circle ms-1" 
+                                   data-bs-toggle="tooltip" 
+                                   title="Indica quando vorresti iniziare la collaborazione"></i>
+                            </label>
                             <select class="form-select" id="collaboration-timeline">
+                                <option value="">Seleziona timeline</option>
                                 <option value="asap">Il prima possibile</option>
                                 <option value="week">Entro una settimana</option>
                                 <option value="month">Entro un mese</option>
@@ -389,8 +449,14 @@
                             </select>
                         </div>
                         <div class="col-md-6 mb-3">
-                            <label class="form-label text-light">Modalità Lavoro</label>
+                            <label class="form-label text-light">
+                                Modalità Lavoro
+                                <i class="bi bi-info-circle ms-1" 
+                                   data-bs-toggle="tooltip" 
+                                   title="Come preferisci gestire la collaborazione?"></i>
+                            </label>
                             <select class="form-select" id="collaboration-mode">
+                                <option value="">Seleziona modalità</option>
                                 <option value="remote">Lavoro remoto</option>
                                 <option value="studio">In studio</option>
                                 <option value="hybrid">Misto (remoto + studio)</option>
@@ -398,10 +464,33 @@
                             </select>
                         </div>
                     </div>
+
+                    <!-- Reference Links -->
+                    <div class="mb-3">
+                        <label class="form-label text-light">
+                            Link di Riferimento (opzionali)
+                            <i class="bi bi-info-circle ms-1" 
+                               data-bs-toggle="tooltip" 
+                               title="Aggiungi link a lavori simili o esempi di cosa vorresti realizzare"></i>
+                        </label>
+                        <div class="input-group mb-2">
+                            <span class="input-group-text"><i class="bi bi-link-45deg"></i></span>
+                            <input type="url" class="form-control" id="collaboration-reference-1" 
+                                   placeholder="https://...">
+                        </div>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-link-45deg"></i></span>
+                            <input type="url" class="form-control" id="collaboration-reference-2" 
+                                   placeholder="https://...">
+                        </div>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-light" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-secondary" onclick="saveDraft()">
+                    <i class="bi bi-save"></i> Salva Bozza
+                </button>
                 <button type="button" class="btn btn-warning" onclick="sendCollaborationProposal()">
                     <i class="bi bi-send"></i> Invia Proposta
                 </button>
@@ -629,8 +718,84 @@ function sendQuickMessage() {
     });
 }
 
+let recipientIdForCollaboration;
+
 function showCollaborationModal() {
+    recipientIdForCollaboration = '{{ artist.user.id }}';
     new bootstrap.Modal(document.getElementById('collaborationModal')).show();
+}
+
+function validateCollaborationForm() {
+    const type = document.getElementById('collaboration-type').value;
+    const budget = document.getElementById('collaboration-budget').value;
+    const description = document.getElementById('collaboration-description').value;
+    const timeline = document.getElementById('collaboration-timeline').value;
+    const mode = document.getElementById('collaboration-mode').value;
+    
+    let errors = [];
+    
+    if (!type || type === 'Seleziona tipo') {
+        errors.push('Seleziona il tipo di collaborazione');
+    }
+    
+    if (budget && isNaN(budget)) {
+        errors.push('Il budget deve essere un numero');
+    }
+    
+    if (!description.trim()) {
+        errors.push('Inserisci una descrizione del progetto');
+    } else if (description.trim().length < 50) {
+        errors.push('La descrizione deve essere di almeno 50 caratteri');
+    }
+    
+    if (!timeline || timeline === 'Seleziona timeline') {
+        errors.push('Seleziona una timeline');
+    }
+    
+    if (!mode || mode === 'Seleziona modalità') {
+        errors.push('Seleziona una modalità di lavoro');
+    }
+    
+    return errors;
+}
+
+function showPreviewModal(collaborationMessage) {
+    // Create modal if it doesn't exist
+    let previewModal = document.getElementById('previewCollaborationModal');
+    if (!previewModal) {
+        const modalHtml = `
+            <div class="modal fade" id="previewCollaborationModal" tabindex="-1">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Anteprima Proposta</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="preview-content" style="white-space: pre-wrap;"></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Modifica</button>
+                            <button type="button" class="btn btn-success" onclick="confirmAndSendProposal()">
+                                <i class="bi bi-send"></i> Conferma e Invia
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHtml);
+        previewModal = document.getElementById('previewCollaborationModal');
+    }
+    
+    // Update preview content
+    const previewContent = previewModal.querySelector('.preview-content');
+    previewContent.textContent = collaborationMessage;
+    
+    // Store message for later use
+    previewModal.dataset.pendingMessage = collaborationMessage;
+    
+    // Show preview modal
+    new bootstrap.Modal(previewModal).show();
 }
 
 function sendCollaborationProposal() {
@@ -640,8 +805,10 @@ function sendCollaborationProposal() {
     const timeline = document.getElementById('collaboration-timeline').value;
     const mode = document.getElementById('collaboration-mode').value;
     
-    if (!description.trim()) {
-        alert('Inserisci una descrizione del progetto');
+    // Validate form
+    const errors = validateCollaborationForm();
+    if (errors.length > 0) {
+        showNotification(errors.join('\n'), 'danger');
         return;
     }
     
@@ -654,14 +821,102 @@ function sendCollaborationProposal() {
         `Fammi sapere se sei interessato/a!\n\n` +
         `{{ user.get_full_name }}`;
     
-    // Use quick message function with collaboration data
-    document.getElementById('quick-message-type').value = 'collaboration';
-    document.getElementById('quick-message-subject').value = `Proposta Collaborazione: ${type}`;
-    document.getElementById('quick-message-text').value = collaborationMessage;
+    // Show preview
+    showPreviewModal(collaborationMessage);
+}
+
+function confirmAndSendProposal() {
+    const previewModal = document.getElementById('previewCollaborationModal');
+    const collaborationMessage = previewModal.dataset.pendingMessage;
+    const type = document.getElementById('collaboration-type').value;
     
-    // Close collaboration modal and send message
-    bootstrap.Modal.getInstance(document.getElementById('collaborationModal')).hide();
-    sendQuickMessage();
+    // Close preview modal
+    bootstrap.Modal.getInstance(previewModal).hide();
+    
+    // Show loading state
+    const sendBtn = document.querySelector('#collaborationModal .btn-success');
+    const originalText = sendBtn.innerHTML;
+    sendBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Invio...';
+    sendBtn.disabled = true;
+    
+    // Add loading overlay
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.className = 'position-fixed top-0 start-0 w-100 h-100 d-flex justify-content-center align-items-center';
+    loadingOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.5)';
+    loadingOverlay.style.zIndex = '9999';
+    loadingOverlay.innerHTML = `
+        <div class="text-center text-white">
+            <div class="spinner-border mb-2" role="status"></div>
+            <div>Invio proposta in corso...</div>
+        </div>
+    `;
+    document.body.appendChild(loadingOverlay);
+    
+    fetch('/artists/quick-message/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            recipient_id: recipientIdForCollaboration,
+            message_type: 'collaboration',
+            subject: `Proposta Collaborazione: ${type}`,
+            message: collaborationMessage
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Close modals
+            bootstrap.Modal.getInstance(document.getElementById('collaborationModal')).hide();
+            
+            // Show success notification
+            showNotification('Proposta di collaborazione inviata con successo!', 'success', 5000);
+            
+            // Show success modal
+            const successModal = new bootstrap.Modal(document.createElement('div'));
+            successModal.element.innerHTML = `
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header bg-success text-white">
+                            <h5 class="modal-title">
+                                <i class="bi bi-check-circle"></i> Proposta Inviata!
+                            </h5>
+                            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <p>La tua proposta è stata inviata con successo!</p>
+                            <p>Ti notificheremo quando l'artista risponderà.</p>
+                        </div>
+                        <div class="modal-footer">
+                            <a href="/messaging" class="btn btn-primary">
+                                <i class="bi bi-chat"></i> Vai ai Messaggi
+                            </a>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            successModal.show();
+            
+            // Reset form
+            document.getElementById('collaboration-form').reset();
+        } else {
+            showNotification('Errore nell\'invio: ' + data.error, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Errore nell\'invio della proposta', 'danger');
+    })
+    .finally(() => {
+        // Remove loading overlay
+        loadingOverlay.remove();
+        // Reset button state
+        sendBtn.innerHTML = originalText;
+        sendBtn.disabled = false;
+    });
 }
 
 function toggleFollow(userId) {
@@ -730,6 +985,52 @@ document.getElementById('quickMessageModal').addEventListener('hidden.bs.modal',
 
 document.getElementById('collaborationModal').addEventListener('hidden.bs.modal', function () {
     document.getElementById('collaboration-form').reset();
+});
+
+// Follow functionality
+document.addEventListener('click', function(e) {
+    if (e.target.closest('.follow-button')) {
+        const button = e.target.closest('.follow-button');
+        const contentTypeId = button.dataset.contentTypeId;
+        const objectId = button.dataset.objectId;
+        const isFollowing = button.dataset.isFollowing === 'true';
+        
+        fetch(`/core/follow/${contentTypeId}/${objectId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                showNotification(data.error, 'danger');
+                return;
+            }
+            
+            // Update button state
+            button.dataset.isFollowing = data.is_following;
+            const icon = button.querySelector('i');
+            const text = button.querySelector('.follow-text');
+            const count = button.querySelector('.followers-count');
+            
+            if (data.is_following) {
+                icon.className = 'bi bi-person-check-fill';
+                text.textContent = 'Smetti di seguire';
+            } else {
+                icon.className = 'bi bi-person-plus-fill';
+                text.textContent = 'Segui artista';
+            }
+            
+            count.textContent = `(${data.followers_count})`;
+            showNotification(data.message, 'success');
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showNotification('Si è verificato un errore', 'danger');
+        });
+    }
 });
 </script>
 {% endblock %}

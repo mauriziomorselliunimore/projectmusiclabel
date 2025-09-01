@@ -1,5 +1,10 @@
 from django.urls import path
 from . import views
+from .views.proposals import (
+    proposal_list,
+    update_proposal_status,
+    counter_proposal,
+)
 
 app_name = 'artists'
 
@@ -11,4 +16,9 @@ urlpatterns = [
     path('demo/upload/', views.demo_upload, name='demo_upload'),
     path('demo/<int:pk>/delete/', views.demo_delete, name='demo_delete'),
     path('quick-message/', views.quick_message, name='quick_message'),
+    
+    # Proposals
+    path('proposals/', proposal_list, name='proposals'),
+    path('proposals/<int:proposal_id>/update-status/', update_proposal_status, name='update_proposal_status'),
+    path('proposals/<int:proposal_id>/counter-proposal/', counter_proposal, name='counter_proposal'),
 ]

@@ -1,0 +1,248 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-light mb-4">
+        <i class="bi bi-inbox-fill"></i> Proposte di Collaborazione
+    </h2>
+
+    <!-- Filters -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="GET" class="row g-3">
+                <div class="col-md-3">
+                    <label class="form-label">Stato</label>
+                    <select name="status" class="form-select">
+                        <option value="">Tutti</option>
+                        <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>In attesa</option>
+                        <option value="accepted" {% if request.GET.status == 'accepted' %}selected{% endif %}>Accettate</option>
+                        <option value="rejected" {% if request.GET.status == 'rejected' %}selected{% endif %}>Rifiutate</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Tipo</label>
+                    <select name="type" class="form-select">
+                        <option value="">Tutti</option>
+                        <option value="production" {% if request.GET.type == 'production' %}selected{% endif %}>Produzione</option>
+                        <option value="recording" {% if request.GET.type == 'recording' %}selected{% endif %}>Registrazione</option>
+                        <option value="mixing" {% if request.GET.type == 'mixing' %}selected{% endif %}>Mixing</option>
+                        <option value="live" {% if request.GET.type == 'live' %}selected{% endif %}>Live</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Ordina per</label>
+                    <select name="sort" class="form-select">
+                        <option value="-created_at" {% if request.GET.sort == '-created_at' %}selected{% endif %}>Più recenti</option>
+                        <option value="created_at" {% if request.GET.sort == 'created_at' %}selected{% endif %}>Meno recenti</option>
+                        <option value="budget" {% if request.GET.sort == 'budget' %}selected{% endif %}>Budget (alto-basso)</option>
+                        <option value="-budget" {% if request.GET.sort == '-budget' %}selected{% endif %}>Budget (basso-alto)</option>
+                    </select>
+                </div>
+                <div class="col-md-3 d-flex align-items-end">
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-funnel"></i> Applica Filtri
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Proposals List -->
+    <div class="row">
+        {% for proposal in proposals %}
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">
+                        {{ proposal.sender.get_full_name }}
+                        <small class="text-muted">
+                            ({{ proposal.created_at|timesince }} fa)
+                        </small>
+                    </h5>
+                    <span class="badge {% if proposal.status == 'pending' %}bg-warning
+                                     {% elif proposal.status == 'accepted' %}bg-success
+                                     {% else %}bg-danger{% endif %}">
+                        {{ proposal.get_status_display }}
+                    </span>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <strong>Tipo:</strong> {{ proposal.get_type_display }}<br>
+                        <strong>Budget:</strong> {% if proposal.budget %}€{{ proposal.budget }}{% else %}Da concordare{% endif %}<br>
+                        <strong>Timeline:</strong> {{ proposal.get_timeline_display }}<br>
+                        <strong>Modalità:</strong> {{ proposal.get_mode_display }}
+                    </div>
+                    
+                    <div class="mb-3">
+                        <strong>Descrizione:</strong>
+                        <p class="mt-2">{{ proposal.description }}</p>
+                    </div>
+                    
+                    {% if proposal.reference_links %}
+                    <div class="mb-3">
+                        <strong>Link di riferimento:</strong><br>
+                        {% for link in proposal.get_reference_links %}
+                        <a href="{{ link }}" target="_blank" class="btn btn-sm btn-outline-primary mt-1">
+                            <i class="bi bi-link-45deg"></i> Riferimento {{ forloop.counter }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    
+                    {% if proposal.status == 'pending' %}
+                    <div class="mt-3">
+                        <button class="btn btn-success" onclick="acceptProposal({{ proposal.id }})">
+                            <i class="bi bi-check-lg"></i> Accetta
+                        </button>
+                        <button class="btn btn-danger ms-2" onclick="rejectProposal({{ proposal.id }})">
+                            <i class="bi bi-x-lg"></i> Rifiuta
+                        </button>
+                        <button class="btn btn-primary ms-2" onclick="counterProposal({{ proposal.id }})">
+                            <i class="bi bi-chat"></i> Controproposta
+                        </button>
+                    </div>
+                    {% endif %}
+                </div>
+                {% if proposal.status != 'pending' %}
+                <div class="card-footer">
+                    <small class="text-muted">
+                        {{ proposal.get_status_display }} {{ proposal.updated_at|timesince }} fa
+                        {% if proposal.response_message %}
+                        <br>Note: {{ proposal.response_message }}
+                        {% endif %}
+                    </small>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12">
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> Nessuna proposta di collaborazione trovata.
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Counter Proposal Modal -->
+<div class="modal fade" id="counterProposalModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Controproposta</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="counter-proposal-form">
+                    <input type="hidden" id="proposal-id">
+                    <div class="mb-3">
+                        <label class="form-label">Nuovo Budget</label>
+                        <div class="input-group">
+                            <span class="input-group-text">€</span>
+                            <input type="number" class="form-control" id="counter-budget" step="0.01" min="0">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Note</label>
+                        <textarea class="form-control" id="counter-notes" rows="4"
+                                 placeholder="Spiega le tue modifiche alla proposta..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary" onclick="sendCounterProposal()">
+                    <i class="bi bi-send"></i> Invia Controproposta
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function acceptProposal(proposalId) {
+    if (!confirm('Sei sicuro di voler accettare questa proposta?')) return;
+    
+    updateProposalStatus(proposalId, 'accepted');
+}
+
+function rejectProposal(proposalId) {
+    const reason = prompt('Motivo del rifiuto (opzionale):');
+    if (reason === null) return; // User cancelled
+    
+    updateProposalStatus(proposalId, 'rejected', reason);
+}
+
+function updateProposalStatus(proposalId, status, message = '') {
+    fetch(`/artists/proposals/${proposalId}/update-status/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            status: status,
+            message: message
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            showNotification(data.error, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Errore nell\'aggiornamento della proposta', 'danger');
+    });
+}
+
+function counterProposal(proposalId) {
+    document.getElementById('proposal-id').value = proposalId;
+    new bootstrap.Modal(document.getElementById('counterProposalModal')).show();
+}
+
+function sendCounterProposal() {
+    const proposalId = document.getElementById('proposal-id').value;
+    const budget = document.getElementById('counter-budget').value;
+    const notes = document.getElementById('counter-notes').value;
+    
+    if (!notes.trim()) {
+        showNotification('Inserisci delle note per spiegare la tua controproposta', 'warning');
+        return;
+    }
+    
+    fetch(`/artists/proposals/${proposalId}/counter-proposal/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify({
+            budget: budget,
+            notes: notes
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            bootstrap.Modal.getInstance(document.getElementById('counterProposalModal')).hide();
+            showNotification('Controproposta inviata con successo!', 'success');
+            setTimeout(() => location.reload(), 1500);
+        } else {
+            showNotification(data.error, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('Errore nell\'invio della controproposta', 'danger');
+    });
+}
+</script>
+{% endblock %}

@@ -4,8 +4,10 @@ from django.contrib import messages
 from django.db.models import Q
 from django.http import JsonResponse
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.models import ContentType
 
 from messaging.models import Message, Notification, Conversation
+from core.models import Follow
 from .models import Artist, Demo
 from .forms import ArtistForm, DemoForm
 
@@ -58,6 +60,17 @@ def artist_detail(request, pk):
             # Se ci sono errori con il modello Conversation, ignora
             existing_conversation = None
 
+    # Follow data
+    content_type = ContentType.objects.get_for_model(Artist)
+    followers_count = Follow.objects.filter(content_type=content_type, object_id=artist.id).count()
+    is_following = False
+    if request.user.is_authenticated and not is_owner:
+        is_following = Follow.objects.filter(
+            user=request.user,
+            content_type=content_type,
+            object_id=artist.id
+        ).exists()
+
     context = {
         'artist': artist,
         'demos': demos,
@@ -65,6 +78,9 @@ def artist_detail(request, pk):
         'can_message': can_message,
         'can_book': can_book,
         'existing_conversation': existing_conversation,
+        'content_type_id': content_type.id,
+        'followers_count': followers_count,
+        'is_following': is_following,
     }
     return render(request, 'artists/artist_detail.html', context)
 
@@ -174,6 +190,13 @@ def quick_message(request):
         if request.user == recipient:
             return JsonResponse({'success': False, 'error': 'Non puoi inviare messaggi a te stesso'})
 
+        # Verifica se l'utente è un associato per le proposte di collaborazione
+        if message_type == 'collaboration' and not hasattr(request.user, 'profile'):
+            return JsonResponse({'success': False, 'error': 'Solo gli associati possono inviare proposte di collaborazione'})
+        
+        if message_type == 'collaboration' and request.user.profile.user_type != 'associate':
+            return JsonResponse({'success': False, 'error': 'Solo gli associati possono inviare proposte di collaborazione'})
+
         # Get or create conversation
         conversation = Conversation.get_or_create_conversation(request.user, recipient)
 
@@ -187,11 +210,15 @@ def quick_message(request):
             message_type=message_type
         )
 
-        # Create notification
+        # Create notification with custom title for collaborations
+        notification_title = (f'Nuova proposta di collaborazione da {request.user.get_full_name()}'
+                            if message_type == 'collaboration'
+                            else f'Nuovo messaggio da {request.user.get_full_name()}')
+
         Notification.objects.create(
             user=recipient,
-            notification_type='new_message',
-            title=f'Nuovo messaggio da {request.user.get_full_name()}',
+            notification_type='collaboration' if message_type == 'collaboration' else 'new_message',
+            title=notification_title,
             message=f'Oggetto: {subject}',
             action_url=message.get_absolute_url(),
             related_message=message,

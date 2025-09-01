@@ -1,0 +1,175 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+<div id="content-main">
+    <div class="module">
+        <h2>Control Panel</h2>
+        
+        <div class="row">
+            <!-- Database Management -->
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3>Database Management</h3>
+                    </div>
+                    <div class="card-body">
+                        <form method="POST" action="{% url 'core:populate_db' %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="button" onclick="return confirm('Sei sicuro di voler popolare il database?')">
+                                Popola Database
+                            </button>
+                        </form>
+                        
+                        <form method="POST" action="{% url 'core:clear_db' %}" style="display: inline; margin-left: 10px;">
+                            {% csrf_token %}
+                            <button type="submit" class="button" 
+                                    style="background-color: #ba2121;"
+                                    onclick="return confirm('ATTENZIONE: Questa azione eliminerà tutti i dati. Sei sicuro?')">
+                                Pulisci Database
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Status -->
+            <div class="col-md-6">
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h3>Stato Sistema</h3>
+                    </div>
+                    <div class="card-body">
+                        <a href="{% url 'admin:admin-health-check' %}" class="button">
+                            Health Check
+                        </a>
+                        
+                        <a href="{% url 'core:render_status' %}" class="button" style="margin-left: 10px;">
+                            Stato Render
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h3>Statistiche</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="stat-box">
+                            <h4>Artisti</h4>
+                            <p class="big-number">{{ artist_count }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-box">
+                            <h4>Associati</h4>
+                            <p class="big-number">{{ associate_count }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-box">
+                            <h4>Prenotazioni</h4>
+                            <p class="big-number">{{ booking_count }}</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="stat-box">
+                            <h4>Messaggi</h4>
+                            <p class="big-number">{{ message_count }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h3>Attività Recenti</h3>
+            </div>
+            <div class="card-body">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Data</th>
+                            <th>Utente</th>
+                            <th>Azione</th>
+                            <th>Dettagli</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for activity in recent_activities %}
+                        <tr>
+                            <td>{{ activity.timestamp }}</td>
+                            <td>{{ activity.user }}</td>
+                            <td>{{ activity.action }}</td>
+                            <td>{{ activity.details }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4">Nessuna attività recente</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.stat-box {
+    text-align: center;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 20px;
+}
+
+.big-number {
+    font-size: 2em;
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.card {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.card-header {
+    background-color: #79aec8;
+    color: white;
+    padding: 10px 15px;
+}
+
+.card-header h3 {
+    margin: 0;
+    font-size: 1.2em;
+}
+
+.card-body {
+    padding: 15px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 8px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+}
+
+th {
+    background-color: #f5f5f5;
+}
+</style>
+{% endblock %}
