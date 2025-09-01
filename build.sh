@@ -22,6 +22,10 @@ pip install -r requirements_audio.txt || handle_error "Installazione dipendenze 
 echo "🎵 Tentativo di installazione ffmpeg..."
 apt-get update && apt-get install -y ffmpeg || echo "⚠️ ffmpeg non installato, alcune funzionalità audio potrebbero essere limitate"
 
+# Reset del database
+echo "🗑️ Reset del database..."
+psql $DATABASE_URL -f reset_db.sql || handle_error "Reset del database fallito"
+
 # Esegue le migrazioni del database per ogni app in ordine
 echo "🔄 Creazione migrazioni per ogni app..."
 for app in accounts artists associates; do
@@ -47,25 +51,8 @@ for app in accounts artists associates booking core messaging api; do
     python manage.py makemigrations $app --noinput || echo "Nota: Nessuna migrazione necessaria per $app"
 done
 
-# Applica le migrazioni in ordine corretto
-echo "🔄 Applicazione migrazioni in ordine..."
-python manage.py migrate contenttypes --noinput
-python manage.py migrate auth --noinput
-python manage.py migrate admin --noinput
-python manage.py migrate sessions --noinput
-
-# Applica le migrazioni delle app in ordine di dipendenza
-echo "🔄 Applicazione migrazioni delle app..."
-python manage.py migrate accounts --noinput
-python manage.py migrate artists --noinput
-python manage.py migrate associates --noinput
-python manage.py migrate booking --noinput
-python manage.py migrate messaging --noinput
-python manage.py migrate core --noinput
-python manage.py migrate api --noinput
-
-# Sincronizza eventuali app rimanenti
-echo "🔄 Sincronizzazione finale..."
+# Applica tutte le migrazioni in ordine corretto
+echo "🔄 Applicazione migrazioni..."
 python manage.py migrate --noinput
 
 # Crea un superuser se non esiste
