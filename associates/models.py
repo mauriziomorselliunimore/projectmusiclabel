@@ -149,13 +149,14 @@ class Availability(models.Model):
         if self.start_time >= self.end_time:
             raise ValidationError("L'ora di inizio deve essere prima dell'ora di fine")
 
-        # Verifica sovrapposizioni
-        overlapping = Availability.objects.filter(
-            associate=self.associate,
-            day_of_week=self.day_of_week,
-            is_available=True
-        ).exclude(pk=self.pk)
+        # Verifica sovrapposizioni solo se l'associate è già assegnato
+        if hasattr(self, 'associate') and self.associate is not None:
+            overlapping = Availability.objects.filter(
+                associate=self.associate,
+                day_of_week=self.day_of_week,
+                is_available=True
+            ).exclude(pk=self.pk)
 
-        for slot in overlapping:
-            if (self.start_time < slot.end_time and self.end_time > slot.start_time):
-                raise ValidationError("Questo orario si sovrappone con un altro slot di disponibilità")
+            for slot in overlapping:
+                if (self.start_time < slot.end_time and self.end_time > slot.start_time):
+                    raise ValidationError("Questo orario si sovrappone con un altro slot di disponibilità")
