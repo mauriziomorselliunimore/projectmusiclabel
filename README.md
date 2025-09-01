@@ -30,24 +30,42 @@
    - Bio: DJ e produttore di musica elettronica
    - Città: Torino
 
-### 👔 Professionisti
+### 👔 Professionisti Associati
 1. **Studio Sound** (Studio di Registrazione)
    - Username: studio_sound
    - Password: testpass123
-   - Bio: Studio di registrazione professionale con 20 anni di esperienza
+   - Specializzazione: Sound Engineer
+   - Skills: Recording, Mixing, Mastering, Pro Tools
+   - Disponibilità: Lunedì-Venerdì 9:00-18:00
+   - Tariffa: €50/ora
    - Città: Milano
 
-2. **Talent Scout Agency** (Management)
-   - Username: talent_scout
+2. **MasterMix** (Producer)
+   - Username: master_mix
    - Password: testpass123
-   - Bio: Agenzia di talent scouting e management artisti
+   - Specializzazione: Produttore Musicale
+   - Skills: Production, Arrangement, Logic Pro, Ableton
+   - Disponibilità: Lunedì-Mercoledì 14:00-22:00
+   - Tariffa: €45/ora
    - Città: Roma
 
-3. **PromoEvents** (Promoter)
-   - Username: promo_events
+3. **Session Pro** (Session Musician)
+   - Username: session_pro
    - Password: testpass123
-   - Bio: Organizzazione eventi e promozione artisti
+   - Specializzazione: Chitarrista Session
+   - Skills: Electric Guitar, Acoustic Guitar, Bass, Recording
+   - Disponibilità: Mercoledì-Sabato 10:00-19:00
+   - Tariffa: €35/ora
    - Città: Bologna
+
+4. **Visual Arts** (Visual Artist)
+   - Username: visual_arts
+   - Password: testpass123
+   - Specializzazione: Video Producer
+   - Skills: Video Editing, Photography, After Effects, Premiere
+   - Disponibilità: Martedì-Sabato 9:00-17:00
+   - Tariffa: €40/ora
+   - Città: Torino
 
 ### 👨‍💼 Admin
 - Username: admin

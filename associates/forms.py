@@ -41,6 +41,19 @@ class PortfolioItemForm(forms.ModelForm):
         model = PortfolioItem
         fields = ['title', 'description', 'external_image_url', 'external_audio_url', 'external_url']
         widgets = {
+            'title': forms.TextInput(attrs={'placeholder': 'Nome del progetto/lavoro'}),
+            'description': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Descrizione del lavoro svolto...'}),
+            'external_image_url': forms.URLInput(attrs={'placeholder': 'https://imgur.com/abc123.jpg (opzionale)'}),
+            'external_audio_url': forms.URLInput(attrs={'placeholder': 'https://soundcloud.com/... (opzionale)'}),
+            'external_url': forms.URLInput(attrs={'placeholder': 'https://youtube.com/watch?v=... (link principale)'}),
+        }
+        labels = {
+            'title': 'Titolo',
+            'description': 'Descrizione',
+            'external_image_url': 'Link Immagine',
+            'external_audio_url': 'Link Audio',
+            'external_url': 'Link Principale',
+        }
 
 class AvailabilityForm(forms.ModelForm):
     class Meta:
@@ -58,16 +71,6 @@ class AvailabilityForm(forms.ModelForm):
             'is_available': 'Disponibile',
             'note': 'Note',
         }
-            'title': forms.TextInput(attrs={'placeholder': 'Nome del progetto/lavoro'}),
-            'description': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Descrizione del lavoro svolto...'}),
-            'external_image_url': forms.URLInput(attrs={'placeholder': 'https://imgur.com/abc123.jpg (opzionale)'}),
-            'external_audio_url': forms.URLInput(attrs={'placeholder': 'https://soundcloud.com/... (opzionale)'}),
-            'external_url': forms.URLInput(attrs={'placeholder': 'https://youtube.com/watch?v=... (link principale)'}),
-        }
-        labels = {
-            'title': 'Titolo',
-            'description': 'Descrizione',
-            'external_image_url': 'Link Immagine',
             'external_audio_url': 'Link Audio',
             'external_url': 'Link Principale',
         }
