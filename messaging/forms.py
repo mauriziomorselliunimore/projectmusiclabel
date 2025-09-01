@@ -48,6 +48,26 @@ class CompleteMessageForm(forms.ModelForm):
         model = Message
         fields = ['message_type', 'subject', 'message']
         widgets = {
+            'message_type': forms.Select(attrs={
+                'class': 'form-select mb-2',
+                'required': True
+            }),
+            'subject': forms.TextInput(attrs={
+                'class': 'form-control mb-2',
+                'placeholder': 'Oggetto del messaggio...'
+            }),
+            'message': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Scrivi il tuo messaggio...',
+                'style': 'resize: none; border-radius: 0.75rem;'
+            })
+        }
+        labels = {
+            'message_type': 'Tipo di messaggio',
+            'subject': 'Oggetto',
+            'message': 'Messaggio'
+        }
             'message_type': forms.Select(attrs={'class': 'form-control'}),
             'subject': forms.TextInput(attrs={
                 'class': 'form-control',

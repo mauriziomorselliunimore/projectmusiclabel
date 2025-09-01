@@ -26,17 +26,23 @@ class Command(BaseCommand):
 
     def create_superuser(self):
         """Crea superuser se non esiste già"""
-        if not User.objects.filter(is_superuser=True).exists():
+        if not User.objects.filter(username='admin').exists():
             User.objects.create_superuser(
                 username='admin',
-                email='admin@musiclabel.com',
-                password='admin123',
+                email='admin@example.com',
+                password='admin',
                 first_name='Admin',
-                last_name='MyLabel'
+                last_name='User'
             )
-            self.stdout.write('👨‍💼 Superuser creato: admin/admin123')
+            self.stdout.write('👨‍💼 Superuser creato: admin/admin')
         else:
-            self.stdout.write('👨‍💼 Superuser già esistente')
+            # Se l'admin esiste già, aggiorna la sua password
+            admin = User.objects.get(username='admin')
+            admin.set_password('admin')
+            admin.is_staff = True
+            admin.is_superuser = True
+            admin.save()
+            self.stdout.write('👨‍💼 Password admin aggiornata a: admin')
 
     def populate_database(self):
         """Popola il database solo se vuoto"""

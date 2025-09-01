@@ -66,12 +66,24 @@ def create_booking(request, associate_id):
             location = request.POST.get('location', '').strip()
             notes = request.POST.get('notes', '').strip()
             
-            # Combina data e ora
-            session_datetime = datetime.strptime(
-                f"{session_date_str} {session_time_str}", 
-                "%Y-%m-%d %H:%M"
-            )
-            session_datetime = timezone.make_aware(session_datetime)
+            if not all([session_date_str, session_time_str]):
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'error': 'Devi selezionare data e ora!'}, status=400)
+                messages.error(request, 'Devi selezionare data e ora!')
+                return redirect('booking:calendar', associate_id=associate.pk)
+            
+            try:
+                # Combina data e ora
+                session_datetime = datetime.strptime(
+                    f"{session_date_str} {session_time_str}", 
+                    "%Y-%m-%d %H:%M"
+                )
+                session_datetime = timezone.make_aware(session_datetime)
+            except ValueError:
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({'error': 'Data o ora non valida!'}, status=400)
+                messages.error(request, 'Data o ora non valida!')
+                return redirect('booking:calendar', associate_id=associate.pk)
             
             # Crea booking
             booking = Booking.objects.create(
@@ -156,33 +168,74 @@ def booking_status_update(request, pk):
     booking = get_object_or_404(Booking, pk=pk)
     
     if request.user != booking.associate.user:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'error': 'Solo l\'associato può modificare lo status!'}, status=403)
         messages.error(request, 'Solo l\'associato può modificare lo status!')
         return redirect('booking:detail', pk=pk)
     
     new_status = request.POST.get('status')
     if new_status not in ['confirmed', 'cancelled']:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'error': 'Status non valido!'}, status=400)
         messages.error(request, 'Status non valido!')
         return redirect('booking:detail', pk=pk)
     
-    old_status = booking.status
-    booking.status = new_status
-    booking.save()
-    
-    # Import qui per evitare circular import
-    from messaging.models import Notification
-    
-    # Notifica artista
-    status_msg = 'confermata' if new_status == 'confirmed' else 'cancellata'
-    Notification.objects.create(
-        user=booking.artist.user,
-        notification_type=f'booking_{new_status}',
-        title=f'Prenotazione {status_msg}',
-        message=f'La tua prenotazione del {booking.session_date.strftime("%d/%m/%Y alle %H:%M")} è stata {status_msg}.',
-        related_booking=booking
-    )
-    
-    messages.success(request, f'Prenotazione {status_msg} con successo!')
-    return redirect('booking:detail', pk=pk)
+    try:
+        old_status = booking.status
+        booking.status = new_status
+        booking.save()
+        
+        # Import qui per evitare circular import
+        from messaging.models import Notification, Message, Conversation
+        
+        # Notifica artista
+        status_msg = 'confermata' if new_status == 'confirmed' else 'cancellata'
+        Notification.objects.create(
+            user=booking.artist.user,
+            notification_type=f'booking_{new_status}',
+            title=f'Prenotazione {status_msg}',
+            message=f'La tua prenotazione del {booking.session_date.strftime("%d/%m/%Y alle %H:%M")} è stata {status_msg}.',
+            related_booking=booking
+        )
+        
+        # Crea o recupera la conversazione
+        conversation = Conversation.get_or_create_conversation(
+            request.user,
+            booking.artist.user
+        )
+        
+        # Invia messaggio di conferma/cancellazione
+        Message.objects.create(
+            conversation=conversation,
+            sender=request.user,
+            recipient=booking.artist.user,
+            message_type='booking_update',
+            subject=f'Prenotazione {status_msg}',
+            message=f'Ciao {booking.artist.user.first_name},\n\n'
+                   f'La tua prenotazione del {booking.session_date.strftime("%d/%m/%Y alle %H:%M")} '
+                   f'è stata {status_msg}.\n\n'
+                   f'Tipo: {booking.get_booking_type_display()}\n'
+                   f'Durata: {booking.duration_hours} ore\n'
+                   f'Location: {booking.location or "Da definire"}\n\n'
+                   f'Saluti,\n{request.user.get_full_name()}',
+            related_booking=booking
+        )
+        
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': True,
+                'message': f'Prenotazione {status_msg} con successo!',
+                'redirect_url': request.build_absolute_uri(booking.get_absolute_url())
+            })
+        
+        messages.success(request, f'Prenotazione {status_msg} con successo!')
+        return redirect('booking:detail', pk=pk)
+        
+    except Exception as e:
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({'error': str(e)}, status=500)
+        messages.error(request, f'Errore: {str(e)}')
+        return redirect('booking:detail', pk=pk)
 
 @login_required
 def my_bookings(request):

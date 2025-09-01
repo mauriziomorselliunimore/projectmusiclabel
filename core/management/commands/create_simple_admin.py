@@ -1,9 +1,9 @@
-# core/management/commands/create_admin.py
+# core/management/commands/create_simple_admin.py
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import User
 
 class Command(BaseCommand):
-    help = 'Create admin user (admin/admin) if not exists'
+    help = 'Create simple admin user (admin/admin) if not exists'
 
     def handle(self, *args, **options):
         if not User.objects.filter(username='admin').exists():
@@ -25,5 +25,5 @@ class Command(BaseCommand):
             admin.is_superuser = True
             admin.save()
             self.stdout.write(
-                self.style.SUCCESS('✅ Admin password updated to "admin"')
+                self.style.SUCCESS('✅ Existing admin password updated to "admin"')
             )
