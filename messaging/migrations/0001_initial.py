@@ -21,7 +21,6 @@ class Migration(migrations.Migration):
                 ('last_message_date', models.DateTimeField(blank=True, null=True)),
                 ('participant_1', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='conversations_as_participant_1', to=settings.AUTH_USER_MODEL)),
                 ('participant_2', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='conversations_as_participant_2', to=settings.AUTH_USER_MODEL)),
-                ('last_message', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.SET_NULL, related_name='+', to='messaging.message')),
             ],
             options={
                 'ordering': ['-updated_at'],
