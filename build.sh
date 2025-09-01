@@ -40,9 +40,12 @@ EXCEPTION WHEN OTHERS THEN
 END $$;
 EOSQL
 
-# Crea le migrazioni per messaging (con il nuovo campo message)
-echo "🔄 Creazione migrazioni per messaging..."
-python manage.py makemigrations messaging --noinput || echo "Nota: Nessuna migrazione necessaria per messaging"
+# Crea le migrazioni per tutte le app in ordine corretto
+echo "🔄 Creazione migrazioni per tutte le app..."
+for app in accounts artists associates booking core messaging api; do
+    echo "  ⚡ Creazione migrazioni per $app..."
+    python manage.py makemigrations $app --noinput || echo "Nota: Nessuna migrazione necessaria per $app"
+done
 
 # Applica le migrazioni in ordine corretto
 echo "🔄 Applicazione migrazioni in ordine..."
@@ -50,8 +53,32 @@ python manage.py migrate contenttypes --noinput
 python manage.py migrate auth --noinput
 python manage.py migrate admin --noinput
 python manage.py migrate sessions --noinput
+
+# Applica le migrazioni delle app in ordine di dipendenza
+echo "🔄 Applicazione migrazioni delle app..."
+python manage.py migrate accounts --noinput
+python manage.py migrate artists --noinput
+python manage.py migrate associates --noinput
+python manage.py migrate booking --noinput
 python manage.py migrate messaging --noinput
+python manage.py migrate core --noinput
+python manage.py migrate api --noinput
+
+# Sincronizza eventuali app rimanenti
+echo "🔄 Sincronizzazione finale..."
 python manage.py migrate --noinput
+
+# Crea un superuser se non esiste
+echo "👤 Creazione superuser di default..."
+python manage.py shell << 'EOPY'
+from django.contrib.auth import get_user_model
+User = get_user_model()
+if not User.objects.filter(username='admin').exists():
+    User.objects.create_superuser('admin', 'admin@example.com', 'admin')
+    print("✅ Superuser 'admin' creato con successo")
+else:
+    print("ℹ️ Superuser 'admin' già esistente")
+EOPY
 python manage.py migrate --noinput --run-syncdb
 
 # Raccoglie i file statici
