@@ -45,6 +45,15 @@
     color: #718096;
 }
 
+.auth-link {
+    color: #ff6b6b;
+    transition: color 0.3s ease;
+}
+
+.auth-link:hover {
+    color: #ff8e53;
+}
+
 .auth-btn {
     background: linear-gradient(45deg, #ff6b6b, #ff8e53);
     border: none;

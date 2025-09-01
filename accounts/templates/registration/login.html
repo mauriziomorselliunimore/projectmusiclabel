@@ -60,7 +60,7 @@
                         </div>
                         
                         <div class="d-grid">
-                            <button type="submit" class="btn btn-magenta btn-lg">
+                            <button type="submit" class="btn auth-btn btn-lg">
                                 <i class="bi bi-unlock"></i> Accedi
                             </button>
                         </div>
@@ -69,12 +69,12 @@
                     <div class="text-center mt-4">
                         <p class="text-muted mb-2">
                             Non hai un account? 
-                            <a href="{% url 'accounts:register' %}" class="text-magenta text-decoration-none">
+                            <a href="{% url 'accounts:register' %}" class="auth-link text-decoration-none">
                                 <i class="bi bi-person-plus"></i> Registrati qui
                             </a>
                         </p>
                         
-                        <hr class="my-3" style="border-color: rgba(255, 46, 136, 0.3);">
+                        <hr class="my-3" style="border-color: rgba(255, 107, 107, 0.3);">
                     </div>
                 </div>
             </div>
@@ -93,9 +93,9 @@
 
 .form-control:focus {
     background: rgba(255, 255, 255, 0.15);
-    border-color: #ff2e88;
+    border-color: #ff6b6b;
     color: #fff;
-    box-shadow: 0 0 0 0.25rem rgba(255, 46, 136, 0.25);
+    box-shadow: 0 0 0 0.25rem rgba(255, 107, 107, 0.25);
 }
 
 .form-control::placeholder {
