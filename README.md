@@ -8,6 +8,50 @@
 **Deploy:** Render Cloud Platform  
 **Linguaggio:** Python 3.11+  
 
+## 👥 Utenti Demo
+
+### 🎸 Artisti
+1. **MR Wave** (Rock)
+   - Username: marco_rossi
+   - Password: testpass123
+   - Bio: Cantautore rock con influenze indie e alternative
+   - Città: Milano
+
+2. **LauraB** (Pop)
+   - Username: laura_bianchi
+   - Password: testpass123
+   - Bio: Cantante pop con un tocco di soul
+   - Città: Roma
+
+3. **DJ Verde** (Electronic)
+   - Username: giovanni_verdi
+   - Password: testpass123
+   - Bio: DJ e produttore di musica elettronica
+   - Città: Torino
+
+### 👔 Professionisti
+1. **Studio Sound** (Studio di Registrazione)
+   - Username: studio_sound
+   - Password: testpass123
+   - Bio: Studio di registrazione professionale con 20 anni di esperienza
+   - Città: Milano
+
+2. **Talent Scout Agency** (Management)
+   - Username: talent_scout
+   - Password: testpass123
+   - Bio: Agenzia di talent scouting e management artisti
+   - Città: Roma
+
+3. **PromoEvents** (Promoter)
+   - Username: promo_events
+   - Password: testpass123
+   - Bio: Organizzazione eventi e promozione artisti
+   - Città: Bologna
+
+### 👨‍💼 Admin
+- Username: admin
+- Password: admin
+
 ## 🏗️ Struttura Progetto Completa
 
 ```

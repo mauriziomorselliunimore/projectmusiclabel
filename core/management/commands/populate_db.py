@@ -1,103 +1,161 @@
-# File: core/management/commands/populate_db.py
-# Crea le cartelle: core/management/ e core/management/commands/
-# Aggiungi __init__.py in entrambe le cartelle
-
 from django.core.management.base import BaseCommand
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.db import transaction
-from accounts.models import Profile
 from artists.models import Artist, Demo
 from associates.models import Associate, PortfolioItem
-import random
+from django.utils.text import slugify
+
+User = get_user_model()
 
 class Command(BaseCommand):
     help = 'Popola il database con dati di esempio'
 
     def handle(self, *args, **options):
         with transaction.atomic():
-            self.stdout.write('🎵 Popolamento database in corso...')
+            self.stdout.write('🎵 Creazione artisti di esempio...')
             
-            # Dati artisti
+            # Lista degli artisti
             artists_data = [
                 {
-                    'user_data': {'username': 'marco_blues', 'email': 'marco@example.com', 'first_name': 'Marco', 'last_name': 'Rossi'},
-                    'artist_data': {
-                        'stage_name': 'Blues Marco',
-                        'genres': 'Blues, Rock, Jazz',
-                        'bio': 'Chitarrista blues con 15 anni di esperienza nel circuito romano.',
-                        'location': 'Roma, Italia',
-                        'phone': '+39 333 111 2222',
-                        'spotify_url': 'https://open.spotify.com/artist/marco-blues',
-                        'instagram_url': 'https://instagram.com/marcoblues',
+                    'username': 'marco_rossi',
+                    'email': 'marco.rossi@example.com',
+                    'password': 'testpass123',
+                    'first_name': 'Marco',
+                    'last_name': 'Rossi',
+                    'artist': {
+                        'stage_name': 'MR Wave',
+                        'genre': 'Rock',
+                        'bio': 'Cantautore rock con influenze indie e alternative',
+                        'city': 'Milano'
                     }
                 },
                 {
-                    'user_data': {'username': 'sofia_pop', 'email': 'sofia@example.com', 'first_name': 'Sofia', 'last_name': 'Bianchi'},
-                    'artist_data': {
-                        'stage_name': 'Sofia B',
-                        'genres': 'Pop, R&B, Soul',
-                        'bio': 'Cantante pop emergente, finalista X Factor 2023.',
-                        'location': 'Milano, Italia',
-                        'phone': '+39 333 333 4444',
-                        'youtube_url': 'https://youtube.com/c/sofiabmusic',
-                        'instagram_url': 'https://instagram.com/sofiab_official',
+                    'username': 'laura_bianchi',
+                    'email': 'laura.bianchi@example.com',
+                    'password': 'testpass123',
+                    'first_name': 'Laura',
+                    'last_name': 'Bianchi',
+                    'artist': {
+                        'stage_name': 'LauraB',
+                        'genre': 'Pop',
+                        'bio': 'Cantante pop con un tocco di soul',
+                        'city': 'Roma'
                     }
                 },
                 {
-                    'user_data': {'username': 'dj_elektro', 'email': 'alessandro@example.com', 'first_name': 'Alessandro', 'last_name': 'Verdi'},
-                    'artist_data': {
-                        'stage_name': 'DJ Elektro',
-                        'genres': 'Electronic, House, Techno',
-                        'bio': 'Producer elettronico con residency nei migliori club europei.',
-                        'location': 'Napoli, Italia',
-                        'phone': '+39 333 555 6666',
-                        'soundcloud_url': 'https://soundcloud.com/dj-elektro',
-                        'spotify_url': 'https://open.spotify.com/artist/dj-elektro',
+                    'username': 'giovanni_verdi',
+                    'email': 'giovanni.verdi@example.com',
+                    'password': 'testpass123',
+                    'first_name': 'Giovanni',
+                    'last_name': 'Verdi',
+                    'artist': {
+                        'stage_name': 'DJ Verde',
+                        'genre': 'Electronic',
+                        'bio': 'DJ e produttore di musica elettronica',
+                        'city': 'Torino'
                     }
                 }
             ]
 
-            # Dati associati
+            # Creazione artisti
+            for artist_data in artists_data:
+                # Crea utente
+                user = User.objects.create_user(
+                    username=artist_data['username'],
+                    email=artist_data['email'],
+                    password=artist_data['password'],
+                    first_name=artist_data['first_name'],
+                    last_name=artist_data['last_name']
+                )
+                
+                # Crea artista
+                artist = Artist.objects.create(
+                    user=user,
+                    stage_name=artist_data['artist']['stage_name'],
+                    genre=artist_data['artist']['genre'],
+                    bio=artist_data['artist']['bio'],
+                    city=artist_data['artist']['city'],
+                    slug=slugify(artist_data['artist']['stage_name'])
+                )
+                
+                # Crea demo di esempio
+                Demo.objects.create(
+                    artist=artist,
+                    title=f'Demo {artist.stage_name}',
+                    description=f'Demo di presentazione di {artist.stage_name}',
+                    genre=artist.genre
+                )
+
+            self.stdout.write('👔 Creazione professionisti di esempio...')
+            
+            # Lista dei professionisti
             associates_data = [
                 {
-                    'user_data': {'username': 'luca_sound', 'email': 'luca@example.com', 'first_name': 'Luca', 'last_name': 'Ferrari'},
-                    'associate_data': {
-                        'specialization': 'Sound Engineer',
-                        'skills': 'Pro Tools, Logic Pro, Mixing, Mastering, Live Sound',
-                        'experience_level': 'professional',
-                        'hourly_rate': 45.00,
-                        'bio': 'Fonico professionista con 10+ anni di esperienza nazionale e internazionale.',
-                        'location': 'Roma, Italia',
-                        'phone': '+39 333 777 8888',
-                        'availability': 'Lunedì-Venerdì 9-18, Weekend su richiesta',
-                        'years_experience': 12,
-                        'website': 'https://lucastudio.com',
+                    'username': 'studio_sound',
+                    'email': 'info@studiosound.com',
+                    'password': 'testpass123',
+                    'first_name': 'Paolo',
+                    'last_name': 'Neri',
+                    'associate': {
+                        'company_name': 'Studio Sound',
+                        'type': 'recording_studio',
+                        'bio': 'Studio di registrazione professionale con 20 anni di esperienza',
+                        'city': 'Milano',
+                        'portfolio_items': [
+                            {
+                                'title': 'Studio A',
+                                'description': 'Studio principale con attrezzatura analogica vintage'
+                            },
+                            {
+                                'title': 'Studio B',
+                                'description': 'Studio digitale per produzioni moderne'
+                            }
+                        ]
                     }
                 },
                 {
-                    'user_data': {'username': 'anna_producer', 'email': 'anna@example.com', 'first_name': 'Anna', 'last_name': 'Romano'},
-                    'associate_data': {
-                        'specialization': 'Music Producer',
-                        'skills': 'Ableton Live, Composizione, Arrangiamento, Beat Making',
-                        'experience_level': 'advanced',
-                        'hourly_rate': 35.00,
-                        'bio': 'Producer specializzata in pop e hip-hop. Oltre 50 singoli prodotti.',
-                        'location': 'Milano, Italia',
-                        'phone': '+39 333 999 0000',
-                        'availability': 'Flessibile, anche sere e weekend',
-                        'years_experience': 7,
+                    'username': 'talent_scout',
+                    'email': 'mario.talent@example.com',
+                    'password': 'testpass123',
+                    'first_name': 'Mario',
+                    'last_name': 'Talenti',
+                    'associate': {
+                        'company_name': 'Talent Scout Agency',
+                        'type': 'manager',
+                        'bio': 'Agenzia di talent scouting e management artisti',
+                        'city': 'Roma',
+                        'portfolio_items': [
+                            {
+                                'title': 'Scoperte 2024',
+                                'description': 'Artisti emergenti scoperti e lanciati nel 2024'
+                            }
+                        ]
                     }
                 },
+                {
+                    'username': 'promo_events',
+                    'email': 'eventi@promoevents.com',
+                    'password': 'testpass123',
+                    'first_name': 'Anna',
+                    'last_name': 'Eventi',
+                    'associate': {
+                        'company_name': 'PromoEvents',
+                        'type': 'promoter',
+                        'bio': 'Organizzazione eventi e promozione artisti',
+                        'city': 'Bologna',
+                        'portfolio_items': [
+                            {
+                                'title': 'Festival Estate 2024',
+                                'description': 'Festival musicale con oltre 30 artisti'
+                            },
+                            {
+                                'title': 'Club Tour 2024',
+                                'description': 'Tour nei migliori club italiani'
+                            }
+                        ]
+                    }
+                }
             ]
-
-            created_artists = 0
-            created_associates = 0
-            created_demos = 0
-
-            # Crea artisti
-            for data in artists_data:
-                user, created = User.objects.get_or_create(
-                    username=data['user_data']['username'],
                     defaults=data['user_data']
                 )
                 
