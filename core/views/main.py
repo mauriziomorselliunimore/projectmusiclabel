@@ -58,10 +58,13 @@ def populate_database(request):
     artist_data = [
         {
             'username': 'marco_blues',
-            'name': 'Marco Bianchi',
+            'first_name': 'Marco',
+            'last_name': 'Bianchi',
             'email': 'marco@example.com',
-            'genre': 'Blues/Rock',
+            'stage_name': 'Marco Blues',
+            'genres': 'blues, rock',
             'bio': 'Cantante e chitarrista blues con 10 anni di esperienza',
+            'location': 'Milano, Italia',
             'demos': [
                 {
                     'title': 'Blues in A',
@@ -91,10 +94,13 @@ def populate_database(request):
         },
         {
             'username': 'sara_jazz',
-            'name': 'Sara Rossi',
+            'first_name': 'Sara',
+            'last_name': 'Rossi',
             'email': 'sara@example.com',
-            'genre': 'Jazz/Soul',
+            'stage_name': 'Sara Soul',
+            'genres': 'jazz, r&b',
             'bio': 'Cantante jazz con influenze soul e R&B',
+            'location': 'Roma, Italia',
             'demos': [
                 {
                     'title': 'Jazz Standards Medley',
@@ -152,17 +158,26 @@ def populate_database(request):
 
     # Crea artisti e i loro demo
     for data in artist_data:
+        # Crea l'utente
         user = User.objects.create_user(
             username=data['username'],
             email=data['email'],
-            password='password123'
+            password='password123',
+            first_name=data['first_name'],
+            last_name=data['last_name']
         )
+        
+        # Crea l'artista
         artist = Artist.objects.create(
             user=user,
-            name=data['name'],
-            genre=data['genre'],
-            bio=data['bio']
+            stage_name=data['stage_name'],
+            genres=data['genres'],
+            bio=data['bio'],
+            location=data['location'],
+            is_active=True
         )
+        
+        # Crea le demo
         for demo in data['demos']:
             from artists.models import Demo
             Demo.objects.create(
