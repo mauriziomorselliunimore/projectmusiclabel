@@ -53,8 +53,30 @@ def populate_database(request):
             'genre': 'Blues/Rock',
             'bio': 'Cantante e chitarrista blues con 10 anni di esperienza',
             'demos': [
-                {'title': 'Blues in A', 'description': 'Blues classico con chitarra slide'},
-                {'title': 'Rock Fusion', 'description': 'Fusione di blues e rock moderno'}
+                {
+                    'title': 'Blues in A',
+                    'genre': 'blues',
+                    'description': 'Blues classico con chitarra slide registrato live al Blue Note',
+                    'external_audio_url': 'https://soundcloud.com/blues-rock/blues-in-a-live',
+                    'duration': '4:35',
+                    'is_public': True
+                },
+                {
+                    'title': 'Rock Fusion',
+                    'genre': 'rock',
+                    'description': 'Fusione di blues e rock moderno con influenze psichedeliche',
+                    'external_audio_url': 'https://www.youtube.com/watch?v=rock-fusion-demo',
+                    'duration': '5:15',
+                    'is_public': True
+                },
+                {
+                    'title': 'Midnight Train',
+                    'genre': 'blues',
+                    'description': 'Un blues notturno ispirato ai viaggi in treno',
+                    'external_audio_url': 'https://open.spotify.com/track/midnight-train-blues',
+                    'duration': '6:20',
+                    'is_public': True
+                }
             ]
         },
         {
@@ -64,8 +86,30 @@ def populate_database(request):
             'genre': 'Jazz/Soul',
             'bio': 'Cantante jazz con influenze soul e R&B',
             'demos': [
-                {'title': 'Jazz Standards', 'description': 'Raccolta di classici jazz reinterpretati'},
-                {'title': 'Soul Session', 'description': 'Session live con band jazz'}
+                {
+                    'title': 'Jazz Standards Medley',
+                    'genre': 'jazz',
+                    'description': 'Medley di classici jazz reinterpretati con arrangiamenti moderni',
+                    'external_audio_url': 'https://soundcloud.com/jazz-soul/standards-medley',
+                    'duration': '7:45',
+                    'is_public': True
+                },
+                {
+                    'title': 'Soul Session Live',
+                    'genre': 'r&b',
+                    'description': 'Session live registrata al Jazz Club con band completa',
+                    'external_audio_url': 'https://www.youtube.com/watch?v=soul-session-live',
+                    'duration': '8:30',
+                    'is_public': True
+                },
+                {
+                    'title': 'Bossa Nova Experiment',
+                    'genre': 'jazz',
+                    'description': 'Fusione di jazz e bossa nova con elementi elettronici',
+                    'external_audio_url': 'https://open.spotify.com/track/bossa-nova-exp',
+                    'duration': '5:55',
+                    'is_public': True
+                }
             ]
         }
     ]
@@ -114,7 +158,11 @@ def populate_database(request):
             Demo.objects.create(
                 artist=artist,
                 title=demo['title'],
-                description=demo['description']
+                genre=demo['genre'],
+                description=demo['description'],
+                external_audio_url=demo['external_audio_url'],
+                duration=demo['duration'],
+                is_public=demo['is_public']
             )
 
     # Crea professionisti e i loro portfolio
