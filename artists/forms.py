@@ -36,18 +36,38 @@ class ArtistForm(forms.ModelForm):
 class DemoForm(forms.ModelForm):
     class Meta:
         model = Demo
-        fields = ['title', 'external_audio_url', 'genre', 'description', 'duration', 'is_public']
+        fields = ['title', 'audio_file', 'external_audio_url', 'genre', 'description', 'duration', 'is_public']
         widgets = {
             'title': forms.TextInput(attrs={'placeholder': 'Titolo della canzone'}),
+            'audio_file': forms.FileInput(attrs={'accept': 'audio/mp3,audio/wav'}),
             'external_audio_url': forms.URLInput(attrs={'placeholder': 'https://soundcloud.com/artista/canzone'}),
             'description': forms.Textarea(attrs={'rows': 3, 'placeholder': 'Descrizione, storia dietro la canzone...'}),
             'duration': forms.TextInput(attrs={'placeholder': '3:45'}),
         }
         labels = {
             'title': 'Titolo',
+            'audio_file': 'File Audio',
             'external_audio_url': 'Link Audio',
             'genre': 'Genere',
             'description': 'Descrizione',
+        }
+
+    def clean(self):
+        cleaned_data = super().clean()
+        audio_file = cleaned_data.get('audio_file')
+        external_url = cleaned_data.get('external_audio_url')
+        
+        if not audio_file and not external_url:
+            raise forms.ValidationError(
+                "È necessario fornire un file audio o un URL esterno"
+            )
+        
+        if audio_file and external_url:
+            raise forms.ValidationError(
+                "Non è possibile fornire sia un file audio che un URL esterno"
+            )
+        
+        return cleaned_data
             'duration': 'Durata',
             'is_public': 'Pubblica (visibile a tutti)',
         }

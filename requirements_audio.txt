@@ -1,0 +1,6 @@
+# Audio processing
+pydub==0.25.1
+numpy==1.23.5
+pillow==9.5.0  # Per la manipolazione delle immagini
+django-cleanup==7.0.0  # Per la pulizia automatica dei file media eliminati
+python-magic==0.4.27  # Per il rilevamento MIME type

@@ -3,7 +3,6 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.core.validators import FileExtensionValidator
 from django.core.exceptions import ValidationError
-from record_label.storage import AudioFileStorage
 
 def validate_audio_file_size(value):
     filesize = value.size
@@ -86,7 +85,6 @@ class Demo(models.Model):
     external_audio_url = models.URLField(blank=True, help_text="Link a SoundCloud, YouTube, Spotify, etc.")
     audio_file = models.FileField(
         upload_to='audio_files/%Y/%m/%d/',
-        storage=AudioFileStorage(),
         validators=[
             FileExtensionValidator(allowed_extensions=['mp3', 'wav']),
             validate_audio_file_size

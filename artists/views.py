@@ -116,6 +116,17 @@ def demo_upload(request):
     if request.method == 'POST' and form.is_valid():
         demo = form.save(commit=False)
         demo.artist = request.user.artist
+        
+        # Gestione del file audio
+        if 'audio_file' in request.FILES:
+            try:
+                # Genera il waveform se è un file audio
+                from .utils import generate_waveform
+                waveform_data = generate_waveform(request.FILES['audio_file'])
+                demo.waveform_data = waveform_data
+            except Exception as e:
+                messages.warning(request, f'Impossibile generare il waveform: {str(e)}')
+        
         demo.save()
         messages.success(request, f'Demo "{demo.title}" caricata con successo!')
         return redirect('artists:detail', pk=request.user.artist.pk)

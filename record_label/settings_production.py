@@ -18,6 +18,8 @@ CLOUDINARY_STORAGE = {
 }
 
 # Usa Cloudinary per i file media in produzione
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+MEDIA_URL = '/media/'  # This can be whatever you want
 if all(CLOUDINARY_STORAGE.values()):
     DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
     MEDIA_URL = '/media/'  # Cloudinary gestirà automaticamente gli URL

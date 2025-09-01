@@ -13,9 +13,14 @@ handle_error() {
 
 echo "🚀 Avvio processo di build..."
 
-# Installa le dipendenze
+# Installa le dipendenze base e audio
 echo "📦 Installazione dipendenze..."
-pip install -r requirements.txt || handle_error "Installazione dipendenze fallita"
+pip install -r requirements.txt || handle_error "Installazione dipendenze base fallita"
+pip install -r requirements_audio.txt || handle_error "Installazione dipendenze audio fallita"
+
+# Installa ffmpeg per la gestione audio
+echo "🎵 Installazione ffmpeg..."
+apt-get update && apt-get install -y ffmpeg
 
 # Esegue le migrazioni del database per ogni app in ordine
 echo "🔄 Creazione migrazioni per ogni app..."
