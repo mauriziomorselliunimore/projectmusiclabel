@@ -13,11 +13,14 @@ handle_error() {
 
 echo "🚀 Avvio processo di build..."
 
-# Installa le dipendenze di sistema e Python
+# Installa le dipendenze Python
 echo "📦 Installazione dipendenze..."
-apt-get update && apt-get install -y ffmpeg || handle_error "Installazione ffmpeg fallita"
 pip install -r requirements.txt || handle_error "Installazione dipendenze base fallita"
 pip install -r requirements_audio.txt || handle_error "Installazione dipendenze audio fallita"
+
+# Prova a installare ffmpeg, ma non bloccare il build se fallisce
+echo "🎵 Tentativo di installazione ffmpeg..."
+apt-get update && apt-get install -y ffmpeg || echo "⚠️ ffmpeg non installato, alcune funzionalità audio potrebbero essere limitate"
 
 # Esegue le migrazioni del database per ogni app in ordine
 echo "🔄 Creazione migrazioni per ogni app..."
