@@ -246,18 +246,20 @@ def availability_manage(request):
     
     if request.method == 'POST':
         form = AvailabilityForm(request.POST)
-        if form.is_valid():
-            availability = form.save(commit=False)
-            availability.associate = associate
-            try:
-                availability.full_clean()  # Run model validation
+        availability = form.save(commit=False)
+        availability.associate = associate
+        
+        try:
+            # Eseguiamo la validazione del form dopo aver assegnato l'associate
+            form.instance = availability
+            if form.is_valid():
                 availability.save()
                 messages.success(request, 'Disponibilità aggiunta con successo!')
                 return redirect('associates:availability_manage')
-            except ValidationError as e:
-                for field, errors in e.message_dict.items():
-                    for error in errors:
-                        form.add_error(field if field != '__all__' else None, error)
+        except ValidationError as e:
+            for field, errors in e.message_dict.items():
+                for error in errors:
+                    form.add_error(field if field != '__all__' else None, error)
     else:
         form = AvailabilityForm()
     
