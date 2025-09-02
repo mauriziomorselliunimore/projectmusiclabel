@@ -156,20 +156,7 @@ class ProfileForm(forms.ModelForm):
             if not any(url.lower().endswith(ext) for ext in ['.jpg', '.jpeg', '.png', '.gif']):
                 raise forms.ValidationError("L'URL deve puntare a un'immagine (jpg, jpeg, png, gif)")
         return url
-            'bio': 'Biografia',
-            'external_avatar_url': 'Link Foto Profilo',
-            'profile_icon': 'Icona del profilo',
-            'profile_icon_color': 'Colore dell\'icona'
-        }
-        help_texts = {
-            'external_avatar_url': 'Inserisci l\'URL di una tua immagine (da Imgur, Google Drive, etc.)',
-            'profile_icon': 'Scegli un\'icona per il tuo profilo',
-            'profile_icon_color': 'Scegli il colore dell\'icona'
-        }
-    
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['external_avatar_url'].help_text = (
-            'Link a foto profilo online (Imgur, Google Drive, etc.). '
-            'Se vuoto, verrà usato Gravatar.'
-        )
+        self.fields['external_avatar_url'].help_text = 'Link a foto profilo online (Imgur, Google Drive, etc.). Se vuoto, verrà usato Gravatar.'
