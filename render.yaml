@@ -24,6 +24,11 @@ services:
         sync: false
       - key: CLOUDINARY_API_SECRET
         sync: false
+      # SendGrid settings
+      - key: SENDGRID_API_KEY
+        sync: false
+      - key: VERIFIED_SENDER_EMAIL
+        value: projectmylabel@gmail.com
 
   # Database service
   - type: pserv
