@@ -184,17 +184,8 @@ if not DEBUG:
         'https://your-frontend-domain.com',  # Sostituisci con il tuo dominio frontend
     ]
 
-# Login/Logout redirects
-LOGIN_URL = '/accounts/login/'
-LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
-
 # Importa configurazioni email
 from .settings_email import *
-
-# Merge logging configuration con quella delle email
-if 'EMAIL_LOGGING' in locals():
-    LOGGING['loggers'].update(EMAIL_LOGGING['loggers'])
 
 # Logging configuration
 LOGGING = {
@@ -308,3 +299,12 @@ MESSAGE_TAGS = {
 # File upload settings (non usati ma per sicurezza)
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
 DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
+
+# Merge logging configuration con quella delle email
+if 'EMAIL_LOGGING' in locals():
+    LOGGING['loggers'].update(EMAIL_LOGGING['loggers'])# Importa configurazioni email
+from .settings_email import *
+
+# Merge logging configuration con quella delle email
+if 'EMAIL_LOGGING' in locals():
+    LOGGING['loggers'].update(EMAIL_LOGGING['loggers'])
