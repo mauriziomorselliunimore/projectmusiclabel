@@ -229,7 +229,7 @@
         }
 
         /* ===== FORM ELEMENTS ===== */
-        .form-control, .form-select {
+        .form-control {
             background: rgba(51, 65, 85, 0.8);
             border: 2px solid var(--border);
             color: var(--text-primary);
@@ -237,6 +237,23 @@
             transition: all 0.3s ease;
             font-weight: 500;
             padding: 0.75rem 1rem;
+        }
+
+        /* Stili specifici per i select */
+        .form-select {
+            background-color: var(--bg-dark);
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            padding: 0.75rem 1rem;
+        }
+
+        /* Opzioni del select */
+        .form-select option {
+            background-color: var(--bg-dark);
+            color: var(--text-primary);
         }
 
         .form-control:focus, .form-select:focus {
@@ -630,12 +647,12 @@
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="nav-link" href="{% url 'accounts:login' %}">
+                            <a class="btn btn-primary btn-sm" href="{% url 'accounts:login' %}">
                                 <i class="bi bi-box-arrow-in-right"></i> Login
                             </a>
                         </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'accounts:register' %}">
+                        <li class="nav-item ms-2">
+                            <a class="btn btn-success btn-sm" href="{% url 'accounts:register' %}">
                                 <i class="bi bi-person-plus"></i> Registrati
                             </a>
                         </li>
