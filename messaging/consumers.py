@@ -36,7 +36,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if message_type == 'chat_message':
             message_content = data['message']
             recipient_id = data['recipient_id']
-            message_id = data.get('message_id')
             
             # Save message to database
             message = await self.save_message(message_content, recipient_id)
@@ -48,6 +47,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'type': 'chat_message',
                     'message': message_content,
                     'sender': self.user.username,
+                    'message_id': str(message.id),
+                    'timestamp': message.timestamp.isoformat(),
                     'sender_id': self.user.id,
                     'timestamp': message.created_at.isoformat(),
                     'message_id': message_id or message.id,

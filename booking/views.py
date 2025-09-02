@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
+from django.urls import reverse
 from django.utils import timezone
 from django.db.models import Q
 from datetime import datetime, timedelta, time
@@ -10,6 +11,7 @@ from django.views.decorators.http import require_http_methods
 import json
 
 from .models import Booking, Availability
+from .forms import BookingForm
 from artists.models import Artist
 from associates.models import Associate
 from accounts.models import Profile
@@ -57,45 +59,73 @@ def create_booking(request, associate_id):
         return redirect('associates:detail', pk=associate.pk)
     
     if request.method == 'POST':
-        try:
-            # Parse dati form
-            session_date_str = request.POST.get('session_date')
-            session_time_str = request.POST.get('session_time')
-            duration_hours = int(request.POST.get('duration_hours', 2))
-            booking_type = request.POST.get('booking_type', 'recording')
-            location = request.POST.get('location', '').strip()
-            notes = request.POST.get('notes', '').strip()
+        form = BookingForm(request.POST)
+        if form.is_valid():
+            booking = form.save(commit=False)
+            booking.artist = request.user.artist
+            booking.associate = associate
+            booking.status = 'pending'
+            booking.save()
             
-            if not all([session_date_str, session_time_str]):
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return JsonResponse({'error': 'Devi selezionare data e ora!'}, status=400)
-                messages.error(request, 'Devi selezionare data e ora!')
-                return redirect('booking:calendar', associate_id=associate.pk)
+            messages.success(request, 'Richiesta di prenotazione inviata con successo!')
             
-            try:
-                # Combina data e ora
-                session_datetime = datetime.strptime(
-                    f"{session_date_str} {session_time_str}", 
-                    "%Y-%m-%d %H:%M"
-                )
-                session_datetime = timezone.make_aware(session_datetime)
-            except ValueError:
-                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                    return JsonResponse({'error': 'Data o ora non valida!'}, status=400)
-                messages.error(request, 'Data o ora non valida!')
-                return redirect('booking:calendar', associate_id=associate.pk)
-            
-            # Crea booking
-            booking = Booking.objects.create(
-                artist=request.user.artist,
-                associate=associate,
-                booking_type=booking_type,
-                session_date=session_datetime,
-                duration_hours=duration_hours,
-                location=location,
-                notes=notes,
-                status='pending'
-            )
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'redirect_url': reverse('booking:detail', args=[booking.pk])
+                })
+            return redirect('booking:detail', pk=booking.pk)
+        
+        elif request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            return JsonResponse({
+                'success': False,
+                'errors': form.errors
+            }, status=400)
+    else:
+        initial = {
+            'booking_type': 'recording',
+            'duration_hours': 2
+        }
+        form = BookingForm(initial=initial)
+    
+    # Get le disponibilità dell'associato per le prossime 4 settimane
+    start_date = timezone.now().date()
+    end_date = start_date + timedelta(weeks=4)
+    
+    available_slots = []
+    availabilities = associate.availability_slots.filter(
+        start_time__date__gte=start_date,
+        start_time__date__lte=end_date,
+        is_active=True
+    ).order_by('start_time')
+    
+    # Controlla quali slot sono già prenotati
+    booked_slots = Booking.objects.filter(
+        associate=associate,
+        session_date__date__range=[start_date, end_date],
+        status__in=['pending', 'confirmed']
+    ).values_list('session_date', flat=True)
+    
+    for slot in availabilities:
+        is_booked = any(
+            booked.date() == slot.start_time.date() and 
+            booked.hour == slot.start_time.hour
+            for booked in booked_slots
+        )
+        available_slots.append({
+            'id': slot.id,
+            'start_time': slot.start_time,
+            'duration_hours': slot.duration_hours,
+            'is_booked': is_booked
+        })
+    
+    context = {
+        'form': form,
+        'associate': associate,
+        'artist': request.user.artist,
+        'available_slots': available_slots
+    }
+    return render(request, 'booking/booking_form.html', context)
             
             # Import qui per evitare circular import
             from messaging.models import Notification, Message

@@ -17,4 +17,5 @@ urlpatterns = [
     # API per conteggi e polling (AJAX)
     path('api/unread-counts/', views.get_unread_counts, name='unread_counts'),
     path('api/new-messages/<int:conversation_id>/', views.get_new_messages, name='get_new_messages'),
+    path('api/send-message/', views.api_send_message, name='api_send_message'),
 ]

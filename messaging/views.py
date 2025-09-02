@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.views.decorators.csrf import csrf_exempt
 from django.utils import timezone
+from django.urls import reverse
 import json
 
 from .models import Conversation, Message, Notification
@@ -41,6 +42,63 @@ def get_new_messages(request, conversation_id):
         })
     
     return JsonResponse({'messages': messages_data})
+
+
+@login_required
+@require_POST
+def api_send_message(request):
+    """API endpoint per l'invio di messaggi rapidi"""
+    try:
+        data = json.loads(request.body)
+        recipient_id = data.get('recipient_id')
+        content = data.get('content')
+
+        if not recipient_id or not content:
+            return JsonResponse({
+                'success': False,
+                'error': 'Dati mancanti'
+            }, status=400)
+
+        recipient = get_object_or_404(User, id=recipient_id)
+
+        # Trova o crea la conversazione
+        conversation = Conversation.objects.filter(
+            (Q(participant_1=request.user, participant_2=recipient) |
+             Q(participant_1=recipient, participant_2=request.user))
+        ).first()
+
+        if not conversation:
+            conversation = Conversation.objects.create(
+                participant_1=request.user,
+                participant_2=recipient
+            )
+
+        # Crea il messaggio
+        message = Message.objects.create(
+            conversation=conversation,
+            sender=request.user,
+            content=content
+        )
+
+        # Crea notifica per il destinatario
+        Notification.objects.create(
+            recipient=recipient,
+            sender=request.user,
+            notification_type='message',
+            content=f'Nuovo messaggio da {request.user.get_full_name() or request.user.username}',
+            related_object=message
+        )
+
+        return JsonResponse({
+            'success': True,
+            'conversation_url': reverse('messaging:conversation', args=[conversation.id])
+        })
+
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)
 
 
 @login_required

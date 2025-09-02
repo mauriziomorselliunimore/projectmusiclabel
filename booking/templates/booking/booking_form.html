@@ -1,0 +1,362 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+<style>
+    .dark-select {
+        background-color: #1a202c;
+        color: #e2e8f0;
+        border: 1px solid #2d3748;
+    }
+    
+    .dark-select option {
+        background-color: #1a202c;
+        color: #e2e8f0;
+    }
+
+    .booking-type-select {
+        position: relative;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .booking-type-option {
+        display: none;
+    }
+
+    .booking-type-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 1.5rem;
+        background: #1a202c;
+        border: 2px solid #2d3748;
+        border-radius: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .booking-type-label i {
+        font-size: 2rem;
+        margin-bottom: 0.5rem;
+        color: #6366f1;
+    }
+
+    .booking-type-label:hover {
+        border-color: #6366f1;
+        transform: translateY(-2px);
+    }
+
+    .booking-type-option:checked + .booking-type-label {
+        background: #3730a3;
+        border-color: #6366f1;
+        transform: translateY(-2px);
+    }
+
+    .booking-details {
+        background: #1a202c;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
+    .time-slot-card {
+        background: #1a202c;
+        border-color: #2d3748 !important;
+        color: #e2e8f0;
+        transition: all 0.3s ease;
+    }
+
+    .time-slot-card:hover:not(.booked) {
+        border-color: #6366f1 !important;
+        transform: translateY(-2px);
+    }
+
+    .time-slot-card.selected {
+        background: #3730a3;
+        border-color: #6366f1 !important;
+    }
+
+    .time-slot-card.booked {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+
+    .available-slots-container {
+        max-height: 300px;
+        overflow-y: auto;
+        padding-right: 10px;
+    }
+
+    .available-slots-container::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .available-slots-container::-webkit-scrollbar-track {
+        background: #1a202c;
+    }
+
+    .available-slots-container::-webkit-scrollbar-thumb {
+        background: #4a5568;
+        border-radius: 4px;
+    }
+
+    .available-slots-container::-webkit-scrollbar-thumb:hover {
+        background: #6366f1;
+    }
+</style>
+{% endblock %}
+
+{% block title %}Prenota Sessione - {{ associate.user.get_full_name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="text-light mb-0">
+                        <i class="bi bi-calendar-plus"></i> Prenota Sessione con {{ associate.user.get_full_name }}
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <form method="post" id="bookingForm">
+                        {% csrf_token %}
+                        
+                        <!-- Tipo di Sessione -->
+                        <div class="mb-4">
+                            <label class="form-label text-light">{{ form.booking_type.label }}</label>
+                            <div class="booking-type-select">
+                                {% for value, label in form.fields.booking_type.choices %}
+                                <div>
+                                    <input type="radio" name="booking_type" value="{{ value }}" 
+                                           id="type_{{ value }}" class="booking-type-option"
+                                           {% if form.booking_type.value == value %}checked{% endif %}>
+                                    <label for="type_{{ value }}" class="booking-type-label">
+                                        <i class="bi bi-{% if value == 'recording' %}mic
+                                                      {% elif value == 'mixing' %}sliders
+                                                      {% elif value == 'mastering' %}music-note-beamed
+                                                      {% elif value == 'production' %}stars
+                                                      {% elif value == 'lesson' %}book
+                                                      {% elif value == 'consultation' %}chat-dots
+                                                      {% else %}gear{% endif %}"></i>
+                                        {{ label }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% if form.booking_type.errors %}
+                                <div class="text-danger small">{{ form.booking_type.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="booking-details">
+                            <!-- Selezione Tipo Prenotazione -->
+                            <div class="mb-4">
+                                <div class="btn-group w-100" role="group">
+                                    <input type="radio" class="btn-check" name="booking_mode" id="slot_mode" value="slot" checked>
+                                    <label class="btn btn-outline-primary" for="slot_mode">
+                                        <i class="bi bi-calendar-check"></i> Slot Disponibili
+                                    </label>
+                                    
+                                    <input type="radio" class="btn-check" name="booking_mode" id="custom_mode" value="custom">
+                                    <label class="btn btn-outline-primary" for="custom_mode">
+                                        <i class="bi bi-calendar-plus"></i> Proponi Data
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Slot Disponibili -->
+                            <div id="available_slots" class="mb-4">
+                                <label class="form-label text-light">Slot Disponibili</label>
+                                <div class="available-slots-container">
+                                    {% for slot in available_slots %}
+                                    <div class="time-slot-card mb-2 p-3 border rounded {% if slot.is_booked %}booked{% endif %}"
+                                         data-slot-id="{{ slot.id }}" 
+                                         data-date="{{ slot.start_time|date:'Y-m-d' }}" 
+                                         data-time="{{ slot.start_time|time:'H:i' }}"
+                                         data-duration="{{ slot.duration_hours }}">
+                                        <div class="d-flex justify-content-between align-items-center">
+                                            <div>
+                                                <i class="bi bi-clock me-2"></i>
+                                                {{ slot.start_time|date:"l j F" }}
+                                                <strong>{{ slot.start_time|time:"H:i" }}</strong>
+                                                ({{ slot.duration_hours }} ore)
+                                            </div>
+                                            <button type="button" class="btn btn-sm btn-primary select-slot-btn"
+                                                    {% if slot.is_booked %}disabled{% endif %}>
+                                                {% if slot.is_booked %}
+                                                    <i class="bi bi-lock"></i> Occupato
+                                                {% else %}
+                                                    <i class="bi bi-check-lg"></i> Seleziona
+                                                {% endif %}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {% empty %}
+                                    <div class="text-muted text-center p-3">
+                                        <i class="bi bi-calendar-x h4"></i>
+                                        <p>Nessuno slot disponibile al momento.</p>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <!-- Data e Ora Personalizzata -->
+                            <div id="custom_datetime" class="mb-3" style="display: none;">
+                                <label class="form-label text-light">{{ form.session_date.label }}</label>
+                                {{ form.session_date }}
+                                {% if form.session_date.errors %}
+                                    <div class="text-danger small mt-1">{{ form.session_date.errors|join:", " }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.session_date.help_text }}</div>
+                            </div>
+
+                            <!-- Durata -->
+                            <div class="mb-3">
+                                <label class="form-label text-light">{{ form.duration_hours.label }}</label>
+                                {{ form.duration_hours }}
+                                {% if form.duration_hours.errors %}
+                                    <div class="text-danger small mt-1">{{ form.duration_hours.errors|join:", " }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.duration_hours.help_text }}</div>
+                            </div>
+
+                            <!-- Location -->
+                            <div class="mb-3">
+                                <label class="form-label text-light">{{ form.location.label }}</label>
+                                {{ form.location }}
+                                {% if form.location.errors %}
+                                    <div class="text-danger small mt-1">{{ form.location.errors|join:", " }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.location.help_text }}</div>
+                            </div>
+
+                            <!-- Note -->
+                            <div class="mb-3">
+                                <label class="form-label text-light">{{ form.notes.label }}</label>
+                                {{ form.notes }}
+                                {% if form.notes.errors %}
+                                    <div class="text-danger small mt-1">{{ form.notes.errors|join:", " }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.notes.help_text }}</div>
+                            </div>
+
+                            <!-- Richieste Speciali -->
+                            <div class="mb-3">
+                                <label class="form-label text-light">{{ form.special_requirements.label }}</label>
+                                {{ form.special_requirements }}
+                                {% if form.special_requirements.errors %}
+                                    <div class="text-danger small mt-1">{{ form.special_requirements.errors|join:", " }}</div>
+                                {% endif %}
+                                <div class="form-text">{{ form.special_requirements.help_text }}</div>
+                            </div>
+                        </div>
+
+                        <div class="mt-4">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="bi bi-calendar-check"></i> Richiedi Prenotazione
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/it.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const availableSlotsDiv = document.getElementById('available_slots');
+    const customDatetimeDiv = document.getElementById('custom_datetime');
+    const bookingForm = document.getElementById('bookingForm');
+    const sessionDateInput = document.getElementById('id_session_date');
+    const durationInput = document.getElementById('id_duration_hours');
+    
+    // Gestione cambio modalità prenotazione
+    document.querySelectorAll('input[name="booking_mode"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'slot') {
+                availableSlotsDiv.style.display = 'block';
+                customDatetimeDiv.style.display = 'none';
+            } else {
+                availableSlotsDiv.style.display = 'none';
+                customDatetimeDiv.style.display = 'block';
+            }
+        });
+    });
+
+    // Inizializza flatpickr per il campo data/ora
+    const fp = flatpickr("#id_session_date", {
+        enableTime: true,
+        dateFormat: "Y-m-d H:i",
+        minDate: "today",
+        maxDate: new Date().fp_incr(90),
+        minTime: "09:00",
+        maxTime: "22:00",
+        locale: "it",
+        time_24hr: true,
+        minuteIncrement: 30,
+        disable: [
+            function(date) {
+                // Disabilita le date in cui l'associato non è disponibile
+                return false; // La logica viene gestita dal backend
+            }
+        ]
+    });
+
+    // Gestione selezione slot
+    document.querySelectorAll('.select-slot-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const slotCard = this.closest('.time-slot-card');
+            const date = slotCard.dataset.date;
+            const time = slotCard.dataset.time;
+            const duration = slotCard.dataset.duration;
+            
+            // Deseleziona tutti gli slot
+            document.querySelectorAll('.time-slot-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            
+            // Seleziona lo slot corrente
+            slotCard.classList.add('selected');
+            
+            // Aggiorna i campi del form
+            sessionDateInput.value = `${date} ${time}`;
+            durationInput.value = duration;
+            
+            // Scroll to next section
+            const bookingDetails = document.querySelector('.booking-details');
+            bookingDetails.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+
+    // Gestione del form
+    bookingForm.addEventListener('submit', function(e) {
+        const bookingType = document.querySelector('input[name="booking_type"]:checked');
+        const bookingMode = document.querySelector('input[name="booking_mode"]:checked');
+        
+        if (!bookingType) {
+            e.preventDefault();
+            alert('Seleziona un tipo di sessione!');
+            return;
+        }
+        
+        if (bookingMode.value === 'slot' && !document.querySelector('.time-slot-card.selected')) {
+            e.preventDefault();
+            alert('Seleziona uno slot disponibile o passa alla modalità "Proponi Data"!');
+            return;
+        }
+    });
+});
+</script>
+{% endblock %}

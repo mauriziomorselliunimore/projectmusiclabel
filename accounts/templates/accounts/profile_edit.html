@@ -1,6 +1,57 @@
 {% extends 'base.html' %}
 {% block title %}Modifica Profilo - MyLabel{% endblock %}
 
+{% block extra_css %}
+<style>
+    .icon-choice {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+
+    .icon-choice-input {
+        display: none;
+    }
+
+    .icon-choice label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 3.5rem;
+        height: 3.5rem;
+        border: 2px solid #2d3748;
+        border-radius: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        background-color: #1a202c;
+    }
+
+    .icon-choice label i {
+        font-size: 1.5rem;
+        color: #e2e8f0;
+    }
+
+    .icon-choice input[type="radio"]:checked + label {
+        border-color: #6366f1;
+        background-color: #4f46e5;
+        transform: scale(1.1);
+    }
+
+    .icon-choice label:hover {
+        border-color: #6366f1;
+        background-color: #4338ca;
+        transform: scale(1.05);
+    }
+
+    .preview-icon {
+        padding: 0.5rem;
+        border-radius: 0.5rem;
+        background-color: #1a202c;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
     <div class="row justify-content-center">
@@ -91,13 +142,25 @@
                         </div>
                         
                         <div class="row">
-                            <div class="col-md-6 mb-3">
-                                <label for="id_profile_icon" class="form-label text-light">
+                            <div class="col-12 mb-4">
+                                <label class="form-label text-light">
                                     <i class="bi bi-emoji-smile"></i> Icona del Profilo
                                 </label>
-                                <select name="profile_icon" class="form-control" id="id_profile_icon">
+                                <div class="icon-choice">
                                     {% for value, label in form.fields.profile_icon.choices %}
-                                        <option value="{{ value }}" {% if form.profile_icon.value == value %}selected{% endif %}>
+                                        <div class="icon-option">
+                                            <input type="radio" name="profile_icon" value="{{ value }}" 
+                                                   id="icon_{{ value }}" class="icon-choice-input"
+                                                   {% if form.profile_icon.value == value %}checked{% endif %}>
+                                            <label for="icon_{{ value }}" class="icon-label">
+                                                <i class="{{ value }}" style="color: {{ form.profile_icon_color.value|default:'#6366f1' }}"></i>
+                                            </label>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                                {% if form.profile_icon.errors %}
+                                    <div class="text-danger small">{{ form.profile_icon.errors|join:", " }}</div>
+                                {% endif %}
                                             <i class="{{ value }}"></i> {{ label }}
                                         </option>
                                     {% endfor %}

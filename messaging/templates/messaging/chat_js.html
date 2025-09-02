@@ -1,0 +1,140 @@
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const chatMessages = document.getElementById('chat-messages');
+    const chatForm = document.getElementById('chat-form');
+    const chatInput = document.getElementById('chat-input');
+    const sendButton = document.getElementById('send-button');
+    let ws = null;
+    let reconnectAttempts = 0;
+    const maxReconnectAttempts = 5;
+    
+    // Funzione per scrollare in fondo alla chat
+    function scrollToBottom() {
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    
+    // Scroll iniziale
+    scrollToBottom();
+    
+    // Gestione altezza dinamica textarea
+    function adjustTextareaHeight() {
+        chatInput.style.height = 'auto';
+        chatInput.style.height = (chatInput.scrollHeight) + 'px';
+    }
+    
+    chatInput.addEventListener('input', function() {
+        adjustTextareaHeight();
+        sendButton.disabled = !this.value.trim();
+    });
+    
+    // Gestione invio con Enter (Shift+Enter per nuova linea)
+    chatInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            if (!sendButton.disabled) {
+                chatForm.dispatchEvent(new Event('submit'));
+            }
+        }
+    });
+    
+    function connectWebSocket() {
+        // Ottieni il room_name dalla URL
+        const pathParts = window.location.pathname.split('/');
+        const roomName = pathParts[pathParts.length - 2]; // Assumendo che l'URL sia del tipo /chat/{room_name}/
+        
+        ws = new WebSocket(
+            `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/ws/chat/${roomName}/`
+        );
+        
+        ws.onopen = function() {
+            console.log('WebSocket Connected');
+            reconnectAttempts = 0; // Reset tentativi di riconnessione
+            sendButton.disabled = !chatInput.value.trim();
+        };
+        
+        ws.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            
+            if (data.type === 'chat_message') {
+                // Crea il nuovo elemento messaggio
+                const messageDiv = document.createElement('div');
+                messageDiv.className = `message ${data.sender === '{{ request.user.username }}' ? 'sent' : 'received'}`;
+                messageDiv.dataset.messageId = data.message_id;
+                
+                const messageWrapper = document.createElement('div');
+                messageWrapper.className = 'message-wrapper';
+                
+                const messageContent = document.createElement('div');
+                messageContent.className = 'message-content';
+                messageContent.textContent = data.message;
+                
+                const messageTime = document.createElement('div');
+                messageTime.className = 'message-time';
+                messageTime.textContent = new Date().toLocaleString('it-IT', {
+                    day: 'numeric',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+                
+                messageWrapper.appendChild(messageContent);
+                messageWrapper.appendChild(messageTime);
+                messageDiv.appendChild(messageWrapper);
+                
+                // Aggiungi il messaggio alla chat
+                chatMessages.appendChild(messageDiv);
+                scrollToBottom();
+            }
+        };
+        
+        ws.onclose = function() {
+            console.log('WebSocket Disconnected');
+            
+            // Tentativo di riconnessione
+            if (reconnectAttempts < maxReconnectAttempts) {
+                reconnectAttempts++;
+                setTimeout(connectWebSocket, 1000 * Math.pow(2, reconnectAttempts));
+            }
+        };
+        
+        ws.onerror = function(err) {
+            console.error('WebSocket Error:', err);
+        };
+    }
+    
+    // Connetti WebSocket
+    connectWebSocket();
+    
+    // Gestione invio messaggi
+    chatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const message = chatInput.value.trim();
+        if (!message || !ws || ws.readyState !== WebSocket.OPEN) return;
+        
+        ws.send(JSON.stringify({
+            'type': 'chat_message',
+            'message': message,
+            'recipient_id': '{{ other_user.id }}'
+        }));
+        
+        // Reset input
+        chatInput.value = '';
+        chatInput.style.height = 'auto';
+        sendButton.disabled = true;
+        chatInput.focus();
+    });
+    
+    // Gestione visibilità pagina
+    document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible') {
+            if (!ws || ws.readyState !== WebSocket.OPEN) {
+                connectWebSocket();
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block extra_css %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/chat.css' %}">
+{% endblock %}
+
+{% block content %}
+<!-- Content del chat template -->
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script src="{% static 'js/chat.js' %}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inizializza la chat con il nome della stanza e l'ID utente
+        const roomName = '{{ conversation.id }}';
+        const userId = '{{ request.user.id }}';
+        window.chatManager = initializeChat(roomName, userId);
+    });
+</script>
+{% endblock %}

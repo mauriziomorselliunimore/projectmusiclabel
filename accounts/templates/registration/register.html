@@ -25,19 +25,15 @@
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                <label for="id_first_name" class="form-label text-light">Nome</label>
-                                <input type="text" name="first_name" class="form-control auth-form-control" 
-                                       id="id_first_name" value="{{ form.first_name.value|default:'' }}" 
-                                       placeholder="Il tuo nome" required>
+                                {{ form.first_name.label_tag }}
+                                {{ form.first_name }}
                                 {% if form.first_name.errors %}
                                     <div class="auth-error mt-1">{{ form.first_name.errors|join:", " }}</div>
                                 {% endif %}
                             </div>
                             <div class="col-md-6 mb-3">
-                                <label for="id_last_name" class="form-label text-light">Cognome</label>
-                                <input type="text" name="last_name" class="form-control auth-form-control" 
-                                       id="id_last_name" value="{{ form.last_name.value|default:'' }}" 
-                                       placeholder="Il tuo cognome" required>
+                                {{ form.last_name.label_tag }}
+                                {{ form.last_name }}
                                 {% if form.last_name.errors %}
                                     <div class="auth-error mt-1">{{ form.last_name.errors|join:", " }}</div>
                                 {% endif %}
@@ -45,56 +41,45 @@
                         </div>
                         
                         <div class="mb-3">
-                            <label for="id_username" class="form-label text-light">Username</label>
-                            <input type="text" name="username" class="form-control auth-form-control" 
-                                   id="id_username" value="{{ form.username.value|default:'' }}" 
-                                   placeholder="Scegli un username unico" required>
+                            {{ form.username.label_tag }}
+                            {{ form.username }}
                             {% if form.username.errors %}
                                 <div class="auth-error mt-1">{{ form.username.errors|join:", " }}</div>
                             {% endif %}
                         </div>
                         
                         <div class="mb-3">
-                            <label for="id_email" class="form-label text-light">Email</label>
-                            <input type="email" name="email" class="form-control" 
-                                   id="id_email" value="{{ form.email.value|default:'' }}" 
-                                   placeholder="tua.email@esempio.com" required>
+                            {{ form.email.label_tag }}
+                            {{ form.email }}
                             {% if form.email.errors %}
-                                <div class="text-danger small">{{ form.email.errors|join:", " }}</div>
+                                <div class="auth-error mt-1">{{ form.email.errors|join:", " }}</div>
                             {% endif %}
                         </div>
                         
                         <div class="mb-3">
-                            <label for="id_user_type" class="form-label text-light">Tipo Account</label>
-                            <select name="user_type" class="form-select dark-select" id="id_user_type" required>
-                                <option value="" class="dark-option">Seleziona il tipo di account</option>
-                                <option value="artist" class="dark-option" {% if form.user_type.value == 'artist' %}selected{% endif %}>
-                                    🎤 Artista - Musicista che vuole essere scoperto
-                                </option>
-                                <option value="associate" class="dark-option" {% if form.user_type.value == 'associate' %}selected{% endif %}>
-                                    🔧 Associato - Professionista del settore (fonico, producer, etc.)
-                                </option>
-                            </select>
+                            {{ form.user_type.label_tag }}
+                            {{ form.user_type }}
                             {% if form.user_type.errors %}
-                                <div class="text-danger small">{{ form.user_type.errors|join:", " }}</div>
+                                <div class="auth-error mt-1">{{ form.user_type.errors|join:", " }}</div>
                             {% endif %}
                         </div>
                         
                         <div class="mb-3">
-                            <label for="id_password1" class="form-label text-light">Password</label>
-                            <input type="password" name="password1" class="form-control" 
-                                   id="id_password1" placeholder="Inserisci una password sicura" required>
+                            {{ form.password1.label_tag }}
+                            {{ form.password1 }}
                             {% if form.password1.errors %}
-                                <div class="text-danger small">{{ form.password1.errors|join:", " }}</div>
+                                <div class="auth-error mt-1">{{ form.password1.errors|join:", " }}</div>
+                            {% endif %}
+                            {% if form.password1.help_text %}
+                                <div class="form-text">{{ form.password1.help_text|safe }}</div>
                             {% endif %}
                         </div>
                         
                         <div class="mb-4">
-                            <label for="id_password2" class="form-label text-light">Conferma Password</label>
-                            <input type="password" name="password2" class="form-control" 
-                                   id="id_password2" placeholder="Ripeti la password" required>
+                            {{ form.password2.label_tag }}
+                            {{ form.password2 }}
                             {% if form.password2.errors %}
-                                <div class="text-danger small">{{ form.password2.errors|join:", " }}</div>
+                                <div class="auth-error mt-1">{{ form.password2.errors|join:", " }}</div>
                             {% endif %}
                         </div>
                         
