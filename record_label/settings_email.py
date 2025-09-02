@@ -8,7 +8,7 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'apikey'  # Questo deve essere letteralmente 'apikey'
 EMAIL_HOST_PASSWORD = os.getenv('SENDGRID_API_KEY')  # La tua API key di SendGrid
-DEFAULT_FROM_EMAIL = 'MyLabel <noreply@mylabel.com>'
+DEFAULT_FROM_EMAIL = os.getenv('VERIFIED_SENDER_EMAIL')  # Usa l'email verificata su SendGrid
 
 # Verifica l'indirizzo email del mittente su SendGrid
 VERIFIED_SENDER_EMAIL = os.getenv('VERIFIED_SENDER_EMAIL')
