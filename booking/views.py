@@ -60,27 +60,73 @@ def create_booking(request, associate_id):
     
     if request.method == 'POST':
         form = BookingForm(request.POST)
-        if form.is_valid():
-            booking = form.save(commit=False)
-            booking.artist = request.user.artist
-            booking.associate = associate
-            booking.status = 'pending'
-            booking.save()
-            
-            messages.success(request, 'Richiesta di prenotazione inviata con successo!')
-            
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': True,
-                    'redirect_url': reverse('booking:detail', args=[booking.pk])
-                })
-            return redirect('booking:detail', pk=booking.pk)
         
-        elif request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        if request.headers.get('X-Requested-With') == 'XMLHttpRequest' and not form.is_valid():
             return JsonResponse({
                 'success': False,
                 'errors': form.errors
             }, status=400)
+        
+        try:
+            if form.is_valid():
+                booking = form.save(commit=False)
+                booking.artist = request.user.artist
+                booking.associate = associate
+                booking.status = 'pending'
+                booking.save()
+                
+                # Import qui per evitare circular import
+                from messaging.models import Notification, Message, Conversation
+                
+                # Crea notifica per l'associato
+                Notification.objects.create(
+                    user=associate.user,
+                    notification_type='booking_request',
+                    title=f'Nuova richiesta prenotazione da {request.user.artist.stage_name}',
+                    message=f'Richiesta per {booking.get_booking_type_display()} il {booking.session_date.strftime("%d/%m/%Y alle %H:%M")}',
+                    related_booking=booking,
+                    action_url=f'/booking/{booking.pk}/'
+                )
+                
+                # Ottieni o crea conversazione
+                conversation = Conversation.get_or_create_conversation(request.user, associate.user)
+                
+                # Messaggio automatico
+                Message.objects.create(
+                    sender=request.user,
+                    recipient=associate.user,
+                    conversation=conversation,
+                    message_type='booking_request',
+                    subject=f'Richiesta prenotazione - {booking.get_booking_type_display()}',
+                    message=f'Ciao {associate.user.first_name},\n\n'
+                           f'Vorrei prenotare una sessione di {booking.get_booking_type_display()} '
+                           f'per il {booking.session_date.strftime("%d/%m/%Y alle %H:%M")}.\n\n'
+                           f'Durata: {booking.duration_hours} ore\n'
+                           f'Località: {booking.location or "Da definire"}\n'
+                           f'Note: {booking.notes or "Nessuna nota aggiuntiva"}\n\n'
+                           f'Fammi sapere se va bene!\n\n'
+                           f'{request.user.get_full_name()} ({request.user.artist.stage_name})',
+                    related_booking=booking
+                )
+                
+                messages.success(request, 'Richiesta di prenotazione inviata con successo!')
+                
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': True,
+                        'redirect_url': reverse('booking:detail', args=[booking.pk])
+                    })
+                return redirect('booking:detail', pk=booking.pk)
+        
+        except Exception as e:
+            messages.error(request, f'Errore nella prenotazione: {str(e)}')
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': False,
+                    'error': str(e)
+                }, status=500)
+            return redirect('booking:calendar', associate_id=associate.pk)
+        
     else:
         initial = {
             'booking_type': 'recording',
@@ -126,49 +172,48 @@ def create_booking(request, associate_id):
         'available_slots': available_slots
     }
     return render(request, 'booking/booking_form.html', context)
-            
-            # Import qui per evitare circular import
-            from messaging.models import Notification, Message
-            
-            # Crea notifica per l'associato
-            Notification.objects.create(
-                user=associate.user,
-                notification_type='booking_request',
-                title=f'Nuova richiesta prenotazione da {request.user.artist.stage_name}',
-                message=f'Richiesta per {booking.get_booking_type_display()} il {booking.session_date.strftime("%d/%m/%Y alle %H:%M")}',
-                related_booking=booking,
-                action_url=f'/booking/{booking.pk}/'
-            )
-            
-            # Ottieni o crea conversazione
-            from messaging.models import Conversation
-            conversation = Conversation.get_or_create_conversation(request.user, associate.user)
-            
-            # Messaggio automatico
-            Message.objects.create(
-                sender=request.user,
-                recipient=associate.user,
-                conversation=conversation,
-                message_type='booking_request',
-                subject=f'Richiesta prenotazione - {booking.get_booking_type_display()}',
-                message=f'Ciao {associate.user.first_name},\n\n'
-                       f'Vorrei prenotare una sessione di {booking.get_booking_type_display()} '
-                       f'per il {booking.session_date.strftime("%d/%m/%Y alle %H:%M")}.\n\n'
-                       f'Durata: {duration_hours} ore\n'
-                       f'Località: {location or "Da definire"}\n'
-                       f'Note: {notes or "Nessuna nota aggiuntiva"}\n\n'
-                       f'Fammi sapere se va bene!\n\n'
-                       f'{request.user.get_full_name()} ({request.user.artist.stage_name})',
-                related_booking=booking
-            )
-            
-            messages.success(request, 'Richiesta di prenotazione inviata con successo!')
-            return redirect('booking:detail', pk=booking.pk)
-            
-        except Exception as e:
-            messages.error(request, f'Errore nella prenotazione: {str(e)}')
-            return redirect('booking:calendar', associate_id=associate.pk)
+
+    # Import qui per evitare circular import
+    from messaging.models import Notification, Message, Conversation
     
+    # Crea notifica per l'associato
+    Notification.objects.create(
+        user=associate.user,
+        notification_type='booking_request',
+        title=f'Nuova richiesta prenotazione da {request.user.artist.stage_name}',
+        message=f'Richiesta per {booking.get_booking_type_display()} il {booking.session_date.strftime("%d/%m/%Y alle %H:%M")}',
+        related_booking=booking,
+        action_url=f'/booking/{booking.pk}/'
+    )
+    
+    # Ottieni o crea conversazione
+    conversation = Conversation.get_or_create_conversation(request.user, associate.user)
+    
+    # Messaggio automatico
+    Message.objects.create(
+        sender=request.user,
+        recipient=associate.user,
+        conversation=conversation,
+        message_type='booking_request',
+        subject=f'Richiesta prenotazione - {booking.get_booking_type_display()}',
+        message=f'Ciao {associate.user.first_name},\n\n'
+               f'Vorrei prenotare una sessione di {booking.get_booking_type_display()} '
+               f'per il {booking.session_date.strftime("%d/%m/%Y alle %H:%M")}.\n\n'
+               f'Durata: {duration_hours} ore\n'
+               f'Località: {location or "Da definire"}\n'
+               f'Note: {notes or "Nessuna nota aggiuntiva"}\n\n'
+               f'Fammi sapere se va bene!\n\n'
+               f'{request.user.get_full_name()} ({request.user.artist.stage_name})',
+        related_booking=booking
+    )
+    
+    messages.success(request, 'Richiesta di prenotazione inviata con successo!')
+    return redirect('booking:detail', pk=booking.pk)
+    
+    except Exception as e:
+        messages.error(request, f'Errore nella prenotazione: {str(e)}')
+        return redirect('booking:calendar', associate_id=associate.pk)
+
     # GET request - mostra form
     return render(request, 'booking/create_form.html', {
         'associate': associate,
