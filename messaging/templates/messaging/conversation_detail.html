@@ -37,13 +37,6 @@
                     <div class="mb-3 d-flex {% if message.sender == user %}justify-content-end{% else %}justify-content-start{% endif %}">
                         <div class="message-bubble {% if message.sender == user %}bg-primary{% else %}bg-secondary{% endif %} 
                                     text-white p-3 rounded" style="max-width: 70%;" data-message-id="{{ message.id }}">
-                            {% if message.sender != user %}
-                            <div class="d-flex align-items-center mb-2">
-                                <img src="{{ message.sender.profile.get_avatar_url }}" 
-                                     class="rounded-circle me-2" style="width: 24px; height: 24px; object-fit: cover;">
-                                <small>{{ message.sender.get_full_name }}</small>
-                            </div>
-                            {% endif %}
                             
                             {% if message.subject and message.subject != 'Re:' %}
                             <div class="fw-bold mb-1">{{ message.subject }}</div>
