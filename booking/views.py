@@ -1,5 +1,14 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorator                message=(
+                    f'Ciao {associate.user.first_name},\n\n'
+                    f'Vorrei prenotare una sessione di {booking.get_booking_type_display()} '
+                    f'per il {booking.session_date.strftime("%d/%m/%Y alle %H:%M")}.\n\n'
+                    f'Durata: {booking.duration_hours} ore\n'
+                    f'Località: {booking.location or "Da definire"}\n'
+                    f'Note: {booking.notes or "Nessuna nota aggiuntiva"}\n\n'
+                    f'Fammi sapere se va bene!\n\n'
+                    f'{request.user.get_full_name()} ({request.user.artist.stage_name})'
+                ), login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.urls import reverse
