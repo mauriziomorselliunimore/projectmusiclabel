@@ -38,11 +38,12 @@
                     </div>
                     
                     <div>
-                        {% if other_user.profile.user_type == 'artist' and hasattr(other_user, 'artist') %}
+                        {% load message_tags %}
+                        {% if other_user.profile.user_type == 'artist' and other_user|has_attribute:'artist' %}
                             <a href="{% url 'artists:detail' other_user.artist.pk %}" class="btn btn-outline-primary btn-sm">
                                 <i class="bi bi-eye me-1"></i> Profilo
                             </a>
-                        {% elif other_user.profile.user_type == 'associate' and hasattr(other_user, 'associate') %}
+                        {% elif other_user.profile.user_type == 'associate' and other_user|has_attribute:'associate' %}
                             <a href="{% url 'associates:detail' other_user.associate.pk %}" class="btn btn-outline-success btn-sm">
                                 <i class="bi bi-eye me-1"></i> Profilo
                             </a>
