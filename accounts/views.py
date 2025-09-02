@@ -5,6 +5,8 @@ from django.contrib import messages
 from .forms import CustomUserCreationForm, ProfileForm
 from .models import Profile
 
+from core.email import send_welcome_email
+
 def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
@@ -15,6 +17,12 @@ def register(request):
                 user=user,
                 user_type=form.cleaned_data['user_type']
             )
+            # Invia email di benvenuto
+            try:
+                send_welcome_email(user)
+            except Exception as e:
+                print(f"Errore nell'invio dell'email di benvenuto: {e}")
+            
             login(request, user)
             messages.success(request, 'Account creato con successo!')
             return redirect('core:home')

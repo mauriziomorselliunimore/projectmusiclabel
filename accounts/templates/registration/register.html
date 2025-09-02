@@ -66,12 +66,12 @@
                         
                         <div class="mb-3">
                             <label for="id_user_type" class="form-label text-light">Tipo Account</label>
-                            <select name="user_type" class="form-control" id="id_user_type" required>
-                                <option value="">Seleziona il tipo di account</option>
-                                <option value="artist" {% if form.user_type.value == 'artist' %}selected{% endif %}>
+                            <select name="user_type" class="form-select dark-select" id="id_user_type" required>
+                                <option value="" class="dark-option">Seleziona il tipo di account</option>
+                                <option value="artist" class="dark-option" {% if form.user_type.value == 'artist' %}selected{% endif %}>
                                     🎤 Artista - Musicista che vuole essere scoperto
                                 </option>
-                                <option value="associate" {% if form.user_type.value == 'associate' %}selected{% endif %}>
+                                <option value="associate" class="dark-option" {% if form.user_type.value == 'associate' %}selected{% endif %}>
                                     🔧 Associato - Professionista del settore (fonico, producer, etc.)
                                 </option>
                             </select>
@@ -104,20 +104,21 @@
                         </div>
                         {% endif %}
                         
-                        <div class="d-grid">
-                            <button type="submit" class="btn auth-btn btn-lg">
-                                <i class="bi bi-check-circle"></i> Registrati
+                        <div class="d-grid gap-3">
+                            <button type="submit" class="auth-btn">
+                                <i class="bi bi-check-circle me-2"></i>Registrati
                             </button>
                         </div>
                     </form>
                     
                     <div class="text-center mt-4">
-                        <p class="text-muted">
-                            Hai già un account? 
-                            <a href="{% url 'accounts:login' %}" class="auth-link text-decoration-none">
-                                <i class="bi bi-box-arrow-in-right"></i> Accedi qui
-                            </a>
+                        <p class="mb-0">
+                            Hai già un account?
                         </p>
+                        <a href="{% url 'accounts:login' %}" class="auth-link">
+                            <i class="bi bi-box-arrow-in-right me-1"></i>Accedi qui
+                        </a>
+                    </div>
                     </div>
                 </div>
             </div>

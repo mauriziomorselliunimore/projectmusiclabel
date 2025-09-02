@@ -1,8 +1,21 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block extra_css %}
-<link rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% block extr                        <div class="d-grid gap-3">
+                            <button type="submit" class="auth-btn">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Accedi
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-4">
+                        <p class="mb-0">
+                            Non hai un account?
+                        </p>
+                        <a href="{% url 'accounts:register' %}" class="auth-link">
+                            <i class="bi bi-person-plus me-1"></i>Registrati qui
+                        </a>
+                    </div>k rel="stylesheet" href="{% static 'css/auth.css' %}">
 {% endblock %}
 
 {% block title %}Login - MyLabel{% endblock %}
