@@ -11,9 +11,6 @@ from django.core.management.utils import get_random_secret_key
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Importa le configurazioni email
-from .settings_email import *
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY', get_random_secret_key())
 
@@ -192,18 +189,12 @@ LOGIN_URL = '/accounts/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Email settings (per notifiche - opzionale)
-if 'EMAIL_HOST' in os.environ:
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_HOST = os.environ.get('EMAIL_HOST')
-    EMAIL_PORT = int(os.environ.get('EMAIL_PORT', 587))
-    EMAIL_USE_TLS = True
-    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-    DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'noreply@mylabel.com')
-else:
-    # Sviluppo - stampa email in console
-    EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+# Importa configurazioni email
+from .settings_email import *
+
+# Merge logging configuration con quella delle email
+if 'EMAIL_LOGGING' in locals():
+    LOGGING['loggers'].update(EMAIL_LOGGING['loggers'])
 
 # Logging configuration
 LOGGING = {
