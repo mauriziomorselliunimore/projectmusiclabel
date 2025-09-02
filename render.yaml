@@ -5,9 +5,15 @@ services:
     env: docker
     plan: starter
     buildCommand: apt-get update && apt-get install -y ffmpeg
+    startCommand: daphne record_label.asgi:application --port $PORT --bind 0.0.0.0
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
+      - key: REDIS_URL
+        fromService:
+          name: redis
+          type: redis
+          property: connectionString
       - key: DEBUG
         value: false
       - key: DJANGO_SETTINGS_MODULE
@@ -48,6 +54,14 @@ services:
           envVarKey: POSTGRES_USER
       - key: POSTGRES_PASSWORD
         fromService:
+          
+  # Redis service
+  - type: redis
+    name: redis
+    ipAllowList:
+      - source: 0.0.0.0/0
+        description: everywhere
+    plan: starter
           type: web
           name: record-label
           envVarKey: POSTGRES_PASSWORD

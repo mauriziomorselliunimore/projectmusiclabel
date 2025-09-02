@@ -4,7 +4,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}MyLabel - Music Platform{% endblock %}</title>
+    <title>{% block title %}MyLabel - Music Platform{% endblock         /* ===== FORM ELEMENTS ===== */
+        .form-control, .form-select {
+            background: rgba(51, 65, 85, 0.8);
+            border: 2px solid var(--border);
+            color: var(--text-primary);
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            padding: 0.75rem 1rem;
+        }
+
+        /* ===== NAVBAR BUTTONS ===== */
+        .navbar .btn-primary {
+            background: var(--primary-blue);
+            border: none;
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.25);
+        }
+
+        .navbar .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        .navbar .btn-outline-primary {
+            border: 2px solid var(--primary-blue);
+            color: var(--primary-blue);
+            font-weight: 500;
+            letter-spacing: 0.5px;
+            background: transparent;
+        }
+
+        .navbar .btn-outline-primary:hover {
+            background: var(--primary-blue);
+            color: white;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 12px rgba(59, 130, 246, 0.2);
+        }
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -647,13 +686,13 @@
                         </li>
                     {% else %}
                         <li class="nav-item">
-                            <a class="btn btn-primary btn-sm" href="{% url 'accounts:login' %}">
-                                <i class="bi bi-box-arrow-in-right"></i> Login
+                            <a class="btn btn-outline-primary px-4 py-2" href="{% url 'accounts:login' %}">
+                                <i class="bi bi-box-arrow-in-right me-1"></i> Login
                             </a>
                         </li>
-                        <li class="nav-item ms-2">
-                            <a class="btn btn-success btn-sm" href="{% url 'accounts:register' %}">
-                                <i class="bi bi-person-plus"></i> Registrati
+                        <li class="nav-item ms-3">
+                            <a class="btn btn-primary px-4 py-2" href="{% url 'accounts:register' %}">
+                                <i class="bi bi-person-plus me-1"></i> Registrati
                             </a>
                         </li>
                     {% endif %}

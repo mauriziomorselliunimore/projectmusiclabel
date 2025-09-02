@@ -1,7 +1,34 @@
 from django import forms
 from .models import Artist, Demo, MUSIC_GENRES, ARTIST_ICONS
 
+from accounts.models import Profile
+
 class ArtistForm(forms.ModelForm):
+    # Aggiungiamo i campi del profilo
+    external_avatar_url = forms.URLField(
+        required=False,
+        widget=forms.URLInput(attrs={
+            'placeholder': 'https://imgur.com/your-image.jpg',
+            'class': 'form-control'
+        }),
+        label='URL Immagine Profilo',
+        help_text='Link a una tua foto (Imgur, Google Drive, etc.)'
+    )
+    profile_icon = forms.ChoiceField(
+        choices=Profile.PROFILE_ICONS,
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-select'}),
+        label='Icona Profilo'
+    )
+    profile_icon_color = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'type': 'color',
+            'class': 'form-control form-control-color'
+        }),
+        label='Colore Icona'
+    )
+
     class Meta:
         model = Artist
         fields = [

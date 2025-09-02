@@ -35,6 +35,40 @@
                     <form method="post">
                         {% csrf_token %}
                         
+                        <!-- Avatar e Icona Profilo -->
+                        <div class="row mb-4">
+                            <div class="col-md-12 mb-3">
+                                <label for="id_external_avatar_url" class="form-label text-light">
+                                    {{ form.external_avatar_url.label }}
+                                </label>
+                                <input type="url" name="external_avatar_url" class="form-control" 
+                                       id="id_external_avatar_url" value="{{ form.external_avatar_url.value|default:'' }}" 
+                                       placeholder="{{ form.external_avatar_url.widget.attrs.placeholder }}">
+                                <div class="form-text text-muted">{{ form.external_avatar_url.help_text }}</div>
+                                {% if form.external_avatar_url.errors %}
+                                    <div class="text-danger small">{{ form.external_avatar_url.errors|join:", " }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="id_profile_icon" class="form-label text-light">{{ form.profile_icon.label }}</label>
+                                <select name="profile_icon" class="form-select" id="id_profile_icon">
+                                    {% for value, label in form.profile_icon.field.choices %}
+                                        <option value="{{ value }}" {% if form.profile_icon.value == value %}selected{% endif %}>
+                                            <i class="bi {{ value }}"></i> {{ label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="id_profile_icon_color" class="form-label text-light">{{ form.profile_icon_color.label }}</label>
+                                <input type="color" name="profile_icon_color" class="form-control form-control-color w-100" 
+                                       id="id_profile_icon_color" value="{{ form.profile_icon_color.value|default:'#6366f1' }}">
+                            </div>
+                        </div>
+
+                        <!-- Informazioni Base -->
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="id_stage_name" class="form-label text-light">{{ form.stage_name.label }}</label>

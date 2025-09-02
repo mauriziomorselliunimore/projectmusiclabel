@@ -36,6 +36,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         if message_type == 'chat_message':
             message_content = data['message']
             recipient_id = data['recipient_id']
+            message_id = data.get('message_id')
             
             # Save message to database
             message = await self.save_message(message_content, recipient_id)
@@ -49,7 +50,17 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     'sender': self.user.username,
                     'sender_id': self.user.id,
                     'timestamp': message.created_at.isoformat(),
-                    'message_id': message.id,
+                    'message_id': message_id or message.id,
+                }
+            )
+        elif message_type == 'message_delivered':
+            # Handle delivery confirmation
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'message_delivered',
+                    'message_id': data['message_id'],
+                    'recipient': self.user.username
                 }
             )
         elif message_type == 'typing':
@@ -81,6 +92,14 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 'type': 'typing',
                 'user': event['user'],
                 'is_typing': event['is_typing'],
+            }))
+    
+    async def message_delivered(self, event):
+        # Send delivery confirmation
+        if event['recipient'] != self.user.username:
+            await self.send(text_data=json.dumps({
+                'type': 'message_delivered',
+                'message_id': event['message_id']
             }))
     
     @database_sync_to_async

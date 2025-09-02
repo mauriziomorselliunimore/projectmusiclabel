@@ -45,15 +45,30 @@ def artist_create(request):
 def artist_edit(request, pk):
     """Edit artist profile"""
     artist = get_object_or_404(Artist, pk=pk, user=request.user)
+    profile = request.user.profile
     
     if request.method == 'POST':
         form = ArtistForm(request.POST, instance=artist)
         if form.is_valid():
-            form.save()
+            # Salva i dati dell'artista
+            artist = form.save()
+            
+            # Aggiorna i campi del profilo
+            profile.external_avatar_url = form.cleaned_data.get('external_avatar_url', '')
+            profile.profile_icon = form.cleaned_data.get('profile_icon', profile.profile_icon)
+            profile.profile_icon_color = form.cleaned_data.get('profile_icon_color', profile.profile_icon_color)
+            profile.save()
+            
             messages.success(request, 'Profilo aggiornato con successo!')
             return redirect('artists:profile')
     else:
-        form = ArtistForm(instance=artist)
+        # Popola il form con i dati esistenti
+        initial_data = {
+            'external_avatar_url': profile.external_avatar_url,
+            'profile_icon': profile.profile_icon,
+            'profile_icon_color': profile.profile_icon_color,
+        }
+        form = ArtistForm(instance=artist, initial=initial_data)
         
     return render(request, 'artists/artist_form.html', {'form': form, 'artist': artist})
 

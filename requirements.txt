@@ -18,6 +18,11 @@ django-cors-headers==4.3.1
 Pillow==10.1.0
 python-decouple==3.8
 
+# WebSocket e canali
+channels==4.0.0
+channels-redis==4.1.0
+daphne==4.0.0
+
 # Storage e Media
 cloudinary==1.36.0
 django-cloudinary-storage==0.3.0
