@@ -1,21 +1,8 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block extr                        <div class="d-grid gap-3">
-                            <button type="submit" class="auth-btn">
-                                <i class="bi bi-box-arrow-in-right me-2"></i>Accedi
-                            </button>
-                        </div>
-                    </form>
-                    
-                    <div class="text-center mt-4">
-                        <p class="mb-0">
-                            Non hai un account?
-                        </p>
-                        <a href="{% url 'accounts:register' %}" class="auth-link">
-                            <i class="bi bi-person-plus me-1"></i>Registrati qui
-                        </a>
-                    </div>k rel="stylesheet" href="{% static 'css/auth.css' %}">
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/auth.css' %}">
 {% endblock %}
 
 {% block title %}Login - MyLabel{% endblock %}
@@ -48,6 +35,34 @@
                         
                         <div class="mb-4">
                             <label for="id_password" class="form-label text-light">Password</label>
+                            <input type="password" name="password" class="form-control auth-form-control" 
+                                   id="id_password" placeholder="La tua password" required>
+                            {% if form.password.errors %}
+                                <div class="auth-error mt-1">{{ form.password.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        {% if form.non_field_errors %}
+                            <div class="alert alert-danger" role="alert">
+                                {{ form.non_field_errors|join:", " }}
+                            </div>
+                        {% endif %}
+                        
+                        <div class="d-grid gap-3">
+                            <button type="submit" class="auth-btn">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Accedi
+                            </button>
+                        </div>
+                    </form>
+                    
+                    <div class="text-center mt-4">
+                        <p class="mb-0">
+                            Non hai un account?
+                        </p>
+                        <a href="{% url 'accounts:register' %}" class="auth-link">
+                            <i class="bi bi-person-plus me-1"></i>Registrati qui
+                        </a>
+                    </div>
                             <input type="password" name="password" class="form-control auth-form-control" 
                                    id="id_password" placeholder="La tua password" required>
                             {% if form.password.errors %}
