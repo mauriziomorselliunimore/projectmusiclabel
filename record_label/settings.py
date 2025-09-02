@@ -202,6 +202,10 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'verbose'
         },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler'
+        },
     },
     'root': {
         'handlers': ['console'],
@@ -217,6 +221,21 @@ LOGGING = {
             'handlers': ['console'],
             'level': 'DEBUG' if DEBUG else 'INFO',
             'propagate': False,
+        },
+        'django.request': {
+            'handlers': ['mail_admins', 'console'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'django.security': {
+            'handlers': ['mail_admins', 'console'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'core.email': {
+            'handlers': ['console'],
+            'level': 'INFO',
+            'propagate': True,
         },
     },
 }
@@ -298,11 +317,7 @@ MESSAGE_TAGS = {
 
 # File upload settings (non usati ma per sicurezza)
 FILE_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
-DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB
-
-# Merge logging configuration con quella delle email
-if 'EMAIL_LOGGING' in locals():
-    LOGGING['loggers'].update(EMAIL_LOGGING['loggers'])# Importa configurazioni email
+DATA_UPLOAD_MAX_MEMORY_SIZE = 10 * 1024 * 1024  # 10MB# Importa configurazioni email
 from .settings_email import *
 
 # Merge logging configuration con quella delle email
