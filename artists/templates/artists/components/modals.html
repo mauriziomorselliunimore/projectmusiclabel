@@ -1,0 +1,73 @@
+<!-- Quick Message Modal -->
+<div class="modal fade" id="quickMessageModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Invia Messaggio a <span id="recipient-name"></span></h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="quick-message-form" onsubmit="event.preventDefault(); sendQuickMessage();">
+                    <div class="mb-3">
+                        <label for="quick-message-type" class="form-label">Tipo di messaggio</label>
+                        <select class="form-select" id="quick-message-type">
+                            <option value="general">Generale</option>
+                            <option value="collaboration">Collaborazione</option>
+                            <option value="booking">Prenotazione</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="quick-message-subject" class="form-label">Oggetto (opzionale)</label>
+                        <input type="text" class="form-control" id="quick-message-subject" placeholder="Oggetto del messaggio">
+                    </div>
+                    <div class="mb-3">
+                        <label for="quick-message-text" class="form-label">Messaggio</label>
+                        <textarea class="form-control" id="quick-message-text" rows="4" required></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-success" onclick="sendQuickMessage()">
+                    <i class="bi bi-send"></i> Invia
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Collaboration Modal -->
+<div class="modal fade" id="collaborationModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Proponi Collaborazione</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="collaboration-form" data-artist-id="{{ artist.id }}" onsubmit="event.preventDefault(); sendCollaborationProposal();">
+                    <div class="mb-3">
+                        <label for="collaboration-description" class="form-label">Descrizione Proposta</label>
+                        <textarea class="form-control" id="collaboration-description" rows="4" required 
+                                placeholder="Descrivi la tua proposta di collaborazione..."></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="collaboration-start-date" class="form-label">Data di Inizio</label>
+                        <input type="date" class="form-control" id="collaboration-start-date" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="collaboration-budget" class="form-label">Budget Proposto (€)</label>
+                        <input type="number" class="form-control" id="collaboration-budget" required 
+                               placeholder="es. 500">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-success" onclick="sendCollaborationProposal()">
+                    <i class="bi bi-send"></i> Invia Proposta
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

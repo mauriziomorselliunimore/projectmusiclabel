@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+
+{% block title %}Pannello di Amministrazione - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0 text-light">
+                        <i class="bi bi-shield-lock"></i> Pannello Admin
+                    </h5>
+                </div>
+                <div class="list-group list-group-flush">
+                    <a href="{% url 'core:admin_dashboard' %}" class="list-group-item list-group-item-action {% if active_tab == 'dashboard' %}active{% endif %}">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </a>
+                    <a href="{% url 'core:admin_users' %}" class="list-group-item list-group-item-action {% if active_tab == 'users' %}active{% endif %}">
+                        <i class="bi bi-people"></i> Gestione Utenti
+                    </a>
+                    <a href="{% url 'core:admin_artists' %}" class="list-group-item list-group-item-action {% if active_tab == 'artists' %}active{% endif %}">
+                        <i class="bi bi-music-note"></i> Artisti
+                    </a>
+                    <a href="{% url 'core:admin_associates' %}" class="list-group-item list-group-item-action {% if active_tab == 'associates' %}active{% endif %}">
+                        <i class="bi bi-person-workspace"></i> Associati
+                    </a>
+                    <a href="{% url 'core:admin_bookings' %}" class="list-group-item list-group-item-action {% if active_tab == 'bookings' %}active{% endif %}">
+                        <i class="bi bi-calendar-check"></i> Prenotazioni
+                    </a>
+                    <a href="{% url 'core:admin_messages' %}" class="list-group-item list-group-item-action {% if active_tab == 'messages' %}active{% endif %}">
+                        <i class="bi bi-chat-dots"></i> Messaggi
+                    </a>
+                    <a href="{% url 'core:admin_settings' %}" class="list-group-item list-group-item-action {% if active_tab == 'settings' %}active{% endif %}">
+                        <i class="bi bi-gear"></i> Impostazioni
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="card">
+                <div class="card-header">
+                    <h6 class="mb-0 text-light">Statistiche Rapide</h6>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Utenti Totali:</span>
+                        <span class="badge bg-primary">{{ total_users }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Artisti:</span>
+                        <span class="badge bg-success">{{ total_artists }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between">
+                        <span>Associati:</span>
+                        <span class="badge bg-info">{{ total_associates }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            {% block admin_content %}
+            <div class="card">
+                <div class="card-header">
+                    <h4 class="mb-0 text-light">
+                        <i class="bi bi-speedometer2"></i> Dashboard
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <!-- Dashboard content will be here -->
+                    <div class="alert alert-info">
+                        <h5><i class="bi bi-info-circle"></i> Benvenuto nel Pannello di Amministrazione</h5>
+                        <p class="mb-0">Seleziona una sezione dal menu laterale per iniziare.</p>
+                    </div>
+                </div>
+            </div>
+            {% endblock %}
+        </div>
+    </div>
+</div>
+
+<style>
+.list-group-item {
+    background: rgba(255, 255, 255, 0.05);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.list-group-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.list-group-item.active {
+    background: var(--bs-primary);
+    border-color: var(--bs-primary);
+}
+
+.badge {
+    font-size: 0.9em;
+}
+</style>
+{% endblock %}

@@ -178,18 +178,20 @@
                                 {% endif %}
                                 
                                 <!-- Booking Button (only for artists) -->
-                                {% if can_book and associate.is_available %}
-                                    <a href="{% url 'booking:calendar' associate.pk %}" class="btn btn-primary btn-lg booking-cta">
-                                        <i class="bi bi-calendar-plus"></i> 
-                                        <div class="booking-text">
-                                            <div>Prenota Sessione</div>
-                                            <small>Conferma immediata</small>
-                                        </div>
-                                    </a>
-                                {% elif user.profile.user_type == 'artist' and not associate.is_available %}
-                                    <button class="btn btn-outline-warning" disabled>
-                                        <i class="bi bi-hourglass-split"></i> Attualmente Non Disponibile
-                                    </button>
+                                {% if user.is_authenticated and user.profile.user_type == 'artist' %}
+                                    {% if associate.is_available %}
+                                        <a href="{% url 'booking:calendar' associate.pk %}" class="btn btn-primary btn-lg booking-cta">
+                                            <i class="bi bi-calendar-plus"></i> 
+                                            <div class="booking-text">
+                                                <div>Prenota Sessione</div>
+                                                <small>Conferma immediata</small>
+                                            </div>
+                                        </a>
+                                    {% else %}
+                                        <button class="btn btn-outline-warning" disabled>
+                                            <i class="bi bi-hourglass-split"></i> Attualmente Non Disponibile
+                                        </button>
+                                    {% endif %}
                                 {% endif %}
                                 
                                 <!-- Quote Request -->

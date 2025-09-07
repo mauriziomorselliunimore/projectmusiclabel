@@ -1,0 +1,514 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block admin_content %}
+<!-- Top Stats Cards -->
+<div class="row g-4 mb-4">
+    <!-- User Stats -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="stats-icon bg-primary">
+                            <i class="bi bi-people"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-2">Utenti Totali</h6>
+                        <h3 class="mb-0">{{ user_stats.total }}</h3>
+                        <small class="text-success">
+                            <i class="bi bi-arrow-up"></i> 
+                            {{ user_stats.new_this_month }} nuovi questo mese
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Revenue Stats -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="stats-icon bg-success">
+                            <i class="bi bi-currency-euro"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-2">Fatturato Totale</h6>
+                        <h3 class="mb-0">€{{ activity_stats.bookings.revenue|floatformat:2 }}</h3>
+                        <small class="text-success">
+                            <i class="bi bi-graph-up"></i> 
+                            {{ activity_stats.bookings.completed }} prenotazioni completate
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Activity Stats -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="stats-icon bg-warning">
+                            <i class="bi bi-lightning"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-2">Attività Oggi</h6>
+                        <h3 class="mb-0">{{ activity_stats.messages.today }}</h3>
+                        <small class="text-warning">
+                            <i class="bi bi-chat-dots"></i> 
+                            Messaggi scambiati
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- System Health -->
+    <div class="col-md-6 col-xl-3">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center">
+                    <div class="flex-shrink-0">
+                        <div class="stats-icon bg-info">
+                            <i class="bi bi-cpu"></i>
+                        </div>
+                    </div>
+                    <div class="flex-grow-1 ms-3">
+                        <h6 class="mb-2">Salute Sistema</h6>
+                        <div class="progress" style="height: 6px;">
+                            <div class="progress-bar bg-success" style="width: {{ system_metrics.cpu.average }}%"></div>
+                        </div>
+                        <small class="text-muted">
+                            CPU: {{ system_metrics.cpu.average|floatformat:1 }}% | 
+                            RAM: {{ system_metrics.memory.percent }}%
+                        </small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mb-4">
+    <!-- Growth Trends Chart -->
+    <div class="col-xl-8">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Trend di Crescita</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="growthChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Active Users Distribution -->
+    <div class="col-xl-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Distribuzione Utenti</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="userDistributionChart" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- System & Database Stats -->
+<div class="row g-4 mb-4">
+    <!-- System Metrics -->
+    <div class="col-12 col-xl-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Metriche di Sistema</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <!-- CPU Usage -->
+                    <div class="col-md-6">
+                        <div class="metric-card">
+                            <h6>Utilizzo CPU per Core</h6>
+                            {% for cpu_usage in system_metrics.cpu.per_cpu %}
+                            <div class="progress-label">
+                                <span>Core {{ forloop.counter }}</span>
+                                <span>{{ cpu_usage }}%</span>
+                            </div>
+                            <div class="progress mb-2" style="height: 6px;">
+                                <div class="progress-bar bg-primary" style="width: {{ cpu_usage }}%"></div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <!-- Memory Usage -->
+                    <div class="col-md-6">
+                        <div class="metric-card">
+                            <h6>Memoria</h6>
+                            <div class="progress-label">
+                                <span>Utilizzata</span>
+                                <span>{{ system_metrics.memory.percent }}%</span>
+                            </div>
+                            <div class="progress mb-3" style="height: 6px;">
+                                <div class="progress-bar bg-warning" style="width: {{ system_metrics.memory.percent }}%"></div>
+                            </div>
+                            <div class="memory-stats">
+                                <div>
+                                    <small>Totale</small>
+                                    <h6>{{ system_metrics.memory.total|filesizeformat }}</h6>
+                                </div>
+                                <div>
+                                    <small>Disponibile</small>
+                                    <h6>{{ system_metrics.memory.available|filesizeformat }}</h6>
+                                </div>
+                                <div>
+                                    <small>Libera</small>
+                                    <h6>{{ system_metrics.memory.free|filesizeformat }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Disk Usage -->
+                    <div class="col-12">
+                        <div class="metric-card">
+                            <h6>Utilizzo Disco</h6>
+                            <div class="progress-label">
+                                <span>Spazio Utilizzato</span>
+                                <span>{{ system_metrics.disk.percent }}%</span>
+                            </div>
+                            <div class="progress mb-2" style="height: 6px;">
+                                <div class="progress-bar bg-info" style="width: {{ system_metrics.disk.percent }}%"></div>
+                            </div>
+                            <div class="memory-stats">
+                                <div>
+                                    <small>Totale</small>
+                                    <h6>{{ system_metrics.disk.total|filesizeformat }}</h6>
+                                </div>
+                                <div>
+                                    <small>Utilizzato</small>
+                                    <h6>{{ system_metrics.disk.used|filesizeformat }}</h6>
+                                </div>
+                                <div>
+                                    <small>Libero</small>
+                                    <h6>{{ system_metrics.disk.free|filesizeformat }}</h6>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Database Stats -->
+    <div class="col-12 col-xl-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Statistiche Database</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <div class="metric-card">
+                            <h6>Dimensione Database</h6>
+                            <h3>{{ db_stats.db_size }}</h3>
+                            <small class="text-muted">Dimensione totale delle tabelle: {{ db_stats.tables_size }}</small>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="metric-card">
+                            <h6>Top Tabelle</h6>
+                            <div class="table-responsive">
+                                <table class="table table-sm">
+                                    <thead>
+                                        <tr>
+                                            <th>Tabella</th>
+                                            <th class="text-end">Righe</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for table in db_stats.table_stats %}
+                                        <tr>
+                                            <td>{{ table.0 }}</td>
+                                            <td class="text-end">{{ table.1 }}</td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Activity Stats -->
+<div class="row g-4">
+    <!-- Bookings Stats -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Statistiche Prenotazioni</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="stat-card text-center">
+                            <div class="stat-icon bg-primary">
+                                <i class="bi bi-calendar-check"></i>
+                            </div>
+                            <h3>{{ activity_stats.bookings.total }}</h3>
+                            <small>Prenotazioni Totali</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-card text-center">
+                            <div class="stat-icon bg-success">
+                                <i class="bi bi-star"></i>
+                            </div>
+                            <h3>{{ activity_stats.bookings.avg_rating|floatformat:1 }}</h3>
+                            <small>Valutazione Media</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="booking-status-list">
+                    <div class="status-item">
+                        <span class="status-label">In Attesa</span>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" style="width: {% widthratio activity_stats.bookings.pending activity_stats.bookings.total 100 %}%">
+                                {{ activity_stats.bookings.pending }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Confermate</span>
+                        <div class="progress">
+                            <div class="progress-bar bg-info" style="width: {% widthratio activity_stats.bookings.confirmed activity_stats.bookings.total 100 %}%">
+                                {{ activity_stats.bookings.confirmed }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Completate</span>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" style="width: {% widthratio activity_stats.bookings.completed activity_stats.bookings.total 100 %}%">
+                                {{ activity_stats.bookings.completed }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Collaboration Stats -->
+    <div class="col-md-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">Statistiche Collaborazioni</h5>
+            </div>
+            <div class="card-body">
+                <div class="row g-3">
+                    <div class="col-6">
+                        <div class="stat-card text-center">
+                            <div class="stat-icon bg-info">
+                                <i class="bi bi-people"></i>
+                            </div>
+                            <h3>{{ activity_stats.collaborations.total }}</h3>
+                            <small>Collaborazioni Totali</small>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stat-card text-center">
+                            <div class="stat-icon bg-success">
+                                <i class="bi bi-check-circle"></i>
+                            </div>
+                            <h3>{{ activity_stats.collaborations.success_rate|floatformat }}%</h3>
+                            <small>Tasso di Successo</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="collaboration-stats">
+                    <div class="status-item">
+                        <span class="status-label">In Attesa</span>
+                        <div class="progress">
+                            <div class="progress-bar bg-warning" style="width: {% widthratio activity_stats.collaborations.pending activity_stats.collaborations.total 100 %}%">
+                                {{ activity_stats.collaborations.pending }}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="status-item">
+                        <span class="status-label">Accettate</span>
+                        <div class="progress">
+                            <div class="progress-bar bg-success" style="width: {% widthratio activity_stats.collaborations.accepted activity_stats.collaborations.total 100 %}%">
+                                {{ activity_stats.collaborations.accepted }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// Growth Trends Chart
+const growthCtx = document.getElementById('growthChart').getContext('2d');
+new Chart(growthCtx, {
+    type: 'line',
+    data: {
+        labels: Array.from({length: 31}, (_, i) => i + 1),
+        datasets: [{
+            label: 'Nuovi Utenti',
+            data: {{ growth_trends.users_growth|safe }},
+            borderColor: '#0d6efd',
+            tension: 0.4
+        }, {
+            label: 'Prenotazioni',
+            data: {{ growth_trends.booking_growth|safe }},
+            borderColor: '#198754',
+            tension: 0.4
+        }, {
+            label: 'Fatturato (€)',
+            data: {{ growth_trends.revenue_growth|safe }},
+            borderColor: '#ffc107',
+            tension: 0.4
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true
+            }
+        }
+    }
+});
+
+// User Distribution Chart
+const userDistCtx = document.getElementById('userDistributionChart').getContext('2d');
+new Chart(userDistCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Artisti', 'Associati', 'Altri'],
+        datasets: [{
+            data: [
+                {{ user_stats.artists }},
+                {{ user_stats.associates }},
+                {{ user_stats.total|add:"-"|add:user_stats.artists|add:"-"|add:user_stats.associates }}
+            ],
+            backgroundColor: ['#0d6efd', '#198754', '#6c757d']
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
+{% endblock %}
+
+<style>
+.stats-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.stats-icon i {
+    font-size: 24px;
+    color: white;
+}
+
+.metric-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.progress-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.25rem;
+}
+
+.memory-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    text-align: center;
+    margin-top: 1rem;
+}
+
+.status-item {
+    margin-bottom: 1rem;
+}
+
+.status-label {
+    display: block;
+    margin-bottom: 0.25rem;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+}
+
+.stat-icon i {
+    font-size: 24px;
+    color: white;
+}
+
+.table {
+    color: var(--bs-light);
+}
+</style>
+{% endblock %}

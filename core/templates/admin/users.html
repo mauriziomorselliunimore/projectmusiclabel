@@ -1,0 +1,393 @@
+{% extends 'admin/base_admin.html' %}
+{% load static %}
+
+{% block admin_content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 text-light"><i class="bi bi-people"></i> Gestione Utenti</h5>
+        <div class="d-flex gap-2">
+            <div class="input-group">
+                <input type="text" id="userSearch" class="form-control" placeholder="Cerca utenti...">
+                <button class="btn btn-outline-primary" type="button" id="searchButton">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+            <div class="btn-group">
+                <button class="btn btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
+                    Filtro
+                </button>
+                <ul class="dropdown-menu dropdown-menu-end">
+                    <li><a class="dropdown-item" href="#" data-filter="all">Tutti</a></li>
+                    <li><a class="dropdown-item" href="#" data-filter="artist">Artisti</a></li>
+                    <li><a class="dropdown-item" href="#" data-filter="associate">Associati</a></li>
+                    <li><a class="dropdown-item" href="#" data-filter="admin">Admin</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>Utente</th>
+                        <th>Email</th>
+                        <th>Tipo</th>
+                        <th>Registrato</th>
+                        <th>Ultimo Accesso</th>
+                        <th>Status</th>
+                        <th>Azioni</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>
+                            <div class="d-flex align-items-center">
+                                <div class="avatar-sm me-2">
+                                    {% if user.profile.avatar %}
+                                    <img src="{{ user.profile.avatar.url }}" class="rounded-circle" width="32" height="32">
+                                    {% else %}
+                                    <div class="avatar-placeholder">{{ user.get_initials }}</div>
+                                    {% endif %}
+                                </div>
+                                <div>
+                                    <div class="fw-bold">{{ user.get_full_name }}</div>
+                                    <small class="text-muted">@{{ user.username }}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            {% if user.is_superuser %}
+                            <span class="badge bg-danger">Superadmin</span>
+                            {% elif user.is_staff %}
+                            <span class="badge bg-warning">Staff</span>
+                            {% else %}
+                            <span class="badge bg-primary">{{ user.profile.get_user_type_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.date_joined|date:"d/m/Y" }}</td>
+                        <td>
+                            {% if user.last_login %}
+                            {{ user.last_login|date:"d/m/Y H:i" }}
+                            {% else %}
+                            <span class="text-muted">Mai</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.is_active %}
+                            <span class="badge bg-success">Attivo</span>
+                            {% else %}
+                            <span class="badge bg-danger">Disattivato</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <div class="btn-group">
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="viewUser({{ user.id }})">
+                                    <i class="bi bi-eye"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-warning" onclick="editUser({{ user.id }})">
+                                    <i class="bi bi-pencil"></i>
+                                </button>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="toggleUserStatus({{ user.id }})">
+                                    {% if user.is_active %}
+                                    <i class="bi bi-person-x"></i>
+                                    {% else %}
+                                    <i class="bi bi-person-check"></i>
+                                    {% endif %}
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- User View Modal -->
+<div class="modal fade" id="userViewModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Dettagli Utente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-4 text-center mb-3">
+                        <div class="avatar-lg mx-auto mb-3">
+                            <img src="" id="userAvatar" class="rounded-circle img-thumbnail">
+                        </div>
+                        <h5 id="userName"></h5>
+                        <p class="text-muted" id="userRole"></p>
+                    </div>
+                    <div class="col-md-8">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Username</label>
+                                <input type="text" id="viewUsername" class="form-control" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email</label>
+                                <input type="email" id="viewEmail" class="form-control" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Registrato il</label>
+                                <input type="text" id="viewJoinDate" class="form-control" readonly>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Ultimo accesso</label>
+                                <input type="text" id="viewLastLogin" class="form-control" readonly>
+                            </div>
+                        </div>
+                        
+                        <hr>
+                        
+                        <!-- Activity Stats -->
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <div class="stat-card text-center">
+                                    <h3 id="messageCount">0</h3>
+                                    <small>Messaggi</small>
+                                </div>
+                            </div>
+                            <div class="col-6">
+                                <div class="stat-card text-center">
+                                    <h3 id="bookingCount">0</h3>
+                                    <small>Prenotazioni</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Edit Modal -->
+<div class="modal fade" id="userEditModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modifica Utente</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="userEditForm">
+                    <input type="hidden" id="editUserId">
+                    <div class="mb-3">
+                        <label class="form-label">Nome</label>
+                        <input type="text" id="editFirstName" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Cognome</label>
+                        <input type="text" id="editLastName" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="editEmail" class="form-control" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Tipo Utente</label>
+                        <select id="editUserType" class="form-select">
+                            <option value="user">Utente Standard</option>
+                            <option value="artist">Artista</option>
+                            <option value="associate">Associato</option>
+                            <option value="staff">Staff</option>
+                        </select>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input type="checkbox" id="editIsActive" class="form-check-input">
+                        <label class="form-check-label">Account Attivo</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annulla</button>
+                <button type="button" class="btn btn-primary" onclick="saveUserChanges()">Salva Modifiche</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+function viewUser(userId) {
+    fetch(`/core/admin/users/${userId}/`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('userName').textContent = data.full_name;
+            document.getElementById('userRole').textContent = data.role;
+            document.getElementById('viewUsername').value = data.username;
+            document.getElementById('viewEmail').value = data.email;
+            document.getElementById('viewJoinDate').value = data.date_joined;
+            document.getElementById('viewLastLogin').value = data.last_login;
+            document.getElementById('messageCount').textContent = data.stats.messages;
+            document.getElementById('bookingCount').textContent = data.stats.bookings;
+            
+            const avatar = document.getElementById('userAvatar');
+            if (data.avatar) {
+                avatar.src = data.avatar;
+            } else {
+                avatar.src = '/static/img/default-avatar.png';
+            }
+            
+            new bootstrap.Modal(document.getElementById('userViewModal')).show();
+        });
+}
+
+function editUser(userId) {
+    fetch(`/core/admin/users/${userId}/`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('editUserId').value = userId;
+            document.getElementById('editFirstName').value = data.first_name;
+            document.getElementById('editLastName').value = data.last_name;
+            document.getElementById('editEmail').value = data.email;
+            document.getElementById('editUserType').value = data.user_type;
+            document.getElementById('editIsActive').checked = data.is_active;
+            
+            new bootstrap.Modal(document.getElementById('userEditModal')).show();
+        });
+}
+
+function saveUserChanges() {
+    const userId = document.getElementById('editUserId').value;
+    const data = {
+        first_name: document.getElementById('editFirstName').value,
+        last_name: document.getElementById('editLastName').value,
+        email: document.getElementById('editEmail').value,
+        user_type: document.getElementById('editUserType').value,
+        is_active: document.getElementById('editIsActive').checked
+    };
+    
+    fetch(`/core/admin/users/${userId}/update/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Errore durante il salvataggio: ' + data.error);
+        }
+    });
+}
+
+function toggleUserStatus(userId) {
+    if (!confirm('Sei sicuro di voler modificare lo stato di questo utente?')) return;
+    
+    fetch(`/core/admin/users/${userId}/toggle-status/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert('Errore durante la modifica dello stato: ' + data.error);
+        }
+    });
+}
+
+// Search functionality
+document.getElementById('searchButton').addEventListener('click', function() {
+    const searchTerm = document.getElementById('userSearch').value.toLowerCase();
+    const rows = document.querySelectorAll('tbody tr');
+    
+    rows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+});
+
+// Filter functionality
+document.querySelectorAll('[data-filter]').forEach(filter => {
+    filter.addEventListener('click', function(e) {
+        e.preventDefault();
+        const filterValue = this.dataset.filter;
+        const rows = document.querySelectorAll('tbody tr');
+        
+        rows.forEach(row => {
+            const type = row.querySelector('td:nth-child(3)').textContent.toLowerCase();
+            if (filterValue === 'all') {
+                row.style.display = '';
+            } else {
+                row.style.display = type.includes(filterValue) ? '' : 'none';
+            }
+        });
+    });
+});
+</script>
+
+<style>
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.avatar-lg {
+    width: 96px;
+    height: 96px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    overflow: hidden;
+}
+
+.avatar-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bs-primary);
+    color: white;
+    font-weight: bold;
+}
+
+.stat-card {
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 1rem;
+}
+
+.table {
+    color: var(--bs-light);
+}
+
+.dropdown-menu {
+    background: #2a2a2a;
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-item {
+    color: var(--bs-light);
+}
+
+.dropdown-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--bs-light);
+}
+</style>
+{% endblock %}

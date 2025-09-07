@@ -80,10 +80,17 @@
                 <div class="card-body">
                     <div class="text-center mb-3">
                         <div class="associate-icon-container">
-                            <div class="associate-icon-circle">
-                                <i class="bi {% if associate.profile_icon %}{{ associate.profile_icon }}{% else %}bi-tools{% endif %}" 
-                                   style="font-size: 2.5rem; color: {% if associate.profile_icon_color %}{{ associate.profile_icon_color }}{% else %}#10b981{% endif %};"></i>
-                            </div>
+                            {% if associate.user.profile.external_avatar_url %}
+                                <img src="{{ associate.user.profile.get_avatar_url }}" 
+                                     class="associate-icon-circle" 
+                                     style="width: 100%; height: 100%; object-fit: cover;"
+                                     alt="{{ associate.user.get_full_name }}">
+                            {% else %}
+                                <div class="associate-icon-circle">
+                                    <i class="bi {{ associate.user.profile.profile_icon|default:'bi-tools' }}" 
+                                       style="font-size: 2.5rem; color: {{ associate.user.profile.profile_icon_color|default:'#10b981' }};"></i>
+                                </div>
+                            {% endif %}
                         </div>
                         <h5 class="card-title text-light mt-2">{{ associate.user.get_full_name }}</h5>
                         <p class="text-magenta mb-1">{{ associate.specialization }}</p>

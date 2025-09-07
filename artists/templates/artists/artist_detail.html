@@ -1,11 +1,17 @@
 <!-- artists/templates/artists/artist_detail.html - Updated -->
 {% extends 'base.html' %}
 {% load dict_filters %}
+{% load static %}
 {% block title %}{{ artist.stage_name }} - MyLabel{% endblock %}
 
 {% block extra_head %}
 <meta name="csrf-token" content="{{ csrf_token }}">
 <script src="{{ STATIC_URL }}js/artist_messaging.js"></script>
+{% endblock %}
+
+{% block extra_head %}
+<meta name="csrf-token" content="{{ csrf_token }}">
+<script src="{% static 'js/artist_messaging.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -885,15 +891,23 @@ function confirmAndSendProposal() {
     const previewModal = document.getElementById('previewCollaborationModal');
     const collaborationMessage = previewModal.dataset.pendingMessage;
     const type = document.getElementById('collaboration-type').value;
+    const budget = document.getElementById('collaboration-budget').value;
+    const description = document.getElementById('collaboration-description').value;
+    const timeline = document.getElementById('collaboration-timeline').value;
+    const mode = document.getElementById('collaboration-mode').value;
     
     // Close preview modal
     bootstrap.Modal.getInstance(previewModal).hide();
     
-    // Show loading state
-    const sendBtn = document.querySelector('#collaborationModal .btn-success');
-    const originalText = sendBtn.innerHTML;
-    sendBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> Invio...';
-    sendBtn.disabled = true;
+    // Fill quick message modal with collaboration proposal
+    currentRecipientId = {{ artist.user.id }};
+    document.getElementById('recipient-name').textContent = '{{ artist.user.get_full_name }}';
+    document.getElementById('quick-message-type').value = 'collaboration';
+    document.getElementById('quick-message-subject').value = `Proposta di Collaborazione: ${type}`;
+    document.getElementById('quick-message-text').value = collaborationMessage;
+    
+    // Show message modal
+    new bootstrap.Modal(document.getElementById('quickMessageModal')).show();
     
     // Add loading overlay
     const loadingOverlay = document.createElement('div');

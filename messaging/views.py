@@ -146,8 +146,27 @@ def conversation_detail(request, conversation_id):
         return redirect('messaging:inbox')
     
     # Segna tutti i messaggi come letti
-    unread_messages = conversation.messages.filter(
+    conversation.messages.filter(
+        receiver=request.user,
         is_read=False
+    ).update(is_read=True)
+
+    # Rimuovi eventuali notifiche relative a questa conversazione
+    Notification.objects.filter(
+        user=request.user,
+        notification_type='message',
+        conversation=conversation
+    ).delete()
+
+    messages = conversation.messages.order_by('created_at')
+    form = MessageForm()
+
+    return render(request, 'messaging/conversation.html', {
+        'conversation': conversation,
+        'messages': messages,
+        'form': form,
+        'other_user': conversation.get_other_participant(request.user)
+    })
     ).exclude(sender=request.user)
     
     for message in unread_messages:

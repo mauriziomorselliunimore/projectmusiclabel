@@ -15,10 +15,15 @@ def artist_list(request):
 def artist_detail(request, pk):
     """Show artist details"""
     artist = get_object_or_404(Artist, pk=pk)
-    demos = Demo.objects.filter(artist=artist, is_public=True)
+    # Se l'utente è il proprietario, mostra tutti i demo, altrimenti solo quelli pubblici
+    demos = Demo.objects.filter(artist=artist)
+    if request.user != artist.user:
+        demos = demos.filter(is_public=True)
+    
     return render(request, 'artists/artist_detail.html', {
         'artist': artist,
-        'demos': demos
+        'demos': demos,
+        'is_owner': request.user == artist.user
     })
 
 @login_required
@@ -48,6 +53,14 @@ def artist_profile(request):
         django_messages.warning(request, 'Non hai ancora un profilo artista!')
         return redirect('artists:create')
     
+    # Usa lo stesso template del detail ma con flag is_owner=True
+    artist = request.user.artist
+    demos = Demo.objects.filter(artist=artist)  # Mostra tutti i demo all'artista stesso
+    return render(request, 'artists/artist_detail.html', {
+        'artist': artist,
+        'demos': demos,
+        'is_owner': True  # Questo flag è già usato nel template detail
+    })
     artist = request.user.artist
     demos = Demo.objects.filter(artist=artist)
     return render(request, 'artists/artist_profile.html', {

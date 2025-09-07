@@ -45,9 +45,16 @@
                         <div class="d-flex align-items-start">
                             <!-- Icona tipo notifica -->
                             <div class="me-3">
-                                <div class="bg-warning rounded-circle d-flex align-items-center justify-content-center" 
-                                     style="width: 40px; height: 40px;">
-                                    {% if notification.notification_type == 'message' %}
+                                {% if notification.from_user.profile.external_avatar_url %}
+                                    <img src="{{ notification.from_user.profile.external_avatar_url }}" 
+                                         class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                                {% else %}
+                                    <div class="rounded-circle d-flex align-items-center justify-content-center" 
+                                         style="width: 40px; height: 40px; background-color: {{ notification.from_user.profile.profile_icon_color|default:'#ffc107' }};">
+                                        <i class="bi {{ notification.from_user.profile.profile_icon|default:'bi-person-fill' }} text-white"></i>
+                                    </div>
+                                {% endif %}
+                                {% if notification.notification_type == 'message' %}
                                         <i class="bi bi-chat-fill text-dark"></i>
                                     {% elif notification.notification_type == 'booking' %}
                                         <i class="bi bi-calendar-fill text-dark"></i>
