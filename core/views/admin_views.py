@@ -14,6 +14,10 @@ from django.db import connection
 import json
 import psutil
 
+def is_admin(user):
+    """Verifica che l'utente sia staff o superadmin"""
+    return user.is_authenticated and (user.is_staff or user.is_superuser)
+
 def is_superadmin(user):
     """Verifica che l'utente sia un superadmin"""
     return user.is_authenticated and user.is_superuser
