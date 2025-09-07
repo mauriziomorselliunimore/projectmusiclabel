@@ -1,7 +1,7 @@
 from django.contrib import admin
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpResponseRedirect
 from django.template.response import TemplateResponse
-from django.urls import path
+from django.urls import path, reverse
 from core.views.monitor.health import health_check
 
 class HealthCheckAdminSite(admin.AdminSite):
@@ -11,6 +11,10 @@ class HealthCheckAdminSite(admin.AdminSite):
             path('health-check/', self.admin_view(self.health_check_view), name='admin-health-check'),
         ]
         return custom_urls + urls
+        
+    def index(self, request, extra_context=None):
+        # Redirect to your custom dashboard
+        return HttpResponseRedirect(reverse('core:admin_dashboard'))
         
     def health_check_view(self, request):
         # Riutilizziamo la funzione health_check esistente per ottenere lo stato

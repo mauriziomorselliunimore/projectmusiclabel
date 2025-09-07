@@ -118,3 +118,110 @@ def start_conversation(request, user_id):
     conversation = Conversation.get_or_create_conversation(request.user, other_user)
     
     return redirect('messaging:conversation', conversation_id=conversation.id)
+
+
+@login_required
+def send_message(request, user_id):
+    """Vista per inviare un nuovo messaggio a un utente"""
+    recipient = get_object_or_404(User, id=user_id)
+    
+    if recipient == request.user:
+        messages.error(request, 'Non puoi inviare messaggi a te stesso!')
+        return redirect('messaging:inbox')
+    
+    conversation = Conversation.get_or_create_conversation(request.user, recipient)
+    return redirect('messaging:conversation', conversation_id=conversation.id)
+
+
+@login_required
+def notifications(request):
+    """Vista per mostrare tutte le notifiche"""
+    notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+    return render(request, 'messaging/notifications.html', {'notifications': notifications})
+
+
+@login_required
+def mark_notification_read(request, notification_id):
+    """Segna una notifica come letta"""
+    notification = get_object_or_404(Notification, id=notification_id, user=request.user)
+    notification.is_read = True
+    notification.save()
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'success': True})
+    
+    return redirect('messaging:notifications')
+
+
+@login_required
+def mark_all_notifications_read(request):
+    """Segna tutte le notifiche come lette"""
+    Notification.objects.filter(user=request.user, is_read=False).update(is_read=True)
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({'success': True})
+    
+    return redirect('messaging:notifications')
+
+
+@login_required
+def get_unread_counts(request):
+    """API per ottenere il numero di messaggi e notifiche non letti"""
+    unread_messages = Message.objects.filter(
+        conversation__in=Conversation.objects.filter(
+            Q(participant_1=request.user) | Q(participant_2=request.user)
+        ),
+        receiver=request.user,
+        is_read=False
+    ).count()
+    
+    unread_notifications = Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).count()
+    
+    return JsonResponse({
+        'unread_messages': unread_messages,
+        'unread_notifications': unread_notifications
+    })
+
+
+@login_required
+def api_send_message(request):
+    """API per inviare messaggi via AJAX"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Metodo non consentito'}, status=405)
+    
+    recipient_id = request.POST.get('recipient_id')
+    message_text = request.POST.get('message')
+    
+    if not recipient_id or not message_text:
+        return JsonResponse({'success': False, 'error': 'Dati mancanti'}, status=400)
+    
+    try:
+        recipient = User.objects.get(id=recipient_id)
+        conversation = Conversation.get_or_create_conversation(request.user, recipient)
+        
+        message = Message.objects.create(
+            conversation=conversation,
+            sender=request.user,
+            recipient=recipient,
+            message=message_text
+        )
+        
+        create_message_notification(message, conversation)
+        
+        return JsonResponse({
+            'success': True,
+            'message': {
+                'id': message.id,
+                'content': message.message,
+                'sender_name': message.sender.get_full_name(),
+                'timestamp': message.created_at.strftime('%H:%M')
+            }
+        })
+        
+    except User.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'Utente non trovato'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
