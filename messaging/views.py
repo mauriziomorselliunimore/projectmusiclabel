@@ -134,38 +134,30 @@ def inbox(request):
 
 @login_required
 def conversation_detail(request, conversation_id):
-    """Vista per una singola conversazione"""
-    conversation = get_object_or_404(
-        Conversation,
-        id=conversation_id
-    )
+    """Vista dettaglio conversazione"""
+    # Get conversation
+    conversation = get_object_or_404(Conversation, id=conversation_id)
     
-    # Verifica che l'utente sia partecipante della conversazione
+    # Check permissions
     if request.user not in [conversation.participant_1, conversation.participant_2]:
         messages.error(request, 'Non hai accesso a questa conversazione!')
         return redirect('messaging:inbox')
     
-    # Segna tutti i messaggi come letti
-    conversation.messages.filter(
+    # Mark messages as read
+    Message.objects.filter(
+        conversation=conversation,
         receiver=request.user,
         is_read=False
     ).update(is_read=True)
-
-    # Rimuovi eventuali notifiche relative a questa conversazione
+    
+    # Delete notifications
     Notification.objects.filter(
         user=request.user,
         notification_type='message',
         conversation=conversation
     ).delete()
-
-    # Segna come letti i messaggi non letti inviati da altri utenti
-    unread_messages = conversation.messages.filter(
-        is_read=False
-    ).exclude(sender=request.user)
     
-    for message in unread_messages:
-        message.mark_as_read()
-
+    # Handle new message
     if request.method == 'POST':
         form = MessageForm(request.POST)
         if form.is_valid():
@@ -174,18 +166,19 @@ def conversation_detail(request, conversation_id):
             message.sender = request.user
             message.recipient = conversation.get_other_participant(request.user)
             message.save()
-
-            # Crea notifica per l'altro utente
+            
+            # Create notification
             Notification.objects.create(
                 user=message.recipient,
                 notification_type='new_message',
                 title=f'Nuovo messaggio da {request.user.get_full_name()}',
-                message=form.cleaned_data['message'][:100],  # Primi 100 caratteri
+                message=form.cleaned_data['message'][:100],
                 related_message=message,
                 related_user=request.user,
                 conversation=conversation
             )
-
+            
+            # Handle AJAX
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
                     'success': True,
@@ -196,18 +189,21 @@ def conversation_detail(request, conversation_id):
                         'timestamp': message.created_at.strftime('%H:%M')
                     }
                 })
+            
+            # Handle normal POST
             return redirect('messaging:conversation', conversation_id=conversation.id)
     else:
         form = MessageForm()
-
-    messages = conversation.messages.order_by('created_at').select_related('sender')
-
-    return render(request, 'messaging/conversation.html', {
+    
+    # Prepare context
+    context = {
         'conversation': conversation,
-        'messages': messages,
+        'messages': conversation.messages.order_by('created_at').select_related('sender'),
         'form': form,
         'other_user': conversation.get_other_participant(request.user)
-    })
+    }
+    
+    return render(request, 'messaging/conversation.html', context)
                 return JsonResponse({
                     'success': True,
                     'message': {
