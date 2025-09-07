@@ -3,10 +3,8 @@ Views per la gestione dei messaggi
 """
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.contrib import messages
 from django.http import JsonResponse
-from django.db.models import Q
 from .models import Conversation, Message, Notification
 from .forms import MessageForm
 
@@ -89,32 +87,3 @@ def conversation_detail(request, conversation_id):
     }
     
     return render(request, 'messaging/conversation.html', context)
-
-
-@login_required
-def inbox(request):
-    """Vista per la inbox dei messaggi"""
-    conversations = Conversation.objects.filter(
-        Q(participant_1=request.user) | Q(participant_2=request.user)
-    ).order_by('-last_message_time')
-    
-    context = {
-        'conversations': conversations
-    }
-    
-    return render(request, 'messaging/inbox.html', context)
-
-
-@login_required
-def start_conversation(request, user_id):
-    """Avvia una nuova conversazione con un utente"""
-    other_user = get_object_or_404(User, id=user_id)
-    
-    if other_user == request.user:
-        messages.error(request, 'Non puoi avviare una conversazione con te stesso!')
-        return redirect('messaging:inbox')
-    
-    # Cerca una conversazione esistente o ne crea una nuova
-    conversation = Conversation.get_or_create_conversation(request.user, other_user)
-    
-    return redirect('messaging:conversation', conversation_id=conversation.id)
