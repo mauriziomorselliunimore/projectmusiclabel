@@ -50,22 +50,7 @@
                                 {% endif %}
                             </div>
                             
-                            <div class="col-md-6 mb-3">
-                                <label for="id_profile_icon" class="form-label text-light">{{ form.profile_icon.label }}</label>
-                                <select name="profile_icon" class="form-select" id="id_profile_icon">
-                                    {% for value, label in form.profile_icon.field.choices %}
-                                        <option value="{{ value }}" {% if form.profile_icon.value == value %}selected{% endif %}>
-                                            <i class="bi {{ value }}"></i> {{ label }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                            
-                            <div class="col-md-6 mb-3">
-                                <label for="id_profile_icon_color" class="form-label text-light">{{ form.profile_icon_color.label }}</label>
-                                <input type="color" name="profile_icon_color" class="form-control form-control-color w-100" 
-                                       id="id_profile_icon_color" value="{{ form.profile_icon_color.value|default:'#6366f1' }}">
-                            </div>
+                            <!-- Avatar/Icon fields moved below -->
                         </div>
 
                         <!-- Informazioni Base -->

@@ -673,6 +673,13 @@
                                         </a>
                                     </li>
                                 {% endif %}
+                                {% if user.is_staff %}
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'booking:my_bookings' %}">
+                                            <i class="bi bi-calendar-week me-2"></i> Gestione Prenotazioni
+                                        </a>
+                                    </li>
+                                {% endif %}
                                 <li>
                                     <a class="dropdown-item position-relative" href="{% url 'messaging:notifications' %}">
                                         <i class="bi bi-bell me-2"></i> Notifiche

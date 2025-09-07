@@ -48,6 +48,10 @@ rm -rf staticfiles/* || handle_error "Pulizia file statici fallita"
 echo "📥 Raccolta file statici..."
 python manage.py collectstatic --no-input || handle_error "Raccolta file statici fallita"
 
+# Setup utente admin
+echo "👤 Configurazione utente admin..."
+bash setup_admin.sh || handle_error "Setup utente admin fallito"
+
 # Crea le migrazioni per tutte le app in ordine corretto
 echo "🔄 Creazione migrazioni per tutte le app..."
 for app in accounts artists associates booking core messaging api; do

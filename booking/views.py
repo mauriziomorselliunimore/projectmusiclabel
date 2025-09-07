@@ -225,6 +225,13 @@ def booking_status_update(request, pk):
 @login_required
 def my_bookings(request):
     """Lista delle prenotazioni dell'utente"""
+    # Se è admin, mostra tutte le prenotazioni
+    if request.user.is_staff:
+        bookings = Booking.objects.all().select_related(
+            'artist__user', 'associate__user'
+        ).order_by('-created_at')
+        return render(request, 'booking/admin_bookings.html', {'bookings': bookings})
+        
     if hasattr(request.user, 'artist'):
         # Se è un artista, mostra le sue prenotazioni
         bookings = Booking.objects.filter(

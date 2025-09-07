@@ -161,13 +161,6 @@
                                 {% if form.profile_icon.errors %}
                                     <div class="text-danger small">{{ form.profile_icon.errors|join:", " }}</div>
                                 {% endif %}
-                                            <i class="{{ value }}"></i> {{ label }}
-                                        </option>
-                                    {% endfor %}
-                                </select>
-                                {% if form.profile_icon.errors %}
-                                    <div class="text-danger small">{{ form.profile_icon.errors|join:", " }}</div>
-                                {% endif %}
                                 <div class="mt-2">
                                     <i id="iconPreview" class="{{ form.profile_icon.value|default:'bi-person-circle' }} fs-1" 
                                        style="color: {{ form.profile_icon_color.value|default:'#6366f1' }}"></i>

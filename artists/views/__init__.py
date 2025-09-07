@@ -1,11 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.contrib import messages
+from django.contrib import messages as django_messages
 from django.contrib.auth.models import User
 
 from ..models import Artist, Demo
 from ..forms import ArtistForm, DemoForm
-from .messages import quick_message
+from . import messages as app_messages  # Rename import to avoid conflict
 
 def artist_list(request):
     """List all active artists"""
@@ -25,7 +25,7 @@ def artist_detail(request, pk):
 def artist_create(request):
     """Create new artist profile"""
     if hasattr(request.user, 'artist'):
-        messages.warning(request, 'Hai già un profilo artista!')
+        django_messages.warning(request, 'Hai già un profilo artista!')
         return redirect('artists:profile')
         
     if request.method == 'POST':
@@ -34,7 +34,7 @@ def artist_create(request):
             artist = form.save(commit=False)
             artist.user = request.user
             artist.save()
-            messages.success(request, 'Profilo artista creato con successo!')
+            django_messages.success(request, 'Profilo artista creato con successo!')
             return redirect('artists:profile')
     else:
         form = ArtistForm()
@@ -59,7 +59,7 @@ def artist_edit(request, pk):
             profile.profile_icon_color = form.cleaned_data.get('profile_icon_color', profile.profile_icon_color)
             profile.save()
             
-            messages.success(request, 'Profilo aggiornato con successo!')
+            django_messages.success(request, 'Profilo aggiornato con successo!')
             return redirect('artists:profile')
     else:
         # Popola il form con i dati esistenti
@@ -81,7 +81,7 @@ def demo_upload(request):
             demo = form.save(commit=False)
             demo.artist = request.user.artist
             demo.save()
-            messages.success(request, 'Demo caricato con successo!')
+            django_messages.success(request, 'Demo caricato con successo!')
             return redirect('artists:profile')
     else:
         form = DemoForm()
@@ -106,7 +106,7 @@ def quick_message(request):
     message = request.POST.get('message')
     
     if not message or not artist_id:
-        messages.error(request, 'Devi inserire un messaggio!')
+        django_messages.error(request, 'Devi inserire un messaggio!')
         return redirect('artists:list')
         
     try:
@@ -118,9 +118,9 @@ def quick_message(request):
             recipient=recipient.user,
             content=message
         )
-        messages.success(request, 'Messaggio inviato!')
+        django_messages.success(request, 'Messaggio inviato!')
     except Artist.DoesNotExist:
-        messages.error(request, 'Artista non trovato!')
+        django_messages.error(request, 'Artista non trovato!')
     
     return redirect('artists:list')
     
@@ -131,5 +131,5 @@ def demo_delete(request, pk):
     """View for deleting a demo"""
     demo = get_object_or_404(Demo, pk=pk, artist=request.user.artist)
     demo.delete()
-    messages.success(request, 'Demo eliminato con successo!')
+    django_messages.success(request, 'Demo eliminato con successo!')
     return redirect('artists:profile')
