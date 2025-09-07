@@ -59,20 +59,23 @@
                                     <div>
                                         <h6 class="mb-1 text-light fw-bold">
                                             {{ conv_data.other_user.get_full_name|default:conv_data.other_user.username }}
+                                            {% if conv_data.other_user.is_staff %}
+                                            <span class="badge bg-warning text-dark me-2">Staff</span>
+                                            {% endif %}
                                             {% if conv_data.has_unread %}
                                             <span class="badge bg-danger ms-2">{{ conv_data.unread_count }}</span>
                                             {% endif %}
                                         </h6>
                                         
-                                        {% if conv_data.other_user.profile.user_type %}
                                         <small class="text-muted">
-                                            {% if conv_data.other_user.profile.user_type == 'artist' %}
+                                            {% if conv_data.other_user.is_staff %}
+                                                <i class="bi bi-shield-check me-1"></i> Amministratore
+                                            {% elif conv_data.other_user.profile.user_type == 'artist' %}
                                                 <i class="bi bi-mic me-1"></i> Artista
                                             {% elif conv_data.other_user.profile.user_type == 'associate' %}
                                                 <i class="bi bi-tools me-1"></i> Professionista
                                             {% endif %}
                                         </small>
-                                        {% endif %}
                                     </div>
                                     
                                     <div class="text-end">

@@ -4,9 +4,11 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.auth.models import User
 from django.db import transaction
 from django.http import JsonResponse
+from django.db.models import Q
 from artists.models import Artist, Demo
 from associates.models import Associate, PortfolioItem
 from accounts.models import Profile
+from reviews.models import Review
 import random
 import os
 
