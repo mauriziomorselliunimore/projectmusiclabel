@@ -158,6 +158,14 @@ def conversation_detail(request, conversation_id):
         conversation=conversation
     ).delete()
 
+    # Segna come letti i messaggi non letti inviati da altri utenti
+    unread_messages = conversation.messages.filter(
+        is_read=False
+    ).exclude(sender=request.user)
+    
+    for message in unread_messages:
+        message.mark_as_read()
+
     messages = conversation.messages.order_by('created_at')
     form = MessageForm()
 
@@ -167,10 +175,6 @@ def conversation_detail(request, conversation_id):
         'form': form,
         'other_user': conversation.get_other_participant(request.user)
     })
-    ).exclude(sender=request.user)
-    
-    for message in unread_messages:
-        message.mark_as_read()
     
     # Ottieni tutti i messaggi della conversazione
     messages_list = conversation.messages.all().select_related('sender')
