@@ -29,6 +29,45 @@ def clear_notifications(conversation, user):
     ).delete()
 
 
+@login_required
+def get_new_messages(request, conversation_id):
+    """
+    Vista API per ottenere i nuovi messaggi in una conversazione
+    Usata per il polling AJAX
+    """
+    conversation = get_object_or_404(Conversation, id=conversation_id)
+    
+    # Verifica che l'utente sia partecipante alla conversazione
+    if request.user not in [conversation.user1, conversation.user2]:
+        return JsonResponse({'error': 'Non autorizzato'}, status=403)
+    
+    # Ottieni i messaggi non letti per questo utente
+    new_messages = Message.objects.filter(
+        conversation=conversation,
+        receiver=request.user,
+        is_read=False
+    ).order_by('created_at')
+    
+    # Formatta i messaggi per JSON
+    messages_data = [{
+        'id': msg.id,
+        'sender': msg.sender.username,
+        'content': msg.content,
+        'created_at': msg.created_at.isoformat(),
+        'is_read': msg.is_read
+    } for msg in new_messages]
+    
+    # Segna i messaggi come letti
+    new_messages.update(is_read=True)
+    
+    # Rimuovi le notifiche associate
+    clear_notifications(conversation, request.user)
+    
+    return JsonResponse({
+        'messages': messages_data
+    })
+
+
 def create_message_notification(message, conversation):
     """Crea una notifica per un nuovo messaggio"""
     Notification.objects.create(
