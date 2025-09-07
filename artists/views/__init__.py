@@ -42,6 +42,20 @@ def artist_create(request):
     return render(request, 'artists/artist_form.html', {'form': form})
 
 @login_required
+def artist_profile(request):
+    """Display artist profile"""
+    if not hasattr(request.user, 'artist'):
+        django_messages.warning(request, 'Non hai ancora un profilo artista!')
+        return redirect('artists:create')
+    
+    artist = request.user.artist
+    demos = Demo.objects.filter(artist=artist)
+    return render(request, 'artists/artist_profile.html', {
+        'artist': artist,
+        'demos': demos
+    })
+
+@login_required
 def artist_edit(request, pk):
     """Edit artist profile"""
     artist = get_object_or_404(Artist, pk=pk, user=request.user)
@@ -93,7 +107,7 @@ def demo_delete(request, pk):
     """Delete a demo"""
     demo = get_object_or_404(Demo, pk=pk, artist=request.user.artist)
     demo.delete()
-    messages.success(request, 'Demo eliminato con successo!')
+    django_messages.success(request, 'Demo eliminato con successo!')
     return redirect('artists:profile')
 
 @login_required
