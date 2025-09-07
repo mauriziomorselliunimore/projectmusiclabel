@@ -132,75 +132,96 @@ def inbox(request):
     return render(request, 'messaging/inbox.html', context)
 
 
-@login_required
-def conversation_detail(request, conversation_id):
-    """Vista dettaglio conversazione"""
-    # Get conversation
-    conversation = get_object_or_404(Conversation, id=conversation_id)
-    
-    # Check permissions
-    if request.user not in [conversation.participant_1, conversation.participant_2]:
-        messages.error(request, 'Non hai accesso a questa conversazione!')
-        return redirect('messaging:inbox')
-    
-    # Mark messages as read
+def _handle_ajax_response(message):
+    """Helper function per generare la risposta AJAX"""
+    return JsonResponse({
+        'success': True,
+        'message': {
+            'id': message.id,
+            'content': message.message,
+            'sender_name': message.sender.get_full_name(),
+            'timestamp': message.created_at.strftime('%H:%M')
+        }
+    })
+
+def _create_message_notification(message, conversation):
+    """Helper function per creare la notifica del messaggio"""
+    Notification.objects.create(
+        user=message.recipient,
+        notification_type='new_message',
+        title=f'Nuovo messaggio da {message.sender.get_full_name()}',
+        message=message.message[:100],
+        related_message=message,
+        related_user=message.sender,
+        conversation=conversation
+    )
+
+def _mark_conversation_as_read(conversation, user):
+    """Helper function per segnare i messaggi come letti"""
     Message.objects.filter(
         conversation=conversation,
-        receiver=request.user,
+        receiver=user,
         is_read=False
     ).update(is_read=True)
     
-    # Delete notifications
     Notification.objects.filter(
-        user=request.user,
+        user=user,
         notification_type='message',
         conversation=conversation
     ).delete()
+
+@login_required
+def conversation_detail(request, conversation_id):
+    """Vista dettaglio conversazione"""
+    conv = get_object_or_404(Conversation, id=conversation_id)
     
-    # Handle new message
+    if request.user not in [conv.participant_1, conv.participant_2]:
+        messages.error(request, 'Non hai accesso a questa conversazione!')
+        return redirect('messaging:inbox')
+    
+    Message.objects.filter(conversation=conv, receiver=request.user, is_read=False).update(is_read=True)
+    Notification.objects.filter(user=request.user, notification_type='message', conversation=conv).delete()
+    
     if request.method == 'POST':
         form = MessageForm(request.POST)
         if form.is_valid():
-            message = form.save(commit=False)
-            message.conversation = conversation
-            message.sender = request.user
-            message.recipient = conversation.get_other_participant(request.user)
-            message.save()
+            msg = form.save(commit=False)
+            msg.conversation = conv
+            msg.sender = request.user
+            msg.recipient = conv.get_other_participant(request.user)
+            msg.save()
             
-            # Create notification
             Notification.objects.create(
-                user=message.recipient,
+                user=msg.recipient,
                 notification_type='new_message',
                 title=f'Nuovo messaggio da {request.user.get_full_name()}',
-                message=form.cleaned_data['message'][:100],
-                related_message=message,
+                message=msg.message[:100],
+                related_message=msg,
                 related_user=request.user,
-                conversation=conversation
+                conversation=conv
             )
             
-            # Handle AJAX
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
+                data = {
                     'success': True,
                     'message': {
-                        'id': message.id,
-                        'content': message.message,
-                        'sender_name': message.sender.get_full_name(),
-                        'timestamp': message.created_at.strftime('%H:%M')
+                        'id': msg.id,
+                        'content': msg.message,
+                        'sender_name': msg.sender.get_full_name(),
+                        'timestamp': msg.created_at.strftime('%H:%M')
                     }
-                })
+                }
+                return JsonResponse(data)
             
-            # Handle normal POST
-            return redirect('messaging:conversation', conversation_id=conversation.id)
+            return redirect('messaging:conversation', conversation_id=conv.id)
     else:
         form = MessageForm()
     
-    # Prepare context
     context = {
-        'conversation': conversation,
-        'messages': conversation.messages.order_by('created_at').select_related('sender'),
+        'conversation': conv,
+        'messages': conv.messages.order_by('created_at').select_related('sender'),
         'form': form,
-        'other_user': conversation.get_other_participant(request.user)
+        'other_user': conv.get_other_participant(request.user)
     }
     
     return render(request, 'messaging/conversation.html', context)
