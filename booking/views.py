@@ -154,3 +154,144 @@ def create_booking(request, associate_id):
         'available_slots': available_slots
     }
     return render(request, 'booking/booking_form.html', context)
+
+@login_required
+def booking_detail(request, pk):
+    """Dettaglio singola prenotazione"""
+    booking = get_object_or_404(Booking, pk=pk)
+    
+    # Verifica che l'utente possa vedere questa prenotazione
+    if not (request.user == booking.artist.user or request.user == booking.associate.user):
+        messages.error(request, 'Non hai i permessi per vedere questa prenotazione.')
+        return redirect('home')
+    
+    context = {
+        'booking': booking,
+        'artist': booking.artist,
+        'associate': booking.associate
+    }
+    return render(request, 'booking/detail.html', context)
+
+@login_required
+def booking_status_update(request, pk):
+    """Aggiorna lo stato di una prenotazione"""
+    booking = get_object_or_404(Booking, pk=pk)
+    
+    # Solo l'associato può aggiornare lo stato
+    if request.user != booking.associate.user:
+        messages.error(request, 'Solo l\'associato può aggiornare lo stato della prenotazione.')
+        return redirect('booking:detail', pk=pk)
+    
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        if new_status in ['confirmed', 'rejected', 'completed']:
+            old_status = booking.status
+            booking.status = new_status
+            booking.save()
+            
+            # Import qui per evitare circular import
+            from messaging.models import Notification, Message
+            
+            # Crea notifica per l'artista
+            status_display = dict(Booking.STATUS_CHOICES)[new_status]
+            Notification.objects.create(
+                user=booking.artist.user,
+                notification_type=f'booking_{new_status}',
+                title=f'Prenotazione {status_display.lower()}',
+                message=f'La tua richiesta di prenotazione è stata {status_display.lower()}',
+                related_booking=booking,
+                action_url=f'/booking/{booking.pk}/'
+            )
+            
+            # Crea messaggio
+            Message.objects.create(
+                sender=request.user,
+                recipient=booking.artist.user,
+                conversation=Message.objects.filter(
+                    related_booking=booking
+                ).first().conversation,
+                message_type=f'booking_{new_status}',
+                subject=f'Prenotazione {status_display}',
+                message=f'La tua richiesta di prenotazione è stata {status_display.lower()}.',
+                related_booking=booking
+            )
+            
+            messages.success(request, f'Stato della prenotazione aggiornato a {status_display}')
+        else:
+            messages.error(request, 'Stato non valido')
+            
+    return redirect('booking:detail', pk=pk)
+
+@login_required
+def my_bookings(request):
+    """Lista delle prenotazioni dell'utente"""
+    if hasattr(request.user, 'artist'):
+        # Se è un artista, mostra le sue prenotazioni
+        bookings = Booking.objects.filter(
+            artist=request.user.artist
+        ).select_related('associate__user').order_by('-created_at')
+    elif hasattr(request.user, 'associate'):
+        # Se è un associato, mostra le prenotazioni ricevute
+        bookings = Booking.objects.filter(
+            associate=request.user.associate
+        ).select_related('artist__user').order_by('-created_at')
+    else:
+        messages.error(request, 'Non hai i permessi per vedere le prenotazioni.')
+        return redirect('home')
+    
+    context = {
+        'bookings': bookings
+    }
+    return render(request, 'booking/my_bookings.html', context)
+
+@csrf_exempt
+@require_http_methods(["GET"])
+def api_available_slots(request, associate_id):
+    """API per ottenere gli slot disponibili di un associato"""
+    try:
+        associate = get_object_or_404(Associate, id=associate_id)
+        start_date = request.GET.get('start_date')
+        end_date = request.GET.get('end_date')
+        
+        if not start_date or not end_date:
+            return JsonResponse({'error': 'Devi specificare start_date e end_date'}, status=400)
+        
+        try:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+        except ValueError:
+            return JsonResponse({'error': 'Formato data non valido. Usa YYYY-MM-DD'}, status=400)
+        
+        # Get disponibilità
+        availabilities = associate.availability_slots.filter(
+            start_time__date__range=[start_date, end_date],
+            is_active=True
+        ).order_by('start_time')
+        
+        # Get prenotazioni esistenti
+        existing_bookings = Booking.objects.filter(
+            associate=associate,
+            session_date__date__range=[start_date, end_date],
+            status__in=['pending', 'confirmed']
+        )
+        
+        # Formatta le disponibilità
+        available_slots = []
+        for slot in availabilities:
+            if not existing_bookings.filter(session_date__range=[
+                slot.start_time, slot.end_time
+            ]).exists():
+                available_slots.append({
+                    'id': slot.id,
+                    'start': slot.start_time.isoformat(),
+                    'end': slot.end_time.isoformat(),
+                    'title': 'Disponibile'
+                })
+        
+        return JsonResponse({
+            'slots': available_slots,
+            'timezone': str(timezone.get_current_timezone())
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
