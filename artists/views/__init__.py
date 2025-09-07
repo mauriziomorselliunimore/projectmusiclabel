@@ -15,9 +15,15 @@ def artist_list(request):
 def artist_detail(request, pk):
     """Show artist details"""
     artist = get_object_or_404(Artist, pk=pk)
-    # Se l'utente è il proprietario, mostra tutti i demo, altrimenti solo quelli pubblici
+    
+    # Controlla se l'artista è attivo
+    if not artist.is_active and request.user != artist.user and not request.user.is_staff:
+        django_messages.error(request, 'Questo profilo artista non è al momento attivo.')
+        return redirect('artists:list')
+    
+    # Se l'utente è il proprietario o staff, mostra tutti i demo, altrimenti solo quelli pubblici
     demos = Demo.objects.filter(artist=artist)
-    if request.user != artist.user:
+    if request.user != artist.user and not request.user.is_staff:
         demos = demos.filter(is_public=True)
     
     return render(request, 'artists/artist_detail.html', {

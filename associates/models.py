@@ -150,6 +150,7 @@ class Availability(models.Model):
 
     associate = models.ForeignKey(Associate, on_delete=models.CASCADE, related_name='availabilities')
     date = models.DateField(help_text="Data di disponibilità")
+    day_of_week = models.IntegerField(choices=DAYS_OF_WEEK, help_text="Giorno della settimana")
     start_time = models.TimeField()
     end_time = models.TimeField()
     is_available = models.BooleanField(default=True)

@@ -166,20 +166,6 @@ def conversation_detail(request, conversation_id):
     for message in unread_messages:
         message.mark_as_read()
 
-    messages = conversation.messages.order_by('created_at')
-    form = MessageForm()
-
-    return render(request, 'messaging/conversation.html', {
-        'conversation': conversation,
-        'messages': messages,
-        'form': form,
-        'other_user': conversation.get_other_participant(request.user)
-    })
-    
-    # Ottieni tutti i messaggi della conversazione
-    messages_list = conversation.messages.all().select_related('sender')
-    
-    # Gestisci invio nuovo messaggio
     if request.method == 'POST':
         form = MessageForm(request.POST)
         if form.is_valid():
@@ -188,15 +174,40 @@ def conversation_detail(request, conversation_id):
             message.sender = request.user
             message.recipient = conversation.get_other_participant(request.user)
             message.save()
-            
+
             # Crea notifica per l'altro utente
-            create_message_notification(
+            Notification.objects.create(
                 user=message.recipient,
-                sender=request.user,
+                notification_type='new_message',
+                title=f'Nuovo messaggio da {request.user.get_full_name()}',
+                message=form.cleaned_data['message'][:100],  # Primi 100 caratteri
+                related_message=message,
+                related_user=request.user,
                 conversation=conversation
             )
-            
+
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({
+                    'success': True,
+                    'message': {
+                        'id': message.id,
+                        'content': message.message,
+                        'sender_name': message.sender.get_full_name(),
+                        'timestamp': message.created_at.strftime('%H:%M')
+                    }
+                })
+            return redirect('messaging:conversation', conversation_id=conversation.id)
+    else:
+        form = MessageForm()
+
+    messages = conversation.messages.order_by('created_at').select_related('sender')
+
+    return render(request, 'messaging/conversation.html', {
+        'conversation': conversation,
+        'messages': messages,
+        'form': form,
+        'other_user': conversation.get_other_participant(request.user)
+    })
                 return JsonResponse({
                     'success': True,
                     'message': {
