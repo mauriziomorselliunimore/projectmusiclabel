@@ -15,9 +15,9 @@
                 <div class="card-body">
                     <div class="text-center mb-4">
                         <h2 class="auth-title">
-                            <i class="bi bi-person-plus-fill"></i> Registrazione
+                            <i class="bi bi-music-note-list"></i> Unisciti a noi
                         </h2>
-                        <p class="auth-subtitle">Crea il tuo account MyLabel</p>
+                        <p class="auth-subtitle">Inizia il tuo viaggio musicale con MyLabel</p>
                     </div>
                     
                     <form method="post">
@@ -25,26 +25,82 @@
                         
                         <div class="row">
                             <div class="col-md-6 mb-3">
-                                {{ form.first_name.label_tag }}
-                                {{ form.first_name }}
+                                <label for="{{ form.first_name.id_for_label }}" class="form-label">Nome</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-0">
+                                        <i class="bi bi-person-badge text-muted"></i>
+                                    </span>
+                                    <input type="text" name="first_name" class="form-control auth-form-control" 
+                                           id="{{ form.first_name.id_for_label }}" placeholder="Il tuo nome"
+                                           value="{{ form.first_name.value|default:'' }}" required>
+                                </div>
                                 {% if form.first_name.errors %}
-                                    <div class="auth-error mt-1">{{ form.first_name.errors|join:", " }}</div>
+                                    <div class="auth-error">{{ form.first_name.errors|join:", " }}</div>
                                 {% endif %}
                             </div>
                             <div class="col-md-6 mb-3">
-                                {{ form.last_name.label_tag }}
-                                {{ form.last_name }}
+                                <label for="{{ form.last_name.id_for_label }}" class="form-label">Cognome</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-transparent border-0">
+                                        <i class="bi bi-person-badge-fill text-muted"></i>
+                                    </span>
+                                    <input type="text" name="last_name" class="form-control auth-form-control" 
+                                           id="{{ form.last_name.id_for_label }}" placeholder="Il tuo cognome"
+                                           value="{{ form.last_name.value|default:'' }}" required>
+                                </div>
                                 {% if form.last_name.errors %}
-                                    <div class="auth-error mt-1">{{ form.last_name.errors|join:", " }}</div>
+                                    <div class="auth-error">{{ form.last_name.errors|join:", " }}</div>
                                 {% endif %}
                             </div>
                         </div>
                         
                         <div class="mb-3">
-                            {{ form.username.label_tag }}
-                            {{ form.username }}
+                            <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-0">
+                                    <i class="bi bi-at text-muted"></i>
+                                </span>
+                                <input type="text" name="username" class="form-control auth-form-control" 
+                                       id="{{ form.username.id_for_label }}" placeholder="Scegli il tuo username"
+                                       value="{{ form.username.value|default:'' }}" required>
+                            </div>
                             {% if form.username.errors %}
-                                <div class="auth-error mt-1">{{ form.username.errors|join:", " }}</div>
+                                <div class="auth-error">{{ form.username.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-0">
+                                    <i class="bi bi-envelope-fill text-muted"></i>
+                                </span>
+                                <input type="email" name="email" class="form-control auth-form-control" 
+                                       id="{{ form.email.id_for_label }}" placeholder="La tua email"
+                                       value="{{ form.email.value|default:'' }}" required>
+                            </div>
+                            {% if form.email.errors %}
+                                <div class="auth-error">{{ form.email.errors|join:", " }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="{{ form.user_type.id_for_label }}" class="form-label">Tipo di Account</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-transparent border-0">
+                                    <i class="bi bi-person-badge-fill text-muted"></i>
+                                </span>
+                                <select name="user_type" class="form-control auth-form-control" 
+                                        id="{{ form.user_type.id_for_label }}" required>
+                                    {% for value, label in form.user_type.field.choices %}
+                                        <option value="{{ value }}" {% if form.user_type.value == value %}selected{% endif %}>
+                                            {{ label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            {% if form.user_type.errors %}
+                                <div class="auth-error">{{ form.user_type.errors|join:", " }}</div>
                             {% endif %}
                         </div>
                         
@@ -111,30 +167,6 @@
     </div>
 </div>
 
-<style>
-.form-control {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: #fff;
-    border-radius: 8px;
-    transition: all 0.3s ease;
-}
 
-.form-control:focus {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: #ff6b6b;
-    color: #fff;
-    box-shadow: 0 0 0 0.25rem rgba(255, 107, 107, 0.25);
-}
-
-.form-control::placeholder {
-    color: rgba(255, 255, 255, 0.6);
-}
-
-.card {
-    background: rgba(27, 27, 27, 0.95);
-    border: 1px solid rgba(255, 107, 107, 0.3);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-}
 </style>
 {% endblock %}

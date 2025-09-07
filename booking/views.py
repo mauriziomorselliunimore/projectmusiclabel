@@ -237,7 +237,7 @@ def my_bookings(request):
         ).select_related('artist__user').order_by('-created_at')
     else:
         messages.error(request, 'Non hai i permessi per vedere le prenotazioni.')
-        return redirect('home')
+        return redirect('core:home')
     
     context = {
         'bookings': bookings

@@ -1,0 +1,19 @@
+{% load review_tags %}
+
+<div class="rating-summary mb-4">
+    <div class="overall-rating">{{ avg_rating|floatformat:1 }}</div>
+    <div class="rating-count">{{ total_reviews }} recensioni</div>
+    
+    <!-- Rating Bars -->
+    <div class="rating-bars">
+        {% for i in "54321"|make_list %}
+            <div class="rating-bar">
+                <div class="stars">{{ i }} <i class="bi bi-star-fill"></i></div>
+                <div class="progress">
+                    <div class="progress-bar" style="width: {{ rating_percentages|get_item:i }}%"></div>
+                </div>
+                <div class="count">{{ rating_counts|get_item:i }}</div>
+            </div>
+        {% endfor %}
+    </div>
+</div>

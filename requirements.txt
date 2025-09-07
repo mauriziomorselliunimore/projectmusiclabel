@@ -1,8 +1,11 @@
-# Django
+# Django e REST framework
 Django==4.2.7
 djangorestframework==3.14.0
 django-crispy-forms==2.0
 crispy-bootstrap5==0.7
+drf-spectacular==0.26.4
+django-redis==5.3.0
+django-filter==23.5
 
 # Database
 dj-database-url==2.1.0

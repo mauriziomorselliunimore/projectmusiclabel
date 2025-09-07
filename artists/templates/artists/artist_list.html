@@ -70,9 +70,17 @@
                 <div class="card-body text-center">
                     <div class="mb-3">
                         <div class="artist-icon-container mx-auto" style="width: 80px; height: 80px;">
-                            <div class="artist-icon-circle" style="width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                <i class="bi {{ artist.profile_icon }}" style="font-size: 2.5rem; color: {{ artist.profile_icon_color }};"></i>
-                            </div>
+                            {% if artist.user.profile.external_avatar_url %}
+                                <img src="{{ artist.user.profile.get_avatar_url }}" 
+                                     class="artist-icon-circle" 
+                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;"
+                                     alt="{{ artist.stage_name }}">
+                            {% else %}
+                                <div class="artist-icon-circle" style="width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="bi {{ artist.user.profile.profile_icon|default:'bi-person-circle' }}" 
+                                       style="font-size: 2.5rem; color: {{ artist.user.profile.profile_icon_color|default:'#6366f1' }};"></i>
+                                </div>
+                            {% endif %}
                         </div>
                     </div>
                     <h5 class="card-title text-light">{{ artist.stage_name }}</h5>
