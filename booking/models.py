@@ -130,7 +130,7 @@ class Availability(models.Model):
     associate = models.ForeignKey(Associate, on_delete=models.CASCADE, related_name='availability_slots')
     
     # Disponibilità ricorrente
-    day_of_week = models.IntegerField(choices=DAYS_OF_WEEK)
+    day_of_week = models.IntegerField(choices=DAYS_OF_WEEK, default=0)  # Default: Lunedì
     start_time = models.TimeField()
     end_time = models.TimeField()
     
