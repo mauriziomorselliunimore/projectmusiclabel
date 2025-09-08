@@ -93,8 +93,7 @@ class AvailabilityForm(forms.ModelForm):
             'day_of_week': 'Per disponibilità ricorrenti, seleziona il giorno della settimana',
             'specific_date': 'Per disponibilità una tantum, seleziona la data specifica',
             'start_time': 'Ora di inizio della disponibilità',
-            'end_time': 'Ora di fine della disponibilità'
-        }
+            'end_time': 'Ora di fine della disponibilità',
             'booking_type': 'Seleziona il tipo di sessione che vuoi prenotare',
             'session_date': 'Scegli data e ora di inizio della sessione',
             'duration_hours': 'Indica la durata prevista in ore (min 1, max 8)',
