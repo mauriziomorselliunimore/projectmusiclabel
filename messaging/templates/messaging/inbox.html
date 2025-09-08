@@ -1,6 +1,10 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/messaging.css' %}">
+{% endblock %}
+
 {% block title %}Messaggi - MyLabel{% endblock %}
 
 {% block content %}
@@ -134,17 +138,6 @@
     </div>
     {% endif %}
 </div>
-
-<style>
-.conversation-item:hover {
-    background-color: rgba(59, 130, 246, 0.1) !important;
-    transform: translateX(5px);
-}
-
-.conversation-item:hover .text-light {
-    color: var(--primary-blue) !important;
-}
-</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {

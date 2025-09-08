@@ -9,15 +9,11 @@
 <script src="{% static 'js/artist_messaging.js' %}"></script>
 {% endblock %}
 
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/artist.css' %}">
+{% endblock %}
+
 {% block content %}
-<style>
-    .artist-icon-container {
-        position: relative;
-        transition: transform 0.3s ease;
-    }
-    .artist-icon-circle {
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-        transition: all 0.3s ease;
     }
     .artist-icon-container:hover {
         transform: scale(1.05);
@@ -58,9 +54,9 @@
             <div class="card text-center">
                 <div class="card-body">
                     <div class="mb-3 position-relative">
-                        <div class="artist-icon-container" style="width: 120px; height: 120px; margin: 0 auto;">
-                            <div class="artist-icon-circle" style="width: 100%; height: 100%; background-color: rgba(255, 255, 255, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                                <i class="bi {{ artist.profile_icon }}" style="font-size: 3.5rem; color: {{ artist.profile_icon_color }}"></i>
+                        <div class="artist-icon-container icon-container-xl">
+                            <div class="artist-icon-circle">
+                                <i class="bi {{ artist.profile_icon }} icon-xl" style="color: {{ artist.profile_icon_color }}"></i>
                             </div>
                         </div>
                         
