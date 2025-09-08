@@ -1,4 +1,3 @@
-
 from django.db import models
 
 
@@ -8,6 +7,27 @@ from django.core.exceptions import ValidationError
 from datetime import timedelta
 from artists.models import Artist
 from associates.models import Associate
+
+class QuoteRequest(models.Model):
+    """Richiesta preventivo da artista ad associato"""
+    artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='quote_requests')
+    associate = models.ForeignKey(Associate, on_delete=models.CASCADE, related_name='quote_requests')
+    message = models.TextField(max_length=1000, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    status = models.CharField(max_length=20, choices=[
+        ('pending', 'In attesa'),
+        ('responded', 'Risposto'),
+        ('rejected', 'Rifiutato')
+    ], default='pending')
+    response = models.TextField(max_length=1000, blank=True)
+    responded_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Preventivo da {self.artist.stage_name} a {self.associate.user.get_full_name()} ({self.get_status_display()})"
+
 
 class Booking(models.Model):
     """Sistema prenotazione sessioni studio con prevenzione conflitti"""
