@@ -28,7 +28,10 @@ def register(request):
 
 @login_required
 def profile_view(request):
-    return render(request, 'accounts/profile.html')
+    context = {
+        'profile': request.user.profile
+    }
+    return render(request, 'accounts/profile.html', context)
 
 @login_required
 def profile_edit(request):

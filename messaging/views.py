@@ -24,8 +24,8 @@ def clear_notifications(conversation, user):
     """Rimuove le notifiche per una conversazione"""
     Notification.objects.filter(
         user=user,
-        notification_type='message',
-        conversation=conversation
+        notification_type='new_message',
+        related_message__conversation=conversation
     ).delete()
 
 
@@ -38,13 +38,13 @@ def get_new_messages(request, conversation_id):
     conversation = get_object_or_404(Conversation, id=conversation_id)
     
     # Verifica che l'utente sia partecipante alla conversazione
-    if request.user not in [conversation.user1, conversation.user2]:
+    if request.user not in [conversation.participant_1, conversation.participant_2]:
         return JsonResponse({'error': 'Non autorizzato'}, status=403)
     
     # Ottieni i messaggi non letti per questo utente
     new_messages = Message.objects.filter(
         conversation=conversation,
-        receiver=request.user,
+        recipient=request.user,
         is_read=False
     ).order_by('created_at')
     
@@ -68,7 +68,7 @@ def get_new_messages(request, conversation_id):
     })
 
 
-def create_message_notification(message, conversation):
+def create_message_notification(message):
     """Crea una notifica per un nuovo messaggio"""
     Notification.objects.create(
         user=message.recipient,
@@ -76,8 +76,7 @@ def create_message_notification(message, conversation):
         title=f'Nuovo messaggio da {message.sender.get_full_name()}',
         message=message.message[:100],
         related_message=message,
-        related_user=message.sender,
-        conversation=conversation
+        related_user=message.sender
     )
 
 
@@ -102,7 +101,7 @@ def conversation_detail(request, conversation_id):
             msg.recipient = conv.get_other_participant(request.user)
             msg.save()
             
-            create_message_notification(msg, conv)
+            create_message_notification(msg)
             
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 data = {
@@ -210,7 +209,7 @@ def get_unread_counts(request):
         conversation__in=Conversation.objects.filter(
             Q(participant_1=request.user) | Q(participant_2=request.user)
         ),
-        receiver=request.user,
+        recipient=request.user,
         is_read=False
     ).count()
     
@@ -248,7 +247,7 @@ def api_send_message(request):
             message=message_text
         )
         
-        create_message_notification(message, conversation)
+        create_message_notification(message)
         
         return JsonResponse({
             'success': True,
