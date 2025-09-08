@@ -5,12 +5,6 @@ class DemoInline(admin.TabularInline):
     model = Demo
     extra = 0
 
-@admin.register(Artist)
-class ArtistAdmin(admin.ModelAdmin):
-    list_display = ['stage_name', 'user', 'location', 'is_active', 'created_at']
-    list_filter = ['is_active', 'created_at']
-    search_fields = ['stage_name', 'user__username', 'genres']
-    inlines = [DemoInline]
 
 @admin.register(Demo)
 class DemoAdmin(admin.ModelAdmin):
