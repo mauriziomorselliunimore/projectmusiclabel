@@ -58,13 +58,3 @@ class Profile(models.Model):
                 return reverse('associates:detail', kwargs={'pk': self.user.associate.pk})
             except:
                 return reverse('associates:create')
-    
-    def get_avatar_url(self):
-        """Restituisce l'URL dell'avatar o un placeholder"""
-        if self.external_avatar_url:
-            return self.external_avatar_url
-        
-        # Fallback: Gravatar basato sull'email
-        import hashlib
-        email_hash = hashlib.md5(self.user.email.lower().encode()).hexdigest()
-        return f"https://www.gravatar.com/avatar/{email_hash}?d=identicon&s=150"
