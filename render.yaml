@@ -4,7 +4,7 @@ services:
     name: record-label
     env: docker
     plan: starter
-    buildCommand: apt-get update && apt-get install -y ffmpeg
+  buildCommand: apt-get update && apt-get install -y ffmpeg && python manage.py test booking.tests artists.tests reviews.tests test.test_booking_sistem
     startCommand: daphne record_label.asgi:application --port $PORT --bind 0.0.0.0
     envVars:
       - key: PYTHON_VERSION

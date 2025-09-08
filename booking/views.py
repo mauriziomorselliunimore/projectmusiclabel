@@ -1,3 +1,36 @@
+from .forms import QuoteRequestForm
+from .models import QuoteRequest
+# Richiesta preventivo da artista
+@login_required
+def request_quote(request, associate_id):
+    associate = get_object_or_404(Associate, id=associate_id, is_active=True)
+    if not hasattr(request.user, 'artist'):
+        messages.error(request, 'Solo gli artisti possono richiedere preventivi!')
+        return redirect('associates:detail', pk=associate.pk)
+    if request.method == 'POST':
+        form = QuoteRequestForm(request.POST)
+        if form.is_valid():
+            quote = form.save(commit=False)
+            quote.artist = request.user.artist
+            quote.associate = associate
+            quote.save()
+            messages.success(request, 'Richiesta preventivo inviata!')
+            return redirect('booking:view_quote', quote_id=quote.id)
+    else:
+        form = QuoteRequestForm()
+    return render(request, 'booking/request_quote.html', {
+        'form': form,
+        'associate': associate
+    })
+
+# Visualizza preventivo
+@login_required
+def view_quote(request, quote_id):
+    quote = get_object_or_404(QuoteRequest, id=quote_id)
+    # Solo artista o associato coinvolto può vedere
+    if request.user != quote.artist.user and request.user != quote.associate.user:
+        raise PermissionDenied
+    return render(request, 'booking/view_quote.html', {'quote': quote})
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages

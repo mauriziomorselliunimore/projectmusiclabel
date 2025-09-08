@@ -1,3 +1,22 @@
+from .models import QuoteRequest
+
+class QuoteRequestForm(forms.ModelForm):
+    class Meta:
+        model = QuoteRequest
+        fields = ['message']
+        widgets = {
+            'message': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 4,
+                'placeholder': 'Descrivi la richiesta di preventivo...'
+            })
+        }
+        labels = {
+            'message': 'Messaggio per l’associato'
+        }
+        help_texts = {
+            'message': 'Spiega cosa ti serve, il tipo di lavoro, le tempistiche, ecc.'
+        }
 from django import forms
 from .models import Booking, Availability
 from django.utils import timezone

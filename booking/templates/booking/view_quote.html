@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>Dettaglio Preventivo</h2>
+<p><strong>Artista:</strong> {{ quote.artist }}</p>
+<p><strong>Associato:</strong> {{ quote.associate }}</p>
+<p><strong>Descrizione richiesta:</strong> {{ quote.description }}</p>
+<p><strong>Data richiesta:</strong> {{ quote.created_at }}</p>
+<p><strong>Stato:</strong> {{ quote.get_status_display }}</p>
+{% if quote.response %}
+    <h3>Risposta dell'associato</h3>
+    <p>{{ quote.response }}</p>
+{% endif %}
+<a href="/booking/calendar/" class="btn btn-secondary">Torna al calendario</a>
+{% endblock %}

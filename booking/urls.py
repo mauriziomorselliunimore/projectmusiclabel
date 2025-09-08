@@ -1,3 +1,6 @@
+from .views import request_quote, view_quote
+    path('quote/request/<int:associate_id>/', request_quote, name='request_quote'),
+    path('quote/view/<int:quote_id>/', view_quote, name='view_quote'),
 from django.urls import path
 from . import views
 
