@@ -143,15 +143,6 @@ class Availability(models.Model):
     # Metadata
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
-    
-        def save(self, *args, **kwargs):
-        if not self.is_recurring and self.specific_date:
-            # Se è una disponibilità specifica, impostiamo il giorno della settimana in base alla data
-            self.day_of_week = self.specific_date.weekday()
-        elif self.is_recurring:
-            # Se è ricorrente, assicuriamoci che specific_date sia None
-            self.specific_date = None
-        super().save(*args, **kwargs)
 
     def save(self, *args, **kwargs):
         if not self.is_recurring and self.specific_date:
