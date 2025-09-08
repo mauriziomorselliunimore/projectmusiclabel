@@ -36,7 +36,7 @@
 
 ### 👨‍💼 Admin
 - Username: `admin`
-- Password: `admin`
+- Password: `admin123`
 - Email: admin@example.com
 
 ### 🎤 Artisti
