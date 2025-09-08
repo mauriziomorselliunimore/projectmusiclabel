@@ -15,7 +15,7 @@ def mark_messages_as_read(conversation, user):
     """Segna i messaggi di una conversazione come letti"""
     Message.objects.filter(
         conversation=conversation,
-        receiver=user,
+        recipient=user,
         is_read=False
     ).update(is_read=True)
 
@@ -135,7 +135,7 @@ def inbox(request):
     """Vista per la inbox dei messaggi"""
     conversations = Conversation.objects.filter(
         Q(participant_1=request.user) | Q(participant_2=request.user)
-    ).order_by('-last_message_time')
+    ).order_by('-last_message_date')
     
     context = {
         'conversations': conversations

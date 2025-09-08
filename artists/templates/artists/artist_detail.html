@@ -6,11 +6,6 @@
 
 {% block extra_head %}
 <meta name="csrf-token" content="{{ csrf_token }}">
-<script src="{{ STATIC_URL }}js/artist_messaging.js"></script>
-{% endblock %}
-
-{% block extra_head %}
-<meta name="csrf-token" content="{{ csrf_token }}">
 <script src="{% static 'js/artist_messaging.js' %}"></script>
 {% endblock %}
 
