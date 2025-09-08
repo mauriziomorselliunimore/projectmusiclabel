@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
 from django.core.exceptions import ValidationError
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 ASSOCIATE_ICONS = [
     ('bi-person-circle', 'Persona'),

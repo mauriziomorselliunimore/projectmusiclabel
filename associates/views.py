@@ -5,7 +5,6 @@ from django.db.models import Q
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
-from datetime import datetime, time
 from messaging.models import Message, Notification, Conversation
 from .models import Associate, PortfolioItem, Availability
 from .forms import AssociateForm, PortfolioItemForm, AvailabilityForm

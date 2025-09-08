@@ -1,11 +1,10 @@
 from django.db import models
-from django.contrib.auth.models import User
 from django.urls import reverse
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 from associates.models import Associate
 from django.core.exceptions import ValidationError
-from datetime import datetime, timedelta
+from datetime import timedelta
 from artists.models import Artist
 from associates.models import Associate
 

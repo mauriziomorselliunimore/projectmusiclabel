@@ -5,18 +5,15 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.db.models import Q
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta
 from django.core.exceptions import PermissionDenied
 from .forms import AvailabilityForm
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
-import json
 
 from .models import Booking, Availability
 from .forms import BookingForm
-from artists.models import Artist
 from associates.models import Associate
-from accounts.models import Profile
 
 @login_required
 def booking_calendar(request, associate_id):

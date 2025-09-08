@@ -1,5 +1,5 @@
 from django import forms
-from .models import Associate, PortfolioItem, Availability, SKILLS, EXPERIENCE_LEVELS
+from .models import Associate, PortfolioItem, Availability
 
 class AssociateForm(forms.ModelForm):
     class Meta:

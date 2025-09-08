@@ -1,5 +1,5 @@
 from django import forms
-from .models import Artist, Demo, MUSIC_GENRES, ARTIST_ICONS
+from .models import Artist, Demo
 
 from accounts.models import Profile
 
