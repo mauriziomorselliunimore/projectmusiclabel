@@ -19,7 +19,6 @@ def security_settings(request):
     context = {
         'recent_logins': recent_logins,
         'failed_attempts': failed_attempts,
-        'has_2fa': False,  # Per futura implementazione 2FA
     }
     return render(request, 'accounts/security_settings.html', context)
 

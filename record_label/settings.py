@@ -48,8 +48,6 @@ THIRD_PARTY_APPS = [
     'crispy_bootstrap5',
     'cloudinary',
     'cloudinary_storage',
-    'django_otp',
-    'django_otp.plugins.otp_totp',  # Per 2FA
     'channels',
 ]
 
