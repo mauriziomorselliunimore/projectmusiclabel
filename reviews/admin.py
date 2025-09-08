@@ -26,3 +26,6 @@ class ReviewAdmin(admin.ModelAdmin):
     def has_delete_permission(self, request, obj=None):
         # Permetti l'eliminazione solo ai superuser
         return request.user.is_superuser
+"""
+All review admin registrations have been removed as reviews are no longer needed.
+"""

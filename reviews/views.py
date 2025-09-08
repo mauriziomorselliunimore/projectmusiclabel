@@ -141,3 +141,6 @@ def user_reviews(request, user_id):
         'total_reviews': reviews.count()
     }
     return render(request, 'reviews/user_reviews.html', context)
+"""
+All review views have been removed as reviews are no longer needed.
+"""

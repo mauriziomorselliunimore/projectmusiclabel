@@ -53,3 +53,6 @@ def show_artist_ratings(reviews):
         'avg_preparation': avg_ratings['avg_preparation'] or 0,
         'avg_collaboration': avg_ratings['avg_collaboration'] or 0,
     }
+"""
+All review template tags have been removed as reviews are no longer needed.
+"""

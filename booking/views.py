@@ -261,7 +261,9 @@ def booking_detail(request, pk):
     context = {
         'booking': booking,
         'artist': booking.artist,
-        'associate': booking.associate
+        'associate': booking.associate,
+        'is_associate': request.user == booking.associate.user,
+        'is_artist': request.user == booking.artist.user
     }
     return render(request, 'booking/detail.html', context)
 
@@ -332,8 +334,22 @@ def my_bookings(request):
         messages.error(request, 'Non hai i permessi per vedere le prenotazioni.')
         return redirect('core:home')
     
+    # Determine user type for template logic
+    user_type = None
+    if hasattr(request.user, 'artist'):
+        user_type = 'artist'
+    elif hasattr(request.user, 'associate'):
+        user_type = 'associate'
+    # Status choices for filter dropdown
+    status_choices = Booking.BOOKING_STATUS
+    status_filter = request.GET.get('status', '')
+    if status_filter:
+        bookings = bookings.filter(status=status_filter)
     context = {
-        'bookings': bookings
+        'bookings': bookings,
+        'user_type': user_type,
+        'status_choices': status_choices,
+        'status_filter': status_filter
     }
     return render(request, 'booking/my_bookings.html', context)
 

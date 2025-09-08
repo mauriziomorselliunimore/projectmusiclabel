@@ -9,3 +9,6 @@ urlpatterns = [
     path('delete/<int:review_id>/', views.delete_review, name='delete'),
     path('user/<int:user_id>/', views.user_reviews, name='user_reviews'),
 ]
+"""
+All review URLs have been removed as reviews are no longer needed.
+"""

@@ -18,9 +18,6 @@ urlpatterns = [
     path('availability/delete/<int:availability_id>/', views.delete_availability, name='delete_availability'),
     path('availability/view/<int:associate_id>/', views.view_availability, name='view_availability'),
     
-    # QuoteRequest URLs
-    path('quote/request/<int:associate_id>/', request_quote, name='request_quote'),
-    path('quote/view/<int:quote_id>/', view_quote, name='view_quote'),
     
     # API URLs
     path('api/available-slots/<int:associate_id>/', views.api_available_slots, name='api_slots'),

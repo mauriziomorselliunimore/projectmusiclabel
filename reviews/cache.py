@@ -53,3 +53,6 @@ def invalidate_ratings_cache_on_delete(sender, instance, **kwargs):
     """Invalida la cache quando una recensione viene eliminata"""
     cache_key = get_cache_key(instance.reviewed_id, instance.review_type)
     cache.delete(cache_key)
+"""
+All review cache logic has been removed as reviews are no longer needed.
+"""

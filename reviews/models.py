@@ -115,3 +115,6 @@ class Review(models.Model):
             
         valid_ratings = [r for r in ratings if r is not None]
         return sum(valid_ratings) / len(valid_ratings) if valid_ratings else self.rating
+"""
+All review models have been removed as reviews are no longer needed.
+"""

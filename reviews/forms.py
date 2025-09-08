@@ -68,3 +68,6 @@ class ReviewForm(forms.ModelForm):
             del self.fields['professionalism']
             del self.fields['communication']
             del self.fields['value']
+"""
+All review forms have been removed as reviews are no longer needed.
+"""

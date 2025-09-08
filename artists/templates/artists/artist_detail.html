@@ -24,7 +24,7 @@
                     <div class="mb-3 position-relative">
                         <div class="artist-icon-container icon-container-xl">
                             <div class="artist-icon-circle">
-                                <i class="bi {{ artist.profile_icon }} icon-xl" style="color: {{ artist.profile_icon_color }}"></i>
+                                <i class="bi {{ artist.user.profile.profile_icon|default:'bi-person-circle' }} icon-xl" style="color: {{ artist.user.profile.profile_icon_color|default:'#6366f1' }}"></i>
                             </div>
                         </div>
                         
