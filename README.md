@@ -6,16 +6,31 @@
 **Framework:** Django 4.2.7  
 **Database:** PostgreSQL (Produzione) / SQLite (Sviluppo)  
 **Storage:** Cloudinary (file multimediali)  
+**Cache:** Redis (messaggistica real-time e caching)  
 **Deploy:** Render Cloud Platform  
 **Linguaggio:** Python 3.11+  
 **Repository:** [github.com/mauriziomorselliunimore/projectmusiclabel](https://github.com/mauriziomorselliunimore/projectmusiclabel)
+
+## 💡 Caratteristiche Principali
+
+- **Sistema di Messaggistica Real-time**: Chat in tempo reale tra artisti e professionisti
+- **Booking System**: Gestione prenotazioni con calendario e disponibilità
+- **Dashboard Amministrativa**: Interfaccia personalizzata per gestire utenti e contenuti
+- **Sistema di Review**: Recensioni e feedback per artisti e professionisti
+- **API REST**: Documentazione completa con drf-spectacular
+- **WebSocket**: Notifiche in tempo reale con Django Channels
+- **Storage Cloud**: Gestione file multimediali con Cloudinary
+- **Performance**: Caching con Redis e ottimizzazioni database
+- **Sicurezza**: Protezione CSRF, XSS, e rate limiting
 
 ## 🚀 Setup Progetto
 
 ### Requisiti
 - Python 3.11+
 - PostgreSQL (per produzione)
+- Redis (per WebSocket e caching)
 - Account Cloudinary (per file storage)
+- FFmpeg (per processamento audio)
 
 ### 🔧 Installazione Locale
 ```bash
@@ -30,10 +45,15 @@ venv\Scripts\activate     # Windows
 
 # Installa dipendenze
 pip install -r requirements.txt
+pip install -r requirements_audio.txt  # Per processamento audio
 
 # Configurazione .env
 cp .env.example .env
 # Modifica .env con le tue configurazioni
+
+# Avvia Redis (necessario per WebSocket e caching)
+# Windows: Avvia Redis da Windows Subsystem for Linux (WSL)
+# Linux/Mac: sudo service redis-server start
 ```
 
 ### ⚙️ Variabili Ambiente (.env)
@@ -50,8 +70,22 @@ CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 
+# Redis
+REDIS_URL=redis://localhost:6379/0
+
 # Host
 ALLOWED_HOSTS=localhost,127.0.0.1
+
+# Email con SendGrid (configurato ma non ancora testato)
+SENDGRID_API_KEY=your_sendgrid_api_key
+DEFAULT_FROM_EMAIL=your_verified_sender@yourdomain.com
+
+# Email Fallback (SMTP alternativo)
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=your_email
+EMAIL_HOST_PASSWORD=your_app_password
 ```
 
 ## 🌐 Deploy su Render
@@ -59,45 +93,99 @@ ALLOWED_HOSTS=localhost,127.0.0.1
 1. Fork del repository
 2. Crea un nuovo Web Service su Render
 3. Collega il repository
-4. Configura le variabili d'ambiente:
-   - `DATABASE_URL`
-   - `SECRET_KEY`
-   - `DEBUG=False`
-   - `CLOUDINARY_CLOUD_NAME`
-   - `CLOUDINARY_API_KEY`
-   - `CLOUDINARY_API_SECRET`
-   - `DJANGO_SETTINGS_MODULE=record_label.settings_production`
+4. Configura le variabili d'ambiente come nel file .env
+5. Aggiungi il build command:
+```bash
+./build.sh
+```
+6. Aggiungi lo start command:
+```bash
+daphne record_label.asgi:application -b 0.0.0.0 -p $PORT
+```
+7. Configura Redis:
+   - Aggiungi un Redis service su Render
+   - Collega il Redis service al Web service
 
-## 👥 Utenti Demo
+### 🔄 Reset Database e Migrazione (se necessario)
+```bash
+./reset_and_migrate.sh
+```
 
-### 🎸 Artisti
-1. **MR Wave** (Rock)
-   - Username: marco_rossi
-   - Password: testpass123
-   - Bio: Cantautore rock con influenze indie e alternative
-   - Città: Milano
+### 👤 Setup Admin (se necessario)
+```bash
+./setup_admin.sh
+```
 
-2. **LauraB** (Pop)
-   - Username: laura_bianchi
-   - Password: testpass123
-   - Bio: Cantante pop con un tocco di soul
-   - Città: Roma
+## �️ Features Tecniche
 
-3. **DJ Verde** (Electronic)
-   - Username: giovanni_verdi
-   - Password: testpass123
-   - Bio: DJ e produttore di musica elettronica
-   - Città: Torino
+### 💬 Sistema di Messaggistica
+- Chat in tempo reale con WebSocket
+- Notifiche push per nuovi messaggi
+- Indicatori di lettura
+- Supporto emoji e markdown
+- Archiviazione conversazioni
 
-### 👔 Professionisti Associati
-1. **Studio Sound** (Studio di Registrazione)
-   - Username: studio_sound
-   - Password: testpass123
-   - Specializzazione: Sound Engineer
-   - Skills: Recording, Mixing, Mastering, Pro Tools
-   - Disponibilità: Lunedì-Venerdì 9:00-18:00
-   - Tariffa: €50/ora
-   - Città: Milano
+### 📅 Sistema di Booking
+- Gestione disponibilità settimanale
+- Prenotazioni one-time e ricorrenti
+- Calendario interattivo
+- Notifiche automatiche
+- Sistema di conferma/rifiuto
+
+### 👤 Profili Utente
+- Profili specializzati per artisti e professionisti
+- Portfolio multimediale
+- Sistema di rating e recensioni
+- Badge e verifiche
+- Gestione privacy
+
+### ⚡ Performance
+- Caching multi-livello con Redis
+- Ottimizzazione query database
+- Lazy loading immagini
+- Compressione asset statici
+- Rate limiting API
+
+### 🔒 Sicurezza
+- Autenticazione token-based
+- Protezione CSRF e XSS
+- Rate limiting per IP
+- Validazione input
+- Sanitizzazione output
+
+### 📧 Sistema Email
+- Integrazione SendGrid (configurata)
+- Template email personalizzabili
+- Fallback SMTP configurabile
+- Code di invio asincrone
+- Tracciamento delivery (quando attivo)
+
+## 📚 Documentazione API
+
+La documentazione API completa è disponibile all'endpoint `/api/schema/swagger-ui/`
+
+Principali endpoint:
+- `/api/artists/`: Gestione artisti
+- `/api/associates/`: Gestione professionisti
+- `/api/bookings/`: Gestione prenotazioni
+- `/api/reviews/`: Sistema recensioni
+- `/api/messages/`: Sistema messaggistica
+
+## 👥 Account Demo
+
+Per testare l'applicazione, usa uno di questi account:
+
+### 🎸 Artista Demo
+- Username: `demo_artist`
+- Password: `demopass123`
+
+### 👔 Professionista Demo
+- Username: `demo_associate`
+- Password: `demopass123`
+
+### 🔑 Admin Demo
+- Username: `admin`
+- Password: `adminpass123`
 
 2. **MasterMix** (Producer)
    - Username: master_mix
