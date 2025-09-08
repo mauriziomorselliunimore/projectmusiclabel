@@ -29,31 +29,43 @@ class Artist(models.Model):
     youtube_url = models.URLField(blank=True)
     soundcloud_url = models.URLField(blank=True)
     instagram_url = models.URLField(blank=True)
+    facebook_url = models.URLField(blank=True)
+    twitter_url = models.URLField(blank=True)
+    
+    # Media files
+    profile_image = models.ImageField(upload_to='artist_images/', blank=True)
+    background_image = models.ImageField(upload_to='artist_backgrounds/', blank=True)
+    press_kit = models.FileField(upload_to='press_kits/', blank=True)
+    
+    class Meta:
+        ordering = ['stage_name']
+        verbose_name = 'Artista'
+        verbose_name_plural = 'Artisti'
 
     def __str__(self):
         return self.stage_name
 
+    def get_social_links(self):
+        """Returns a dictionary of social media links"""
+        return {
+            'spotify': self.spotify_url,
+            'youtube': self.youtube_url,
+            'soundcloud': self.soundcloud_url,
+            'instagram': self.instagram_url,
+            'facebook': self.facebook_url,
+            'twitter': self.twitter_url
+        }
+
     def get_genres_list(self):
-        """Return genres as a list"""
-        if not self.genres:
-            return []
-        return [genre.strip() for genre in self.genres.split(',')]
+        """Returns a list of genres"""
+        return [g.strip() for g in self.genres.split(',')] if self.genres else []
 
-class Demo(models.Model):
-    artist = models.ForeignKey(Artist, on_delete=models.CASCADE, related_name='demos')
-    title = models.CharField(max_length=100)
-    description = models.TextField(blank=True)
-    audio_file = models.FileField(
-        upload_to='demos/',
-        validators=[FileExtensionValidator(['mp3', 'wav', 'ogg', 'm4a'])],
-        blank=True,
-        null=True
-    )
-    external_audio_url = models.URLField(blank=True, null=True)
-    genre = models.CharField(max_length=50, choices=MUSIC_GENRES)
-    duration = models.DurationField(null=True, blank=True)
-    uploaded_at = models.DateTimeField(auto_now_add=True)
-    is_public = models.BooleanField(default=True)
-
-    def __str__(self):
-        return f"{self.artist.stage_name} - {self.title}"
+    def has_complete_profile(self):
+        """Checks if the artist has completed their profile"""
+        return all([
+            self.stage_name,
+            self.bio,
+            self.genres,
+            self.location,
+            self.profile_image
+        ])

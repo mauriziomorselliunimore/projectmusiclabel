@@ -1,5 +1,5 @@
-from django.db import models
-from .models import Artist, Demo, validate_audio_file_size
+from .artist import Artist, validate_audio_file_size
+from .demo import Demo
 from .collaboration import CollaborationProposal
 from .constants import MUSIC_GENRES, ARTIST_ICONS
 
