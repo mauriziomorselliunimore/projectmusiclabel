@@ -46,7 +46,7 @@ def get_new_messages(request, conversation_id):
         conversation=conversation,
         recipient=request.user,
         is_read=False
-    ).order_by('created_at')
+    ).order_by('-created_at')
     
     # Formatta i messaggi per JSON
     messages_data = [{
@@ -121,7 +121,7 @@ def conversation_detail(request, conversation_id):
     
     context = {
         'conversation': conv,
-        'messages': conv.messages.order_by('created_at').select_related('sender'),
+        'messages': conv.messages.order_by('-created_at').select_related('sender'),
         'form': form,
         'other_user': conv.get_other_participant(request.user)
     }

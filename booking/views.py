@@ -5,10 +5,12 @@ from django.http import JsonResponse
 from django.urls import reverse
 from django.utils import timezone
 from django.db.models import Q
-from .forms import QuoteRequestForm
-from .models import QuoteRequest
+from datetime import datetime, timedelta
+from django.core.exceptions import PermissionDenied
+from .forms import BookingForm, AvailabilityForm, QuoteRequestForm
+from .models import Booking, Availability, QuoteRequest
+from associates.models import Associate
 
-# Richiesta preventivo da artista
 @login_required
 def request_quote(request, associate_id):
     associate = get_object_or_404(Associate, id=associate_id, is_active=True)
@@ -39,22 +41,6 @@ def view_quote(request, quote_id):
     if request.user != quote.artist.user and request.user != quote.associate.user:
         raise PermissionDenied
     return render(request, 'booking/view_quote.html', {'quote': quote})
-from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.http import JsonResponse
-from django.urls import reverse
-from django.utils import timezone
-from django.db.models import Q
-from datetime import datetime, timedelta
-from django.core.exceptions import PermissionDenied
-from .forms import AvailabilityForm
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_http_methods
-
-from .models import Booking, Availability
-from .forms import BookingForm
-from associates.models import Associate
 
 @login_required
 def booking_calendar(request, associate_id):
@@ -281,24 +267,20 @@ def booking_detail(request, pk):
 def booking_status_update(request, pk):
     """Aggiorna lo stato di una prenotazione"""
     booking = get_object_or_404(Booking, pk=pk)
-    
     # Solo l'associato può aggiornare lo stato
     if request.user != booking.associate.user:
         messages.error(request, 'Solo l\'associato può aggiornare lo stato della prenotazione.')
         return redirect('booking:detail', pk=pk)
-    
     if request.method == 'POST':
         new_status = request.POST.get('status')
-        if new_status in ['confirmed', 'rejected', 'completed']:
+        if new_status in ['confirmed', 'rejected', 'completed', 'cancelled']:
             old_status = booking.status
             booking.status = new_status
             booking.save()
-            
             # Import qui per evitare circular import
             from messaging.models import Notification, Message
-            
             # Crea notifica per l'artista
-            status_display = dict(Booking.STATUS_CHOICES)[new_status]
+            status_display = dict(Booking.BOOKING_STATUS)[new_status] if new_status != 'cancelled' else 'Cancellato'
             Notification.objects.create(
                 user=booking.artist.user,
                 notification_type=f'booking_{new_status}',
@@ -307,7 +289,6 @@ def booking_status_update(request, pk):
                 related_booking=booking,
                 action_url=f'/booking/{booking.pk}/'
             )
-            
             # Crea messaggio
             Message.objects.create(
                 sender=request.user,
@@ -320,11 +301,9 @@ def booking_status_update(request, pk):
                 message=f'La tua richiesta di prenotazione è stata {status_display.lower()}.',
                 related_booking=booking
             )
-            
             messages.success(request, f'Stato della prenotazione aggiornato a {status_display}')
         else:
             messages.error(request, 'Stato non valido')
-            
     return redirect('booking:detail', pk=pk)
 
 @login_required
