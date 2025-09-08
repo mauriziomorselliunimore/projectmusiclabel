@@ -237,8 +237,8 @@ def populate_database(request):
             user.save()
         # Crea il profilo del professionista
         from accounts.models import Profile
-        Profile.objects.create(user=user, user_type='associate')
-        
+        Profile.objects.get_or_create(user=user, defaults={'user_type': 'associate'})
+
         # Crea il professionista
         associate = Associate.objects.create(
             user=user,
@@ -252,7 +252,7 @@ def populate_database(request):
             website=data['website'],
             portfolio_description=data['portfolio_description']
         )
-        
+
         # Crea i portfolio items
         for portfolio in data['portfolios']:
             from associates.models import PortfolioItem
