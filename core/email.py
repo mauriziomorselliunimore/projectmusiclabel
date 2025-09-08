@@ -53,9 +53,10 @@ def send_template_email(template_name, context, subject, recipient_list, from_em
 
 def send_welcome_email(user):
     """Invia email di benvenuto a un nuovo utente"""
+    from django.urls import reverse
     context = {
         'user': user,
-        'login_url': settings.LOGIN_URL,
+        'login_url': f"{settings.SITE_URL}{reverse('accounts:profile')}",
     }
     
     return send_template_email(

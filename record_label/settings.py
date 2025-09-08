@@ -17,6 +17,9 @@ SECRET_KEY = os.environ.get('SECRET_KEY', get_random_secret_key())
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'True').lower() == 'true'
 
+# Base URL del sito
+SITE_URL = 'http://localhost:8000' if DEBUG else os.environ.get('SITE_URL', '')
+
 # Hosts permessi
 ALLOWED_HOSTS = [
     'localhost',
