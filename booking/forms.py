@@ -1,5 +1,5 @@
 from django import forms
-from .models import Booking
+from .models import Booking, Availability
 from django.utils import timezone
 from datetime import timedelta
 
@@ -48,6 +48,53 @@ class BookingForm(forms.ModelForm):
             'special_requirements': 'Richieste Speciali'
         }
         help_texts = {
+            'booking_type': 'Seleziona il tipo di sessione che vuoi prenotare',
+            'session_date': 'Scegli la data e l\'ora di inizio della sessione',
+            'duration_hours': 'Indica la durata prevista in ore',
+            'location': 'Specifica dove si terrà la sessione',
+            'notes': 'Aggiungi dettagli importanti sulla sessione',
+            'special_requirements': 'Indica eventuali necessità particolari'
+        }
+
+class AvailabilityForm(forms.ModelForm):
+    class Meta:
+        model = Availability
+        fields = ['is_recurring', 'day_of_week', 'specific_date', 'start_time', 'end_time']
+        widgets = {
+            'specific_date': forms.DateInput(attrs={
+                'type': 'date',
+                'class': 'form-control',
+                'min': timezone.now().date().isoformat()
+            }),
+            'start_time': forms.TimeInput(attrs={
+                'type': 'time',
+                'class': 'form-control'
+            }),
+            'end_time': forms.TimeInput(attrs={
+                'type': 'time',
+                'class': 'form-control'
+            }),
+            'day_of_week': forms.Select(attrs={
+                'class': 'form-select'
+            }),
+            'is_recurring': forms.CheckboxInput(attrs={
+                'class': 'form-check-input'
+            })
+        }
+        labels = {
+            'is_recurring': 'Disponibilità Ricorrente',
+            'day_of_week': 'Giorno della Settimana',
+            'specific_date': 'Data Specifica',
+            'start_time': 'Ora Inizio',
+            'end_time': 'Ora Fine'
+        }
+        help_texts = {
+            'is_recurring': 'Seleziona se questa disponibilità si ripete ogni settimana',
+            'day_of_week': 'Per disponibilità ricorrenti, seleziona il giorno della settimana',
+            'specific_date': 'Per disponibilità una tantum, seleziona la data specifica',
+            'start_time': 'Ora di inizio della disponibilità',
+            'end_time': 'Ora di fine della disponibilità'
+        }
             'booking_type': 'Seleziona il tipo di sessione che vuoi prenotare',
             'session_date': 'Scegli data e ora di inizio della sessione',
             'duration_hours': 'Indica la durata prevista in ore (min 1, max 8)',

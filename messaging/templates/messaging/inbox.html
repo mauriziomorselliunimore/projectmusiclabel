@@ -35,7 +35,7 @@
                     {% for conv_data in conversations %}
                     <div class="conversation-item border-bottom p-3 {% if conv_data.has_unread %}bg-primary bg-opacity-10{% endif %}" 
                          style="cursor: pointer; transition: all 0.2s ease;"
-                         onclick="window.location.href='{% url 'messaging:conversation' conv_data.conversation.id %}'">
+                         onclick="window.location.href='{% url 'messaging:conversation' conversation_id=conv_data.conversation.id %}'">
                         
                         <div class="d-flex align-items-center">
                             <!-- Avatar -->

@@ -136,8 +136,24 @@ def inbox(request):
         Q(participant_1=request.user) | Q(participant_2=request.user)
     ).order_by('-last_message_date')
     
+    # Prepara i dati delle conversazioni per il template
+    conversations_data = []
+    for conv in conversations:
+        other_user = conv.participant_2 if conv.participant_1 == request.user else conv.participant_1
+        has_unread = conv.messages.filter(
+            is_read=False,
+            sender=other_user
+        ).exists()
+        
+        conversations_data.append({
+            'conversation': conv,
+            'other_user': other_user,
+            'has_unread': has_unread,
+            'last_message': conv.messages.order_by('-created_at').first() if conv.messages.exists() else None
+        })
+    
     context = {
-        'conversations': conversations
+        'conversations': conversations_data
     }
     
     return render(request, 'messaging/inbox.html', context)

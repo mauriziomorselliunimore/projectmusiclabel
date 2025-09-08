@@ -6,6 +6,8 @@ from django.urls import reverse
 from django.utils import timezone
 from django.db.models import Q
 from datetime import datetime, timedelta, time
+from django.core.exceptions import PermissionDenied
+from .forms import AvailabilityForm
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 import json
@@ -142,10 +144,17 @@ def create_booking(request, associate_id):
     
     available_slots = []
     availabilities = associate.availability_slots.filter(
-        start_time__date__gte=start_date,
-        start_time__date__lte=end_date,
-        is_active=True
-    ).order_by('start_time')
+        Q(
+            is_recurring=True,
+            is_active=True
+        ) |
+        Q(
+            is_recurring=False,
+            specific_date__gte=start_date,
+            specific_date__lte=end_date,
+            is_active=True
+        )
+    ).order_by('day_of_week', 'start_time')
 
     context = {
         'form': form,
@@ -299,6 +308,66 @@ def api_available_slots(request, associate_id):
             'slots': available_slots,
             'timezone': str(timezone.get_current_timezone())
         })
+
+@login_required
+def manage_availability(request):
+    """Vista per gestire le disponibilità dell'associato"""
+    if not hasattr(request.user, 'associate'):
+        messages.error(request, 'Solo gli associati possono gestire le disponibilità')
+        return redirect('core:home')
+    
+    if request.method == 'POST':
+        form = AvailabilityForm(request.POST)
+        if form.is_valid():
+            availability = form.save(commit=False)
+            availability.associate = request.user.associate
+            availability.save()
+            messages.success(request, 'Disponibilità aggiunta con successo!')
+            return redirect('booking:manage_availability')
+    else:
+        form = AvailabilityForm()
+    
+    # Get disponibilità esistenti
+    availabilities = request.user.associate.availability_slots.all().order_by(
+        'is_recurring', 'day_of_week', 'specific_date', 'start_time'
+    )
+    
+    context = {
+        'form': form,
+        'availabilities': availabilities
+    }
+    return render(request, 'booking/manage_availability.html', context)
+
+@login_required
+def toggle_availability(request, availability_id):
+    """Attiva/disattiva una disponibilità"""
+    availability = get_object_or_404(Availability, id=availability_id)
+    
+    # Verifica che l'utente sia il proprietario
+    if availability.associate.user != request.user:
+        raise PermissionDenied
+    
+    if request.method == 'POST':
+        availability.is_active = not availability.is_active
+        availability.save()
+        messages.success(request, 'Disponibilità aggiornata con successo!')
+    
+    return redirect('booking:manage_availability')
+
+@login_required
+def delete_availability(request, availability_id):
+    """Elimina una disponibilità"""
+    availability = get_object_or_404(Availability, id=availability_id)
+    
+    # Verifica che l'utente sia il proprietario
+    if availability.associate.user != request.user:
+        raise PermissionDenied
+    
+    if request.method == 'POST':
+        availability.delete()
+        messages.success(request, 'Disponibilità eliminata con successo!')
+    
+    return redirect('booking:manage_availability')
         
     except Exception as e:
         return JsonResponse({'error': str(e)}, status=500)

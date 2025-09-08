@@ -1,0 +1,77 @@
+/* Stili per il calendario delle disponibilità */
+.availability-calendar {
+    background: var(--bg-secondary);
+    border-radius: 0.5rem;
+    padding: 1rem;
+    margin-bottom: 2rem;
+}
+
+/* Stili per le disponibilità nella tabella */
+.table-availability {
+    background: var(--bg-secondary);
+}
+
+.table-availability thead th {
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    border: none;
+}
+
+.table-availability tbody tr {
+    transition: all 0.2s ease;
+}
+
+.table-availability tbody tr:hover {
+    background: var(--bg-hover);
+}
+
+/* Badges per lo stato */
+.badge.bg-info {
+    background-color: var(--info) !important;
+}
+
+.badge.bg-warning {
+    background-color: var(--warning) !important;
+}
+
+.badge.bg-success {
+    background-color: var(--success) !important;
+}
+
+.badge.bg-danger {
+    background-color: var(--danger) !important;
+}
+
+/* Form controls */
+.dark-select {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    border-color: var(--border);
+}
+
+.dark-select option {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+}
+
+/* Toggle switch per is_recurring */
+.form-switch .form-check-input {
+    width: 3em;
+}
+
+.form-switch .form-check-input:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .table-responsive {
+        margin-bottom: 1rem;
+    }
+    
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.875rem;
+    }
+}

@@ -13,8 +13,13 @@ class HealthCheckAdminSite(admin.AdminSite):
         return custom_urls + urls
         
     def index(self, request, extra_context=None):
-        # Redirect to your custom dashboard
-        return HttpResponseRedirect(reverse('core:admin_dashboard'))
+        if not request.user.is_superuser:
+            # Se non è superadmin, mostra l'interfaccia admin standard
+            return super().index(request, extra_context)
+            
+        # Se è superadmin, mostra la dashboard custom
+        from core.views.admin_views import admin_dashboard
+        return admin_dashboard(request)
         
     def health_check_view(self, request):
         # Riutilizziamo la funzione health_check esistente per ottenere lo stato
