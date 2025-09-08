@@ -176,7 +176,7 @@ def create_booking(request, associate_id):
                     'error': str(e)
                 }, status=500)
             return redirect('booking:calendar', associate_id=associate.pk)
-    
+
     # GET request - mostra form
     initial = {
         'booking_type': 'recording',
