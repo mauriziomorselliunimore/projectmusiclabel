@@ -1,13 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
-from django.utils impor    # Disponibilità ricorrente
-    day_of_week = models.IntegerField(choices=DAYS_OF_WEEK, null=True, blank=True)
-    start_time = models.TimeField()
-    end_time = models.TimeField()
-    
-    # Disponibilità specifica (override)
-    is_recurring = models.BooleanField(default=True)one
+from django.utils import timezone
+from django.core.exceptions import ValidationError
+from associates.models import Associate
 from django.core.exceptions import ValidationError
 from datetime import datetime, timedelta
 from artists.models import Artist

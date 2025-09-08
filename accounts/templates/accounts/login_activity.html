@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Attività Account - MyLabel{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-3">
+            {% include 'accounts/includes/profile_sidebar.html' with active='activity' %}
+        </div>
+        
+        <div class="col-md-9">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0 text-light">
+                        <i class="bi bi-clock-history"></i> Cronologia Accessi
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Data e Ora</th>
+                                    <th>IP</th>
+                                    <th>Dispositivo</th>
+                                    <th>Stato</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for log in logs %}
+                                <tr>
+                                    <td>{{ log.timestamp|date:"d/m/Y H:i" }}</td>
+                                    <td>{{ log.ip_address }}</td>
+                                    <td>
+                                        <i class="bi {% if log.device_type == 'Mobile' %}bi-phone{% elif log.device_type == 'Tablet' %}bi-tablet{% else %}bi-laptop{% endif %}"></i>
+                                        {{ log.device_type }}
+                                    </td>
+                                    <td>
+                                        {% if log.success %}
+                                        <span class="badge bg-success">Successo</span>
+                                        {% else %}
+                                        <span class="badge bg-danger">Fallito</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="4" class="text-center">Nessun accesso registrato</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {% if logs.has_other_pages %}
+                    <nav aria-label="Paginazione" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            {% if logs.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ logs.previous_page_number }}">
+                                    <i class="bi bi-chevron-left"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+
+                            {% for num in logs.paginator.page_range %}
+                            <li class="page-item {% if logs.number == num %}active{% endif %}">
+                                <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                            </li>
+                            {% endfor %}
+
+                            {% if logs.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ logs.next_page_number }}">
+                                    <i class="bi bi-chevron-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
