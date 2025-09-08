@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Disponibilità di {{ associate.user.get_full_name }} - MyLabel{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/booking.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-light">
+                    <i class="bi bi-calendar-check me-2"></i>
+                    Disponibilità di {{ associate.user.get_full_name }}
+                </h2>
+                <a href="{% url 'booking:calendar' associate.id %}" class="btn btn-primary">
+                    <i class="bi bi-calendar-plus me-2"></i>
+                    Prenota una Sessione
+                </a>
+            </div>
+
+            <!-- Disponibilità Ricorrenti -->
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h4 class="card-title">
+                        <i class="bi bi-calendar-week me-2"></i>
+                        Disponibilità Settimanali
+                    </h4>
+                    
+                    {% with recurring_slots=availabilities|dictsortreversed:"is_active"|dictsort:"day_of_week" %}
+                    {% if recurring_slots %}
+                    <div class="table-responsive">
+                        <table class="table table-hover table-availability">
+                            <thead>
+                                <tr>
+                                    <th>Giorno</th>
+                                    <th>Orario</th>
+                                    <th>Stato</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for slot in recurring_slots %}
+                                {% if slot.is_recurring %}
+                                <tr {% if not slot.is_active %}class="text-muted"{% endif %}>
+                                    <td>{{ slot.get_day_of_week_display }}</td>
+                                    <td>{{ slot.start_time|time:"H:i" }} - {{ slot.end_time|time:"H:i" }}</td>
+                                    <td>
+                                        {% if slot.is_active %}
+                                        <span class="badge bg-success">Disponibile</span>
+                                        {% else %}
+                                        <span class="badge bg-danger">Non Disponibile</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Nessuna disponibilità ricorrente impostata.
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+
+            <!-- Disponibilità Specifiche -->
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title">
+                        <i class="bi bi-calendar-event me-2"></i>
+                        Disponibilità Specifiche
+                    </h4>
+                    
+                    {% with specific_slots=availabilities|dictsortreversed:"is_active"|dictsort:"specific_date" %}
+                    {% if specific_slots %}
+                    <div class="table-responsive">
+                        <table class="table table-hover table-availability">
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Orario</th>
+                                    <th>Stato</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for slot in specific_slots %}
+                                {% if not slot.is_recurring and slot.specific_date >= today %}
+                                <tr {% if not slot.is_active %}class="text-muted"{% endif %}>
+                                    <td>{{ slot.specific_date|date:"d/m/Y" }}</td>
+                                    <td>{{ slot.start_time|time:"H:i" }} - {{ slot.end_time|time:"H:i" }}</td>
+                                    <td>
+                                        {% if slot.is_active %}
+                                        <span class="badge bg-success">Disponibile</span>
+                                        {% else %}
+                                        <span class="badge bg-danger">Non Disponibile</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <div class="alert alert-info">
+                        <i class="bi bi-info-circle me-2"></i>
+                        Nessuna disponibilità specifica impostata.
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

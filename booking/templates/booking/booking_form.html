@@ -4,7 +4,26 @@
 {% block extra_css %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+<link rel="stylesheet" href="{% static 'css/booking.css' %}">
 <style>
+    .availability-sidebar {
+        background-color: #1a202c;
+        border-radius: 0.5rem;
+        padding: 1rem;
+    }
+    
+    .availability-table {
+        margin-bottom: 0;
+    }
+    
+    .availability-table th {
+        background-color: rgba(0, 0, 0, 0.2);
+    }
+    
+    .availability-table td {
+        padding: 0.5rem;
+    }
+    
     .dark-select {
         background-color: #1a202c;
         color: #e2e8f0;
@@ -117,8 +136,9 @@
 {% block content %}
 <div class="container mt-4">
     <div class="row">
-        <div class="col-lg-8 mx-auto">
-            <div class="card">
+        <!-- Colonna Form Prenotazione -->
+        <div class="col-lg-8">
+            <div class="card h-100">
                 <div class="card-header">
                     <h4 class="text-light mb-0">
                         <i class="bi bi-calendar-plus"></i> Prenota Sessione con {{ associate.user.get_full_name }}
@@ -264,6 +284,44 @@
                             </button>
                         </div>
                     </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Colonna Disponibilità -->
+        <div class="col-lg-4">
+            <div class="card h-100">
+                <div class="card-header">
+                    <h5 class="text-light mb-0">
+                        <i class="bi bi-clock"></i> Disponibilità Associate
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="availability-sidebar">
+                        {% if associate.available_slots %}
+                            <div class="table-responsive">
+                                <table class="table table-sm table-dark availability-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Giorno</th>
+                                            <th>Orario</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for slot in associate.available_slots %}
+                                            <tr>
+                                                <td>{{ slot.date|date:"D j/n" }}</td>
+                                                <td>{{ slot.start_time|time:"H:i" }} - {{ slot.end_time|time:"H:i" }}</td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p class="text-muted mb-0">Nessuna disponibilità configurata.</p>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>

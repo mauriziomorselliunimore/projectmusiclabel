@@ -60,6 +60,49 @@ def create_booking(request, associate_id):
         messages.error(request, 'Solo gli artisti possono prenotare sessioni!')
         return redirect('associates:detail', pk=associate.pk)
     
+    # Get disponibilità per le prossime 4 settimane
+    start_date = timezone.now().date()
+    end_date = start_date + timedelta(weeks=4)
+    
+    # Get disponibilità ricorrenti e specifiche
+    recurring_slots = associate.availability_slots.filter(
+        is_recurring=True,
+        is_active=True
+    ).order_by('day_of_week', 'start_time')
+    
+    specific_slots = associate.availability_slots.filter(
+        is_recurring=False,
+        is_active=True,
+        specific_date__gte=start_date,
+        specific_date__lte=end_date
+    ).order_by('specific_date', 'start_time')
+    
+    # Combina le disponibilità per la visualizzazione
+    available_slots = []
+    
+    # Aggiungi slot ricorrenti per le prossime 4 settimane
+    current_date = start_date
+    while current_date <= end_date:
+        for slot in recurring_slots:
+            if slot.day_of_week == current_date.weekday():
+                available_slots.append({
+                    'date': current_date,
+                    'start_time': slot.start_time,
+                    'end_time': slot.end_time
+                })
+        current_date += timedelta(days=1)
+    
+    # Aggiungi slot specifici
+    for slot in specific_slots:
+        available_slots.append({
+            'date': slot.specific_date,
+            'start_time': slot.start_time,
+            'end_time': slot.end_time
+        })
+    
+    # Ordina gli slot per data e ora
+    available_slots.sort(key=lambda x: (x['date'], x['start_time']))
+
     if request.method == 'POST':
         form = BookingForm(request.POST)
         
@@ -69,8 +112,8 @@ def create_booking(request, associate_id):
                 'errors': form.errors
             }, status=400)
         
-        try:
-            if form.is_valid():
+        if form.is_valid():
+            try:
                 booking = form.save(commit=False)
                 booking.artist = request.user.artist
                 booking.associate = associate
@@ -81,19 +124,22 @@ def create_booking(request, associate_id):
                 from messaging.models import Notification, Message, Conversation
                 
                 # Crea notifica per l'associato
-                Notification.objects.create(
-                    user=associate.user,
-                    notification_type='booking_request',
-                    title=f'Nuova richiesta prenotazione da {request.user.artist.stage_name}',
-                    message=f'Richiesta per {booking.get_booking_type_display()} il {booking.session_date.strftime("%d/%m/%Y alle %H:%M")}',
-                    related_booking=booking,
-                    action_url=f'/booking/{booking.pk}/'
-                )
+                try:
+                    Notification.objects.create(
+                        user=associate.user,
+                        notification_type='booking_request',
+                        title=f'Nuova richiesta prenotazione da {request.user.artist.stage_name}',
+                        message=f'Richiesta per {booking.get_booking_type_display()} il {booking.session_date.strftime("%d/%m/%Y alle %H:%M")}',
+                        related_booking=booking,
+                        action_url=f'/booking/{booking.pk}/'
+                    )
                 
-                # Ottieni o crea conversazione
-                conversation = Conversation.get_or_create_conversation(request.user, associate.user)
+                    # Ottieni o crea conversazione
+                    conversation = Conversation.get_or_create_conversation(request.user, associate.user)
                 
-                # Messaggio automatico
+                    # Messaggio automatico
+                except Exception as e:
+                    messages.warning(request, f'Impossibile creare la notifica: {str(e)}')
                 Message.objects.create(
                     sender=request.user,
                     recipient=associate.user,
@@ -156,11 +202,23 @@ def create_booking(request, associate_id):
         )
     ).order_by('day_of_week', 'start_time')
 
+    # Ottieni i booking esistenti
+    existing_bookings = Booking.objects.filter(
+        associate=associate,
+        session_date__date__range=[start_date, end_date],
+        status__in=['pending', 'confirmed']
+    ).select_related('artist__user')
+
     context = {
         'form': form,
         'associate': associate,
         'artist': request.user.artist,
-        'available_slots': available_slots
+        'recurring_slots': recurring_slots,
+        'specific_slots': specific_slots,
+        'available_slots': available_slots,  # Aggiungi gli slot ordinati
+        'existing_bookings': existing_bookings,
+        'start_date': start_date,
+        'end_date': end_date
     }
     return render(request, 'booking/booking_form.html', context)
 
@@ -271,6 +329,12 @@ def api_available_slots(request, associate_id):
         
         if not start_date or not end_date:
             return JsonResponse({'error': 'Devi specificare start_date e end_date'}, status=400)
+            
+        # Resto del codice qui...
+            
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
+            return JsonResponse({'error': 'Devi specificare start_date e end_date'}, status=400)
         
         try:
             start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
@@ -368,6 +432,20 @@ def delete_availability(request, availability_id):
         messages.success(request, 'Disponibilità eliminata con successo!')
     
     return redirect('booking:manage_availability')
-        
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=500)
+
+@login_required
+def view_availability(request, associate_id):
+    """Vista pubblica delle disponibilità di un associato"""
+    associate = get_object_or_404(Associate, id=associate_id)
+    
+    # Get tutte le disponibilità attive
+    availabilities = associate.availability_slots.all().order_by(
+        'is_recurring', 'day_of_week', 'specific_date', 'start_time'
+    )
+    
+    context = {
+        'associate': associate,
+        'availabilities': availabilities,
+        'today': timezone.now().date()
+    }
+    return render(request, 'booking/availability_view.html', context)

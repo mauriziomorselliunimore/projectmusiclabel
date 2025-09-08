@@ -32,6 +32,42 @@
 - Account Cloudinary (per file storage)
 - FFmpeg (per processamento audio)
 
+## 👥 Credenziali Demo
+
+### 👨‍💼 Admin
+- Username: `admin`
+- Password: `admin`
+- Email: admin@example.com
+
+### 🎤 Artisti
+1. **Blues Marco** (Chitarrista Blues)
+   - Username: `marco_blues`
+   - Password: `password123`
+   - Email: marco@example.com
+   
+2. **Sofia B** (Cantante Pop)
+   - Username: `sofia_pop`
+   - Password: `password123`
+   - Email: sofia@example.com
+   
+3. **DJ Elektro** (Producer EDM)
+   - Username: `dj_elektro`
+   - Password: `password123`
+   - Email: alessandro@example.com
+
+### 🎛️ Professionisti
+1. **Luca Ferrari** (Sound Engineer)
+   - Username: `luca_sound`
+   - Password: `password123`
+   - Email: luca@example.com
+   
+2. **Anna Romano** (Music Producer)
+   - Username: `anna_producer`
+   - Password: `password123`
+   - Email: anna@example.com
+
+*Nota: Tutti gli utenti demo utilizzano la stessa password: `password123`*
+
 ### 🔧 Installazione Locale
 ```bash
 # Clone repository
@@ -116,7 +152,7 @@ daphne record_label.asgi:application -b 0.0.0.0 -p $PORT
 ./setup_admin.sh
 ```
 
-## �️ Features Tecniche
+## ⚙️ Features Tecniche
 
 ### 💬 Sistema di Messaggistica
 - Chat in tempo reale con WebSocket
@@ -171,105 +207,111 @@ Principali endpoint:
 - `/api/reviews/`: Sistema recensioni
 - `/api/messages/`: Sistema messaggistica
 
-## 👥 Account Demo
-
-Per testare l'applicazione, usa uno di questi account:
-
-### 🎸 Artista Demo
-- Username: `demo_artist`
-- Password: `demopass123`
-
-### 👔 Professionista Demo
-- Username: `demo_associate`
-- Password: `demopass123`
-
-### 🔑 Admin Demo
-- Username: `admin`
-- Password: `adminpass123`
-
-2. **MasterMix** (Producer)
-   - Username: master_mix
-   - Password: testpass123
-   - Specializzazione: Produttore Musicale
-   - Skills: Production, Arrangement, Logic Pro, Ableton
-   - Disponibilità: Lunedì-Mercoledì 14:00-22:00
-   - Tariffa: €45/ora
-   - Città: Roma
-
-3. **Session Pro** (Session Musician)
-   - Username: session_pro
-   - Password: testpass123
-   - Specializzazione: Chitarrista Session
-   - Skills: Electric Guitar, Acoustic Guitar, Bass, Recording
-   - Disponibilità: Mercoledì-Sabato 10:00-19:00
-   - Tariffa: €35/ora
-   - Città: Bologna
-
-4. **Visual Arts** (Visual Artist)
-   - Username: visual_arts
-   - Password: testpass123
-   - Specializzazione: Video Producer
-   - Skills: Video Editing, Photography, After Effects, Premiere
-   - Disponibilità: Martedì-Sabato 9:00-17:00
-   - Tariffa: €40/ora
-   - Città: Torino
-
-### 👨‍💼 Admin
-- Username: admin
-- Password: admin
-
 ## 🏗️ Struttura Progetto Completa
 
 ```
-record_label/
-├── 📁 record_label/           # Configurazione principale
-│   ├── settings.py           # Settings ottimizzati Render
-│   ├── urls.py              # URL principali
-│   ├── wsgi.py              # WSGI per produzione
-│   └── asgi.py              # ASGI per WebSocket
-├── 📁 core/                  # App principale
-│   ├── views.py             # Homepage + utilities
-│   ├── urls.py              # URL core
-│   ├── templates/           # Template base
-│   └── management/commands/  # Comandi personalizzati
-├── 📁 accounts/             # Sistema autenticazione
-│   ├── models.py            # Profile utente
-│   ├── views.py             # Login/Register
-│   ├── forms.py             # Form personalizzati
-│   └── templates/           # Template auth
-├── 📁 artists/              # Gestione artisti
-│   ├── models.py            # Artist, Demo
-│   ├── views.py             # CRUD artisti
-│   ├── forms.py             # Form artisti
-│   ├── admin.py             # Admin personalizzato
-│   └── templates/           # Template artisti
-├── 📁 associates/           # Gestione professionisti
-│   ├── models.py            # Associate, PortfolioItem
-│   ├── views.py             # CRUD associati
-│   ├── forms.py             # Form associati
-│   └── templates/           # Template associati
-├── 📁 booking/              # Sistema prenotazioni
-│   ├── models.py            # Booking, Availability
-│   ├── views.py             # Calendario + booking
-│   ├── urls.py              # URL booking
-│   ├── admin.py             # Admin booking
-│   └── templates/           # Template booking
-├── 📁 messaging/            # Chat + notifiche
-│   ├── models.py            # Message, Notification
-│   ├── views.py             # Chat system
-│   ├── consumers.py         # WebSocket consumers
-│   ├── forms.py             # Form messaggi
-│   └── templates/           # Template messaging
-├── 📁 api/                  # REST API
-│   ├── serializers.py       # DRF serializers
-│   ├── views.py             # API endpoints
-│   └── urls.py              # URL API
-├── 📁 templates/            # Template globali
-│   └── base.html            # Template base
-├── 📁 static/               # File statici
-├── 📁 staticfiles/          # File statici produzione
-├── requirements.txt         # Dipendenze Python
-└── manage.py               # Django manage
+projectmusiclabel/
+├── 📁 record_label/          # Configurazione principale
+│   ├── settings.py          # Settings principali
+│   ├── settings_api.py      # Config API
+│   ├── settings_cache.py    # Config Redis
+│   ├── settings_email.py    # Config Email
+│   ├── settings_media.py    # Config Media
+│   ├── settings_production.py # Settings prod
+│   ├── urls.py             # URL principali
+│   ├── wsgi.py             # WSGI config
+│   └── asgi.py             # ASGI per WebSocket
+├── 📁 core/                 # App principale
+│   ├── admin_site.py       # Admin personalizzato
+│   ├── admin.py            # Admin models
+│   ├── cache.py            # Cache utils
+│   ├── decorators.py       # Custom decorators
+│   ├── email.py            # Email handlers
+│   ├── metrics.py          # Metriche sistema
+│   ├── middleware.py       # Middleware custom
+│   ├── models.py           # Core models
+│   ├── storage.py          # Storage handlers
+│   ├── urls/               # URL suddivisi
+│   ├── views/              # Views suddivise
+│   ├── templates/          # Template base
+│   └── management/commands/ # Comandi custom
+├── 📁 accounts/            # Sistema auth
+│   ├── admin.py           # Admin utenti
+│   ├── forms.py           # Form auth
+│   ├── models/            # Models suddivisi
+│   │   ├── auth_logs.py   # Log accessi
+│   │   └── profile.py     # Profili utente
+│   ├── signals.py         # Signals auth
+│   ├── views/             # Views suddivise
+│   │   ├── base.py       # Views base
+│   │   └── security.py   # Security views
+│   └── templates/         # Template auth
+├── 📁 artists/            # Gestione artisti
+│   ├── admin.py          # Admin artisti
+│   ├── forms.py          # Form artisti
+│   ├── models/           # Models suddivisi
+│   │   ├── artist.py     # Model artista
+│   │   ├── collaboration.py # Collaborazioni
+│   │   ├── constants.py  # Costanti
+│   │   └── demo.py       # Demo musicali
+│   ├── utils.py          # Utilities
+│   ├── views/            # Views suddivise
+│   └── templates/        # Template artisti
+├── 📁 associates/         # Gestione professionisti
+│   ├── admin.py          # Admin associati
+│   ├── forms.py          # Form associati
+│   ├── models.py         # Models associati
+│   ├── views.py          # Views associati
+│   └── templates/        # Template associati
+├── 📁 booking/           # Sistema prenotazioni
+│   ├── admin.py          # Admin booking
+│   ├── forms.py          # Form booking
+│   ├── models.py         # Models booking
+│   ├── views.py          # Views booking
+│   └── templates/        # Template booking
+├── 📁 messaging/         # Chat + notifiche
+│   ├── admin.py          # Admin messaggi
+│   ├── apps.py          # Config app
+│   ├── consumers.py      # WebSocket consumers
+│   ├── context_processors.py # Context custom
+│   ├── forms.py         # Form messaggi
+│   ├── models/          # Models suddivisi
+│   ├── routing.py       # Routing WebSocket
+│   ├── signals.py       # Signals messaggi
+│   ├── utils.py         # Utilities
+│   ├── views.py         # Views principali
+│   └── templates/       # Template messaggi
+├── 📁 reviews/          # Sistema recensioni
+│   ├── admin.py         # Admin recensioni
+│   ├── cache.py         # Cache recensioni
+│   ├── forms.py         # Form recensioni
+│   ├── models.py        # Models recensioni
+│   ├── views.py         # Views recensioni
+│   └── templates/       # Template recensioni
+├── 📁 api/              # REST API
+│   ├── apps.py         # Config API
+│   ├── docs.py         # Documentazione
+│   ├── serializers.py  # DRF serializers
+│   ├── throttling.py   # Rate limiting
+│   ├── urls.py         # URL API
+│   └── views/          # Views API
+├── 📁 docs/             # Documentazione
+│   ├── setup_guide.md  # Guida setup
+│   └── technical_overview.md # Overview tecnico
+├── 📁 static/          # File statici dev
+├── 📁 staticfiles/     # File statici prod
+├── 📁 settings/        # Settings aggiuntivi
+├── 📁 test/            # Test aggiuntivi
+├── .env               # Variabili ambiente
+├── .env.example       # Template env
+├── build.sh           # Script build
+├── manage.py          # Django manage
+├── render.yaml        # Config Render
+├── requirements.txt   # Dipendenze base
+├── requirements_audio.txt # Dipendenze audio
+├── reset_and_migrate.sh  # Script reset DB
+├── reset_db.sql         # SQL reset
+└── setup_admin.sh       # Script setup admin
 ```
 
 ---
@@ -277,33 +319,18 @@ record_label/
 
 ### 🗃️ Inizializzazione Automatica
 
-Il sistema è configurato per auto-inizializzarsi al primo deploy. Il comando `populate_db` crea:
+Il sistema è configurato per auto-inizializzarsi al primo deploy. Usa lo script `setup_admin.sh` o il comando `python manage.py setup_render` per:
 
-1. **Superuser di amministrazione**
-   - Username: admin
-   - Password: admin
+1. Applicare le migrazioni del database
+2. Creare il superuser amministratore
+3. Popolare il database con:
+   - Profili artisti demo
+   - Profili professionisti demo
+   - Disponibilità di esempio
+   - Demo con URL esterni funzionanti
+   - Portfolio items di esempio
 
-2. **Artisti demo**
-   - MR Wave (Rock)
-     * Username: marco_rossi
-     * Password: testpass123
-   - LauraB (Pop)
-     * Username: laura_bianchi
-     * Password: testpass123
-   - DJ Verde (Electronic)
-     * Username: giovanni_verdi
-     * Password: testpass123
-
-3. **Professionisti demo**
-   - Studio Sound (Studio di Registrazione)
-     * Username: studio_sound
-     * Password: testpass123
-   - Talent Scout Agency (Management)
-     * Username: talent_scout
-     * Password: testpass123
-   - PromoEvents (Promoter)
-     * Username: promo_events
-     * Password: testpass123
+Gli account demo creati sono quelli elencati nella sezione "Credenziali Demo" all'inizio di questo documento.
 
 ---
 
@@ -460,11 +487,11 @@ GET  /api/search/?q=term    # Ricerca globale
 ## 🎨 Design e UX
 
 ### 🌈 Color Scheme:
-- **Primary:** #ff2e88 (Magenta)
-- **Secondary:** #d72660 (Dark Magenta)  
-- **Background:** #000000 (Black)
-- **Card Background:** #1b1b1b (Dark Gray)
-- **Text:** #ffffff (White)
+- **Primary:** #2e86ff (Blu vivace)
+- **Secondary:** #ffbe2e (Giallo acceso)
+- **Background:** #181818 (Nero/grigio scuro)
+- **Card Background:** #23272a (Grigio medio)
+- **Text:** #f5f5f5 (Bianco caldo)
 
 ### 📱 Responsive Design
 - **Mobile-first** approach
@@ -488,12 +515,6 @@ pip install -r requirements.txt   # Installa dipendenze
 python manage.py migrate         # Applica migrazioni
 python manage.py populate_db     # Popola database con dati demo
 python manage.py runserver       # Avvia server di sviluppo
-
-```bash
-# Sviluppo locale
-python manage.py runserver
-python manage.py populate_db
-python manage.py shell
 
 # Produzione
 python manage.py collectstatic

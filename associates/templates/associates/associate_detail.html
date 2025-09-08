@@ -180,6 +180,13 @@
                                 <!-- Booking Button (only for artists) -->
                                 {% if user.is_authenticated and user.profile.user_type == 'artist' %}
                                     {% if associate.is_available %}
+                                        <a href="{% url 'booking:view_availability' associate.pk %}" class="btn btn-outline-primary btn-lg mb-2">
+                                            <i class="bi bi-calendar-check"></i>
+                                            <div class="booking-text">
+                                                <div>Vedi Disponibilità</div>
+                                                <small>Orari e date disponibili</small>
+                                            </div>
+                                        </a>
                                         <a href="{% url 'booking:calendar' associate.pk %}" class="btn btn-primary btn-lg booking-cta">
                                             <i class="bi bi-calendar-plus"></i> 
                                             <div class="booking-text">
