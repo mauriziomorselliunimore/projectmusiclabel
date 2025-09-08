@@ -103,7 +103,7 @@ def admin_dashboard(request):
             'completed': Booking.objects.filter(status='completed').count(),
             'cancelled': Booking.objects.filter(status='cancelled').count(),
             'revenue': Booking.objects.filter(status='completed').aggregate(Sum('total_cost'))['total_cost__sum'] or 0,
-            'avg_rating': Booking.objects.filter(rating__isnull=False).aggregate(Avg('rating'))['rating__avg'] or 0
+            # 'avg_rating': Booking.objects.filter(rating__isnull=False).aggregate(Avg('rating'))['rating__avg'] or 0
         },
         'messages': {
             'total': Message.objects.count(),

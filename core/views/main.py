@@ -174,49 +174,67 @@ def populate_database(request):
 
     # Crea artisti e i loro demo
     for data in artist_data:
-        # Crea l'utente
-        user = User.objects.create_user(
+        # Crea l'utente solo se non esiste
+        user, created = User.objects.get_or_create(
             username=data['username'],
-            email=data['email'],
-            password='password123',
-            first_name=data['first_name'],
-            last_name=data['last_name']
+            defaults={
+                'email': data['email'],
+                'password': 'password123',
+                'first_name': data['first_name'],
+                'last_name': data['last_name']
+            }
         )
-        
+        if not created:
+            # Aggiorna i dati se necessario
+            user.email = data['email']
+            user.first_name = data['first_name']
+            user.last_name = data['last_name']
+            user.set_password('password123')
+            user.save()
         # Crea l'artista
-        artist = Artist.objects.create(
+        artist = Artist.objects.get_or_create(
             user=user,
-            stage_name=data['stage_name'],
-            genres=data['genres'],
-            bio=data['bio'],
-            location=data['location'],
-            is_active=True
-        )
-        
+            defaults={
+                'stage_name': data['stage_name'],
+                'genres': data['genres'],
+                'bio': data['bio'],
+                'location': data['location'],
+                'is_active': True
+            }
+        )[0]
         # Crea le demo
         for demo in data['demos']:
             from artists.models import Demo
-            Demo.objects.create(
+            Demo.objects.get_or_create(
                 artist=artist,
                 title=demo['title'],
                 genre=demo['genre'],
-                description=demo['description'],
-                external_audio_url=demo['external_audio_url'],
-                duration=demo['duration'],
-                is_public=demo['is_public']
+                defaults={
+                    'description': demo['description'],
+                    'external_audio_url': demo['external_audio_url'],
+                    'duration': demo['duration'],
+                    'is_public': demo['is_public']
+                }
             )
 
     # Crea professionisti e i loro portfolio
     for data in associate_data:
-        # Crea l'utente
-        user = User.objects.create_user(
+        # Crea l'utente solo se non esiste
+        user, created = User.objects.get_or_create(
             username=data['username'],
-            email=data['email'],
-            password='password123',
-            first_name=data['first_name'],
-            last_name=data['last_name']
+            defaults={
+                'email': data['email'],
+                'password': 'password123',
+                'first_name': data['first_name'],
+                'last_name': data['last_name']
+            }
         )
-        
+        if not created:
+            user.email = data['email']
+            user.first_name = data['first_name']
+            user.last_name = data['last_name']
+            user.set_password('password123')
+            user.save()
         # Crea il profilo del professionista
         from accounts.models import Profile
         Profile.objects.create(user=user, user_type='associate')
@@ -253,12 +271,16 @@ def clear_database(request):
         return render(request, 'admin/not_authorized.html')
     
     # Cancelliamo tutti i dati tranne l'utente admin
-    Booking.objects.all().delete()
-    Artist.objects.all().delete()
-    Associate.objects.all().delete()
-    User = get_user_model()
-    User.objects.exclude(is_superuser=True).delete()
-    
+    from django.db import ProgrammingError
+    try:
+        Booking.objects.all().delete()
+        Artist.objects.all().delete()
+        Associate.objects.all().delete()
+        User = get_user_model()
+        User.objects.exclude(is_superuser=True).delete()
+    except ProgrammingError as e:
+        # Logga l'errore e continua
+        print(f"Errore durante la cancellazione: {e}")
     return render(request, 'admin/clear_success.html')
     return render(request, 'admin/clear_success.html')
 
