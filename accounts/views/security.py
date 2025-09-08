@@ -1,7 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from django.core.paginator import Paginator
-from .models.auth_logs import LoginLog
+from ..models.auth_logs import LoginLog
 
 @login_required
 def security_settings(request):
