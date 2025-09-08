@@ -100,10 +100,11 @@ class Booking(models.Model):
         if self.session_date and self.session_date <= timezone.now():
             raise ValidationError({'session_date': 'Non puoi prenotare nel passato!'})
         # Verifica conflitti orari per l'associato solo se associato è presente
-        if self.session_date and self.associate:
+        associate = getattr(self, 'associate', None)
+        if self.session_date and associate is not None:
             end_time = self.session_date + timedelta(hours=self.duration_hours)
             conflicting_bookings = Booking.objects.filter(
-                associate=self.associate,
+                associate=associate,
                 status__in=['pending', 'confirmed'],
                 session_date__lt=end_time,
                 session_date__gte=self.session_date - timedelta(hours=12)
