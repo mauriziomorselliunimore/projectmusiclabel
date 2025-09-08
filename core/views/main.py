@@ -239,19 +239,33 @@ def populate_database(request):
         # Crea il profilo del professionista
         Profile.objects.get_or_create(user=user, defaults={'user_type': 'associate'})
 
-        # Crea il professionista
-        associate = Associate.objects.create(
+        # Crea il professionista o aggiorna se già esiste
+        associate, _ = Associate.objects.get_or_create(
             user=user,
-            specialization=data['specialization'],
-            skills=data['skills'],
-            experience_level=data['experience_level'],
-            hourly_rate=data['hourly_rate'],
-            availability=data['availability'],
-            bio=data['bio'],
-            location=data['location'],
-            website=data['website'],
-            portfolio_description=data['portfolio_description']
+            defaults={
+                'specialization': data['specialization'],
+                'skills': data['skills'],
+                'experience_level': data['experience_level'],
+                'hourly_rate': data['hourly_rate'],
+                'availability': data['availability'],
+                'bio': data['bio'],
+                'location': data['location'],
+                'website': data['website'],
+                'portfolio_description': data['portfolio_description']
+            }
         )
+        # Aggiorna i dati se già esiste
+        if not _:
+            associate.specialization = data['specialization']
+            associate.skills = data['skills']
+            associate.experience_level = data['experience_level']
+            associate.hourly_rate = data['hourly_rate']
+            associate.availability = data['availability']
+            associate.bio = data['bio']
+            associate.location = data['location']
+            associate.website = data['website']
+            associate.portfolio_description = data['portfolio_description']
+            associate.save()
 
         # Crea i portfolio items
         for portfolio in data['portfolios']:
