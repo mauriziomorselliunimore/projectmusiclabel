@@ -1,23 +1,24 @@
-# Register Artist model
-from artists.models.artist import Artist
-admin.site.register(Artist)
-
-# Register Associate model
-from associates.models import Associate
-admin.site.register(Associate)
-
-# Register Profile model
-from accounts.models.profile import Profile
-admin.site.register(Profile)
-
-# Register Booking model
-from booking.models import Booking
-admin.site.register(Booking)
 
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from .admin_site import HealthCheckAdminSite
+from artists.models.artist import Artist
+from associates.models import Associate
+from accounts.models.profile import Profile
+from booking.models import Booking
 from artists.models.collaboration import CollaborationProposal
+
+# Register Artist model
+admin.site.register(Artist)
+
+# Register Associate model
+admin.site.register(Associate)
+
+# Register Profile model
+admin.site.register(Profile)
+
+# Register Booking model
+admin.site.register(Booking)
 
 # Register CollaborationProposal
 @admin.register(CollaborationProposal)

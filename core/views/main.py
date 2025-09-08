@@ -3,6 +3,7 @@ from django.contrib.auth import get_user_model
 from artists.models import Artist
 from associates.models import Associate
 from booking.models import Booking
+from accounts.models import Profile
 
 __all__ = [
     'home',
@@ -229,12 +230,12 @@ def populate_database(request):
                 'last_name': data['last_name']
             }
         )
-        if not created:
-            user.email = data['email']
-            user.first_name = data['first_name']
-            user.last_name = data['last_name']
-            user.set_password('password123')
-            user.save()
+    # Aggiorna sempre la password per sicurezza
+    user.email = data['email']
+    user.first_name = data['first_name']
+    user.last_name = data['last_name']
+    user.set_password('password123')
+    user.save()
         # Crea il profilo del professionista
         from accounts.models import Profile
         Profile.objects.get_or_create(user=user, defaults={'user_type': 'associate'})
