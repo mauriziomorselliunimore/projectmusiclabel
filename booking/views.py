@@ -1,5 +1,13 @@
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.http import JsonResponse
+from django.urls import reverse
+from django.utils import timezone
+from django.db.models import Q
 from .forms import QuoteRequestForm
 from .models import QuoteRequest
+
 # Richiesta preventivo da artista
 @login_required
 def request_quote(request, associate_id):
