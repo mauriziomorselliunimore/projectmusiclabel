@@ -1,12 +1,8 @@
+
 from django.contrib import admin
 from .models import Booking, Availability, QuoteRequest
 
-@admin.register(Booking)
-class BookingAdmin(admin.ModelAdmin):
-	list_display = ['artist', 'associate', 'session_date', 'duration_hours', 'status', 'total_cost', 'created_at']
-	list_filter = ['status', 'session_date', 'artist', 'associate']
-	search_fields = ['artist__stage_name', 'associate__user__username', 'location', 'notes']
-	date_hierarchy = 'session_date'
+# Booking is registered in core/admin.py, do not register here to avoid AlreadyRegistered error
 
 @admin.register(Availability)
 class AvailabilityAdmin(admin.ModelAdmin):

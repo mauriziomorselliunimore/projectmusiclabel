@@ -17,8 +17,6 @@ admin.site.register(Associate)
 # Register Profile model
 admin.site.register(Profile)
 
-# Register Booking model
-admin.site.register(Booking)
 
 # Register CollaborationProposal
 @admin.register(CollaborationProposal)
