@@ -28,9 +28,7 @@ class CollaborationProposalAdmin(admin.ModelAdmin):
     search_fields = ('sender__username', 'receiver__username', 'description')
     date_hierarchy = 'created_at'
 
-# Register User model
-User = get_user_model()
-admin.site.register(User)
+
 
 # Crea una nuova istanza dell'AdminSite personalizzato
 admin_site = HealthCheckAdminSite(name='admin')
