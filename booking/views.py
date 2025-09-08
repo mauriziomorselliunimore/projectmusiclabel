@@ -133,13 +133,12 @@ def create_booking(request, associate_id):
                         related_booking=booking,
                         action_url=f'/booking/{booking.pk}/'
                     )
-                
                     # Ottieni o crea conversazione
                     conversation = Conversation.get_or_create_conversation(request.user, associate.user)
-                
-                    # Messaggio automatico
                 except Exception as e:
                     messages.warning(request, f'Impossibile creare la notifica: {str(e)}')
+                    conversation = Conversation.get_or_create_conversation(request.user, associate.user)
+
                 Message.objects.create(
                     sender=request.user,
                     recipient=associate.user,
@@ -147,35 +146,36 @@ def create_booking(request, associate_id):
                     message_type='booking_request',
                     subject=f'Richiesta prenotazione - {booking.get_booking_type_display()}',
                     message=(
-                        f'Ciao {associate.user.first_name},\n\n'
-                        f'Vorrei prenotare una sessione di {booking.get_booking_type_display()} '
-                        f'per il {booking.session_date.strftime("%d/%m/%Y alle %H:%M")}.\n\n'
-                        f'Durata: {booking.duration_hours} ore\n'
-                        f'Località: {booking.location or "Da definire"}\n'
-                        f'Note: {booking.notes or "Nessuna nota aggiuntiva"}\n\n'
-                        f'Fammi sapere se va bene!\n\n'
-                        f'{request.user.get_full_name()} ({request.user.artist.stage_name})'
+                        f"""Ciao {associate.user.first_name},
+
+Vorrei prenotare una sessione di {booking.get_booking_type_display()} per il {booking.session_date.strftime('%d/%m/%Y alle %H:%M')}.
+
+Durata: {booking.duration_hours} ore
+Località: {booking.location or 'Da definire'}
+Note: {booking.notes or 'Nessuna nota aggiuntiva'}
+
+Fammi sapere se va bene!
+
+{request.user.get_full_name()} ({request.user.artist.stage_name})"""
                     ),
                     related_booking=booking
                 )
-                
+
                 messages.success(request, 'Richiesta di prenotazione inviata con successo!')
-                
                 if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                     return JsonResponse({
                         'success': True,
                         'redirect_url': reverse('booking:detail', args=[booking.pk])
                     })
                 return redirect('booking:detail', pk=booking.pk)
-        
-        except Exception as e:
-            messages.error(request, f'Errore nella prenotazione: {str(e)}')
-            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
-                return JsonResponse({
-                    'success': False,
-                    'error': str(e)
-                }, status=500)
-            return redirect('booking:calendar', associate_id=associate.pk)
+            except Exception as e:
+                messages.error(request, f'Errore nella prenotazione: {str(e)}')
+                if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                    return JsonResponse({
+                        'success': False,
+                        'error': str(e)
+                    }, status=500)
+                return redirect('booking:calendar', associate_id=associate.pk)
 
     # GET request - mostra form
     initial = {
@@ -326,22 +326,13 @@ def api_available_slots(request, associate_id):
         associate = get_object_or_404(Associate, id=associate_id)
         start_date = request.GET.get('start_date')
         end_date = request.GET.get('end_date')
-        
         if not start_date or not end_date:
             return JsonResponse({'error': 'Devi specificare start_date e end_date'}, status=400)
-            
-        # Resto del codice qui...
-            
-    except Exception as e:
-        return JsonResponse({'error': str(e)}, status=400)
-            return JsonResponse({'error': 'Devi specificare start_date e end_date'}, status=400)
-        
         try:
             start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
             end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
         except ValueError:
             return JsonResponse({'error': 'Formato data non valido. Usa YYYY-MM-DD'}, status=400)
-        
         # Get disponibilità
         availabilities = associate.availability_slots.filter(
             start_time__date__range=[start_date, end_date],
@@ -372,6 +363,8 @@ def api_available_slots(request, associate_id):
             'slots': available_slots,
             'timezone': str(timezone.get_current_timezone())
         })
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)
 
 @login_required
 def manage_availability(request):
