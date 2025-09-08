@@ -1,7 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.urls import reverse
-from django.utils import timezone
+from django.utils impor    # Disponibilità ricorrente
+    day_of_week = models.IntegerField(choices=DAYS_OF_WEEK, null=True, blank=True)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    
+    # Disponibilità specifica (override)
+    is_recurring = models.BooleanField(default=True)one
 from django.core.exceptions import ValidationError
 from datetime import datetime, timedelta
 from artists.models import Artist
@@ -130,7 +136,7 @@ class Availability(models.Model):
     associate = models.ForeignKey(Associate, on_delete=models.CASCADE, related_name='availability_slots')
     
     # Disponibilità ricorrente
-    day_of_week = models.IntegerField(choices=DAYS_OF_WEEK, default=0)  # Default: Lunedì
+    day_of_week = models.IntegerField(choices=DAYS_OF_WEEK, null=True, blank=True)
     start_time = models.TimeField()
     end_time = models.TimeField()
     
@@ -145,6 +151,16 @@ class Availability(models.Model):
     class Meta:
         ordering = ['day_of_week', 'start_time']
         unique_together = ['associate', 'day_of_week', 'start_time', 'specific_date']
+    
+    def clean(self):
+        if self.is_recurring and not self.day_of_week:
+            raise ValidationError({
+                'day_of_week': 'Il giorno della settimana è richiesto per le disponibilità ricorrenti'
+            })
+        if not self.is_recurring and not self.specific_date:
+            raise ValidationError({
+                'specific_date': 'La data specifica è richiesta per le disponibilità non ricorrenti'
+            })
     
     def __str__(self):
         if self.specific_date:
