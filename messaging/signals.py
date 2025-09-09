@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.dispatch import receiver
 from django.core.management import call_command
 from .models import Message
-from artists.views.proposals import create_proposal_from_message
+## import rimosso: la funzione non esiste più
 import re
 
 @receiver(post_save, sender=User)
@@ -41,10 +41,4 @@ def handle_collaboration_message(sender, instance, created, **kwargs):
     if description_match:
         proposal_data['description'] = description_match.group(1).strip()
     
-    # Create the proposal
-    create_proposal_from_message(
-        sender=instance.sender,
-        receiver=instance.recipient,
-        message_obj=instance,
-        proposal_data=proposal_data
-    )
+    # Funzione create_proposal_from_message rimossa: nessuna azione necessaria
