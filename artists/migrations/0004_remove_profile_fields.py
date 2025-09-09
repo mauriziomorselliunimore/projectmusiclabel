@@ -3,7 +3,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('artists', '0003_collaborationproposal'),
+        ('artists', '0002_add_profile_fields'),
     ]
 
     operations = [
