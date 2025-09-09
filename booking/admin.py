@@ -1,6 +1,6 @@
 
 from django.contrib import admin
-from .models import Booking, Availability, QuoteRequest
+from .models import Booking, Availability
 
 # Booking is registered in core/admin.py, do not register here to avoid AlreadyRegistered error
 
