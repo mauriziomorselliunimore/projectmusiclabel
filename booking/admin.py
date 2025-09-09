@@ -11,12 +11,6 @@ class AvailabilityAdmin(admin.ModelAdmin):
 	search_fields = ['associate__user__username']
 	date_hierarchy = 'specific_date'
 
-@admin.register(QuoteRequest)
-class QuoteRequestAdmin(admin.ModelAdmin):
-	list_display = ['artist', 'associate', 'status', 'created_at', 'responded_at']
-	list_filter = ['status', 'created_at', 'responded_at']
-	search_fields = ['artist__stage_name', 'associate__user__username', 'message', 'response']
-	date_hierarchy = 'created_at'
 
 
 
