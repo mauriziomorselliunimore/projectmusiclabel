@@ -30,6 +30,7 @@ def artist_detail(request, pk):
         'artist': artist,
         'demos': demos,
         'is_owner': request.user == artist.user
+        # Recensioni rimosse
     })
 
 @login_required
