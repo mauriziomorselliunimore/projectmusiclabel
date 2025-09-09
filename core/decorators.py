@@ -1,7 +1,6 @@
 from functools import wraps
 from django.core.cache import cache
 from django.http import HttpResponseForbidden
-from django.utils import timezone
 import time
 
 def ratelimit(key='ip', rate='5/15m', block=True):

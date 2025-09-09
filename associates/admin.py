@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Associate, PortfolioItem
+from .models import PortfolioItem
 
 class PortfolioItemInline(admin.TabularInline):
     model = PortfolioItem

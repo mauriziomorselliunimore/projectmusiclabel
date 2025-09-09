@@ -1,6 +1,5 @@
 import cloudinary
 import cloudinary.uploader
-import cloudinary.api
 from django.conf import settings
 
 def configure_cloudinary():

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Artist, Demo
+from .models import Demo
 
 class DemoInline(admin.TabularInline):
     model = Demo

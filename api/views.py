@@ -7,7 +7,7 @@ from django.db.models import Q, Count
 from django.contrib.auth.models import User
 
 from artists.models import Artist, Demo
-from associates.models import Associate, PortfolioItem
+from associates.models import Associate
 from booking.models import Booking
 from messaging.models import Message, Notification, Conversation
 from .serializers import *

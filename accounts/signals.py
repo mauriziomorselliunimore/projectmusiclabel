@@ -1,6 +1,5 @@
-from django.contrib.auth.signals import user_logged_in, user_logged_out, user_login_failed
+from django.contrib.auth.signals import user_logged_in, user_login_failed
 from django.dispatch import receiver
-from django.utils import timezone
 from .models.auth_logs import LoginLog
 
 @receiver(user_logged_in)
