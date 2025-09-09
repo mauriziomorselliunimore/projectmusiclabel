@@ -21,7 +21,7 @@ urlpatterns = [
     path('associates/', include('associates.urls', namespace='associates')),
     path('booking/', include('booking.urls', namespace='booking')),
     path('messaging/', include('messaging.urls', namespace='messaging')),  # ✅ CORRETTO: messaging/ non messages/
-    path('reviews/', include('reviews.urls', namespace='reviews')),
+    # ...existing code...
     
     # API
     path('api/', include('api.urls', namespace='api')),
